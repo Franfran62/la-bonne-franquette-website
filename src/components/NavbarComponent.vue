@@ -35,8 +35,8 @@
 
     const navigation = [
       { name: 'Accueil', href: '/la-bonne-franquette-website', current: false },
-      { name: 'F.A.Q', href: '/faq', current: false },
-      { name: 'Mentions legales', href: '/mentions-legales', current: false },
+      { name: 'F.A.Q', href: '/la-bonne-franquette-website/faq', current: false },
+      { name: 'Mentions legales', href: '/la-bonne-franquette-website/mentions-legales', current: false },
     ]
 
     onMounted(() => {
