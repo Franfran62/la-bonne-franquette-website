@@ -11,19 +11,19 @@ const router = createRouter({
       component: HomeView
     },
     {
-      path: '/mentions-legales',
+      path: '/la-bonne-franquette-website/mentions-legales',
       name: 'mentions',
       component: () => import('../views/MentionsView.vue')
     },
     {
-      path: '/faq',
+      path: '/la-bonne-franquette-website/faq',
       name: 'faq',
       component: () => import('../views/FaqView.vue')
     }, 
     { 
       path: '/:pathMatch(.*)*', 
       name: 'NotFound', 
-      component: NotFoundView 
+      redirect: { name: 'home' }
     },
   ]
 })
