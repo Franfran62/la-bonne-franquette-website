@@ -1,5 +1,5 @@
 <template>
-    <footer class="bg-gray-100 text-center lg:text-left">
+    <footer class="bg-gray-100  h-150 text-center lg:text-left">
         <div class="max-w-screen-xl px-4 py-12 mx-auto space-y-8 overflow-hidden sm:px-6 lg:px-8">
         <nav class="flex flex-wrap justify-center -mx-5 -my-2">
             <div class="px-5 py-2">
