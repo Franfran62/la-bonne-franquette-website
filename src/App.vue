@@ -4,16 +4,15 @@
   import { RouterView } from 'vue-router'
 </script>
 
-<template>
-    <header>
+<template><header>
       <NavbarComponent />
     </header>
-
-    <main>
-        <RouterView />
-    </main>
+    <div class="flex flex-col h-screen justify-between">
+      <main>
+          <RouterView />
+      </main>
 
       <FooterComponent />
-
+    </div>
 </template>
 
