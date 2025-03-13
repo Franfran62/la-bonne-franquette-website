@@ -31,3 +31,6 @@ coverage
 
 .package-lock.json
 .package.json
+
+dist
+dist/*
