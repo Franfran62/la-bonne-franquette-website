@@ -22,6 +22,11 @@ const router = createRouter({
       name: 'faq',
       component: () => import('../views/FaqView.vue')
     }, 
+    {
+      path: '/la-bonne-franquette-website/connexion',
+      name: 'connexion',
+      component: () => import('../views/ConnexionView.vue')
+    },
     { 
       path: '/:pathMatch(.*)*', 
       name: 'NotFound', 

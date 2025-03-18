@@ -3,15 +3,18 @@ import AboutSection from './_partials/AboutSection.vue';
 import ContactSection from './_partials/ContactSection.vue';
 import HomeSection from './_partials/HomeSection.vue';
 import ProductSection from './_partials/ProductSection.vue';
-
+import NavbarComponent from '@/components/NavbarComponent.vue';
 </script>
 
 <template>
+    <header>
+        <NavbarComponent />
+    </header>
     <section id="home" class="grid">
         <HomeSection />
     </section>
-  
-    <hr class="divider hidden" >
+
+    <hr class="divider hidden">
 
     <section id="product" class="pt-20 pb-24">
         <ProductSection />
@@ -32,7 +35,6 @@ import ProductSection from './_partials/ProductSection.vue';
 </template>
 
 <style scoped>
-
 #home {
     min-height: 90vh !important;
 }

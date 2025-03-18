@@ -19,6 +19,7 @@ const login = async (username, password) => {
     const refreshTokenStore = useRefreshTokenStore();
     authTokenStore.token = response.data.authToken;
     refreshTokenStore.token = response.data.refreshToken;
+    return response.status;
   } catch (error) {
     console.error("Erreur de connexion: ", error);
   }
