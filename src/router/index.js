@@ -25,7 +25,7 @@ const router = createRouter({
     {
       path: '/la-bonne-franquette-website/connexion',
       name: 'connexion',
-      component: () => import('../views/ConnexionView.vue')
+      component: () => import('../views/LoginView.vue')
     },
     { 
       path: '/:pathMatch(.*)*', 

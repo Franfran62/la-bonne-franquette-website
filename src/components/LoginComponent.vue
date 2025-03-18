@@ -3,16 +3,18 @@ import {login} from '@/services/loginService';
 import {ref} from 'vue';
 import logo from '@/assets/img/logo.png';
 
-const showLogin = ref(true);
-
 const username = ref('');
 const password = ref('');
 const restaurantName = ref('');
 
+const showLogin = ref(true);
 const valid = ref(false);
-
 const visible = ref(false);
 
+/**
+ * Vérifie si les valeurs de connexions sont valables et appel le service de connexion,
+ * redirige l'utilisateur vers l'écran de gestion de carte en cas de réussite.
+ */
 const handleLoginSubmit = () => {
   if (valid.value) {
     login(username.value, password.value).then(response => console.log(response));
@@ -21,12 +23,19 @@ const handleLoginSubmit = () => {
   }
 }
 
+/**
+ * Vérifie si les valeurs de création de compte sont valables et appel le service de création de compte,
+ * redirige l'utilisateur vers l'écran de gestion de carte en cas de réussite.
+ */
 const handleRegisterSubmit = () => {
   if(valid.value) {
     console.log(username.value, password.value, restaurantName.value);
   }
 }
 
+/**
+ * Change l'affichage entre la connexion et l'inscription.
+ */
 const switchView = () => {
   showLogin.value = !showLogin.value;
 }

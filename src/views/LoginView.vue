@@ -7,7 +7,7 @@ import LoginComponent from '@/components/LoginComponent.vue';
     <header>
         
     </header>
-    <div class="grid place-content-center mt-24">
+    <div class="grid place-content-center">
         <LoginComponent />
     </div>
 </template>
