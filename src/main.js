@@ -1,11 +1,23 @@
-import './assets/main.css'
+import { createPinia } from "pinia";
+import { createApp } from "vue";
+import App from "./App.vue";
+import "./assets/tailwind.css";
+import router from "./router";
+import 'vuetify/styles'
+import { createVuetify } from 'vuetify'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
+import '@mdi/font/css/materialdesignicons.css'
 
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
+const app = createApp(App);
+const pinia = createPinia();
+const vuetify = createVuetify({
+    components,
+    directives,
+    iconfont: 'mdi',
+  })
 
-const app = createApp(App)
-
-app.use(router)
-
-app.mount('#app')
+app.use(pinia);
+app.use(router);
+app.use(vuetify);
+app.mount("#app");

@@ -34,3 +34,5 @@ coverage
 
 dist
 dist/*
+
+.env
