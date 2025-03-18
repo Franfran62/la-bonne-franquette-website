@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import NotFoundView from '../views/NotFoundView.vue'
 import HomeView from '../views/HomeView.vue'
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
