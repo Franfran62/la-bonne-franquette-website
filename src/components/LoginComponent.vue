@@ -11,7 +11,7 @@
   const valid = ref(false);
   const visible = ref(false);
   const snackbar = ref(false);
-  const text = ref("");
+  const errorText = ref("");
 
   /**
    * Vérifie si les valeurs de connexions sont valables et appel le service de connexion,
@@ -22,11 +22,11 @@
       try {
         const response = await login(username.value, password.value);
         if (response.status !== 200) {
-          text.value = response.message;
+          errorText.value = response.message;
           snackbar.value = true;
         }
       } catch (e) {
-        text.value = e.message;
+        errorText.value = e.message;
         snackbar.value = true;
       }
     }
@@ -41,11 +41,11 @@
       try {
         const response = await register(username.value, restaurantName.value, password.value);
         if (response.status !== 200) {
-          text.value = response.message;
+          errorText.value = response.message;
           snackbar.value = true;
         }
       } catch (e) {
-        text.value = e.message;
+        errorText.value = e.message;
         snackbar.value = true;
       }
     }
@@ -117,14 +117,13 @@
                             rounded="xl"></v-text-field>
               <v-text-field v-model="password" label="Mot de passe" placeholder="Entrez votre mot de passe"
                             variant="outlined"
-                            type="password"
                             :rules="[v => !!v || 'Le mot de passe est nécessaire', v => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(v) || 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre']"
                             required rounded="xl"
                             :append-inner-icon="!visible ? 'mdi-eye-off' : 'mdi-eye'"
                             :type="visible ? 'text' : 'password'"
                             @click:append-inner="visible = !visible"></v-text-field>
               <v-text-field label="Retaper votre mot de passe" placeholder="Retaper votre mot de passe" variant="outlined"
-                            type="password" :rules="[v => (v === password) || 'Les mots de passe sont différents']"
+                            :rules="[v => (v === password) || 'Les mots de passe sont différents']"
                             required rounded="xl"
                             :append-inner-icon="!visible ? 'mdi-eye-off' : 'mdi-eye'"
                             :type="visible ? 'text' : 'password'"
@@ -148,16 +147,18 @@
     <v-snackbar
         v-model="snackbar"
         multi-line
+        color="error"
     >
-      {{ text }}
+      <div class="text-subtitle-1 pb-2">Une erreur est survenu :</div>
+      <p>{{ errorText }}</p>
 
       <template v-slot:actions>
         <v-btn
-            color="red"
+            color="white"
             variant="text"
             @click="snackbar = false"
         >
-          Close
+          Fermer
         </v-btn>
       </template>
     </v-snackbar>
