@@ -1,5 +1,5 @@
 <script setup>
-import {login} from '@/services/loginService';
+import {login, register} from '@/services/loginService';
 import {ref} from 'vue';
 import logo from '@/assets/img/logo.png';
 
@@ -18,8 +18,6 @@ const visible = ref(false);
 const handleLoginSubmit = () => {
   if (valid.value) {
     login(username.value, password.value).then(response => console.log(response));
-  } else {
-    console.log('Form is invalid');
   }
 }
 
@@ -28,7 +26,8 @@ const handleLoginSubmit = () => {
  * redirige l'utilisateur vers l'écran de gestion de carte en cas de réussite.
  */
 const handleRegisterSubmit = () => {
-  if(valid.value) {
+  if (valid.value) {
+    register(username.value, restaurantName.value, password.value).then(response => console.log(response));
     console.log(username.value, password.value, restaurantName.value);
   }
 }
@@ -99,7 +98,8 @@ const switchView = () => {
                           rounded="xl"></v-text-field>
             <v-text-field v-model="password" label="Mot de passe" placeholder="Entrez votre mot de passe"
                           variant="outlined"
-                          type="password" :rules="[v => !!v || 'Le mot de passe est nécessaire']"
+                          type="password"
+                          :rules="[v => !!v || 'Le mot de passe est nécessaire', v => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(v) || 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre']"
                           required rounded="xl"
                           :append-inner-icon="!visible ? 'mdi-eye-off' : 'mdi-eye'"
                           :type="visible ? 'text' : 'password'"

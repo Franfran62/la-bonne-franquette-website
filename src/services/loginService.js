@@ -12,6 +12,14 @@ const _login = (username, password) => {
   });
 };
 
+const _register = (username, restaurantName, password) => {
+  return axiosInstance.post(`/restaurant/create`, {
+    username : username,
+    password: password,
+    restaurantName : restaurantName,
+  });
+};
+
 /**
  *
  * Lance une requête POST à l'api afin de connecter l'utilisateur
@@ -32,7 +40,23 @@ const login = async (username, password) => {
     return response.status;
   } catch (error) {
     console.error("Erreur de connexion: ", error);
+    return error;
   }
 };
 
-export { login };
+const register = async (username, restaurantName, password) => {
+  try {
+    const response = await _register(username, restaurantName, password);
+    if(response.status === 200) {
+      await login(username, password);
+    } else {
+      console.error("Erreur d'inscription: ", response.data);
+      return response.data;
+    }
+  } catch (error) {
+    console.error("Erreur d'inscription: ", error);
+    return error;
+  }
+}
+
+export { login, register };
