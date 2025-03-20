@@ -1,8 +1,9 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import {useAuthTokenStore} from "@/stores/authToken.js";
+import {ref} from "vue";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const previousRoute = ref(null);
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,6 +43,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     const authTokenStore = useAuthTokenStore();
+    previousRoute.value = from;
     if (to.path === '/la-bonne-franquette-website/dashboard' && !authTokenStore.token) {
         next({ name: 'connexion' });
     } else {
@@ -49,4 +51,5 @@ router.beforeEach((to, from, next) => {
     }
 });
 
-export default router
+export { previousRoute };
+export default router;

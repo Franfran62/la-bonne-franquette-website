@@ -20,6 +20,13 @@ const _register = (username, restaurantName, password) => {
     });
 };
 
+const logout = () => {
+    const authTokenStore = useAuthTokenStore();
+    const refreshTokenStore = useRefreshTokenStore();
+    authTokenStore.$reset();
+    refreshTokenStore.$reset();
+}
+
 /**
  * Lance une requête de connexion à l'api
  * @param username Nom de l'utilisateur
@@ -67,4 +74,4 @@ const register = async (username, restaurantName, password) => {
     }
 };
 
-export {login, register};
+export {login, register, logout};

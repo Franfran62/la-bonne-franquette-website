@@ -1,8 +1,9 @@
 <script setup>
-import {login, register} from '@/services/loginService';
-import {ref} from 'vue';
+import {login, logout, register} from '@/services/loginService';
+import {onBeforeMount, ref} from 'vue';
 import logo from '@/assets/img/logo.png';
 import {useRouter} from "vue-router";
+import {previousRoute} from "@/router/index.js";
 
 const router = useRouter();
 
@@ -14,7 +15,13 @@ const showLogin = ref(true);
 const valid = ref(false);
 const visible = ref(false);
 const snackbar = ref(false);
+const snackbarLogout = ref(false);
 const errorText = ref("");
+
+onBeforeMount(() => {
+  logout();
+  if (previousRoute) snackbarLogout.value = previousRoute.value.name === 'dashboard';
+})
 
 const handleLoginSubmit = async () => {
   if (valid.value) {
@@ -160,7 +167,10 @@ const switchView = () => {
       multi-line
       color="error"
   >
-    <div class="text-subtitle-1 pb-2">Une erreur est survenu :</div>
+
+    <div class="text-subtitle-1 pb-2">
+      Une erreur est survenu :
+    </div>
     <p>{{ errorText }}</p>
 
     <template v-slot:actions>
@@ -168,6 +178,27 @@ const switchView = () => {
           color="white"
           variant="text"
           @click="snackbar = false"
+      >
+        Fermer
+      </v-btn>
+    </template>
+  </v-snackbar>
+
+
+  <v-snackbar
+      v-model="snackbarLogout"
+      color="accent"
+      timeout="2500"
+  >
+    <div class="text-white">
+      Vous êtes déconnecté.
+    </div>
+
+    <template v-slot:actions>
+      <v-btn
+          color="white"
+          variant="text"
+          @click="snackbarLogout = false"
       >
         Fermer
       </v-btn>

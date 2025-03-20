@@ -1,6 +1,9 @@
 <script setup>
 import {ref} from "vue";
 import logo from "@/assets/img/logo-no-bg.png";
+import {useRouter} from "vue-router";
+
+const router = useRouter();
 
 const emits = defineEmits(['setComponent']);
 const currentComponent = ref("CommandComponent");
@@ -13,6 +16,10 @@ const setComponent = (component) => {
 const buttonColor = (component) => {
   if (currentComponent.value === component) return "secondary"
   return "white"
+}
+
+const handleLogout = () => {
+  router.push('connexion');
 }
 </script>
 
@@ -29,6 +36,7 @@ const buttonColor = (component) => {
       <span class="underline">Modifier l'équipe</span>
     </v-btn>
     <v-spacer></v-spacer>
+    <v-icon icon="mdi-logout" @click="handleLogout" color="white" class="mr-4"/>
   </v-app-bar>
 </template>
 
