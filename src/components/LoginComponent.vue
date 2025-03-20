@@ -2,6 +2,9 @@
 import {login, register} from '@/services/loginService';
 import {ref} from 'vue';
 import logo from '@/assets/img/logo.png';
+import {useRouter} from "vue-router";
+
+const router = useRouter();
 
 const username = ref('');
 const password = ref('');
@@ -25,6 +28,7 @@ const handleLoginSubmit = async () => {
         errorText.value = response.message;
         snackbar.value = true;
       }
+      await router.push("dashboard")
     } catch (e) {
       errorText.value = e.message;
       snackbar.value = true;
@@ -44,6 +48,7 @@ const handleRegisterSubmit = async () => {
         errorText.value = response.message;
         snackbar.value = true;
       }
+      await router.push("dashboard")
     } catch (e) {
       errorText.value = e.message;
       snackbar.value = true;
