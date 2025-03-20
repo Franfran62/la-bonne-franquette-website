@@ -22,7 +22,7 @@ const setComponent = (component) => {
 <template>
   <v-app>
     <ToolbarComponent :currentComponent="currentComponent" @setComponent="setComponent"/>
-    <div class="grid place-content-center">
+    <div class="grid place-content-center mt-16">
       <component :is="components[currentComponent]"></component>
     </div>
   </v-app>

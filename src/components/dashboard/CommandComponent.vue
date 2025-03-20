@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <h1 class="mt-16">COMMANDES</h1>
+  <h1>COMMANDES</h1>
 </template>
 
 <style scoped>
