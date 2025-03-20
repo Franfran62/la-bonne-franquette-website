@@ -1,11 +1,11 @@
 <script setup>
+
 </script>
 
 <template>
-  <div>
-    
-  </div>
+  <h1>MENU</h1>
 </template>
 
 <style scoped>
+
 </style>

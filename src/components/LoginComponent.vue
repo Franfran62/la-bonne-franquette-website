@@ -1,7 +1,11 @@
 <script setup>
-import {login, register} from '@/services/loginService';
-import {ref} from 'vue';
+import {login, logout, register} from '@/services/loginService';
+import {onBeforeMount, ref} from 'vue';
 import logo from '@/assets/img/logo.png';
+import {useRouter} from "vue-router";
+import {previousRoute} from "@/router/index.js";
+
+const router = useRouter();
 
 const username = ref('');
 const password = ref('');
@@ -11,12 +15,14 @@ const showLogin = ref(true);
 const valid = ref(false);
 const visible = ref(false);
 const snackbar = ref(false);
+const snackbarLogout = ref(false);
 const errorText = ref("");
 
-/**
- * Vérifie si les valeurs de connexions sont valables et appel le service de connexion,
- * redirige l'utilisateur vers l'écran de gestion de carte en cas de réussite.
- */
+onBeforeMount(() => {
+  logout();
+  if (previousRoute) snackbarLogout.value = previousRoute.value.name === 'dashboard';
+})
+
 const handleLoginSubmit = async () => {
   if (valid.value) {
     try {
@@ -25,6 +31,7 @@ const handleLoginSubmit = async () => {
         errorText.value = response.message;
         snackbar.value = true;
       }
+      await router.push("dashboard")
     } catch (e) {
       errorText.value = e.message;
       snackbar.value = true;
@@ -32,10 +39,6 @@ const handleLoginSubmit = async () => {
   }
 }
 
-/**
- * Vérifie si les valeurs de création de compte sont valables et appel le service de création de compte,
- * redirige l'utilisateur vers l'écran de gestion de carte en cas de réussite.
- */
 const handleRegisterSubmit = async () => {
   if (valid.value) {
     try {
@@ -44,6 +47,7 @@ const handleRegisterSubmit = async () => {
         errorText.value = response.message;
         snackbar.value = true;
       }
+      await router.push("dashboard")
     } catch (e) {
       errorText.value = e.message;
       snackbar.value = true;
@@ -51,9 +55,6 @@ const handleRegisterSubmit = async () => {
   }
 }
 
-/**
- * Change l'affichage entre la connexion et l'inscription.
- */
 const switchView = () => {
   showLogin.value = !showLogin.value;
 }
@@ -82,7 +83,8 @@ const switchView = () => {
                           :rules="[v => !!v || 'Le nom d\'utilisateur est nécessaire']" required
                           rounded="xl"
                           density="compact"
-                          class="input-spacing"></v-text-field>
+                          class="input-spacing "
+                          color="accent"></v-text-field>
             <v-text-field v-model="password" label="Mot de passe" placeholder="Entrez votre mot de passe"
                           variant="outlined"
                           :rules="[v => !!v || 'Le mot de passe est nécessaire']"
@@ -91,7 +93,8 @@ const switchView = () => {
                           :type="visible ? 'text' : 'password'"
                           @click:append-inner="visible = !visible"
                           density="compact"
-                          class="input-spacing"></v-text-field>
+                          class="input-spacing "
+                          color="accent"></v-text-field>
             <v-btn variant="text" density="compact" :ripple="false" color="primary" class="mt-4 text-underline"
                    @click="switchView">
               <span class="underline"> Vous n’avez pas de restaurant ? Créez-le ! </span>
@@ -115,13 +118,15 @@ const switchView = () => {
                           :rules="[v => !!v || 'Le nom du restaurant est nécessaire']" required
                           rounded="xl"
                           density="compact"
-                          class="input-spacing"></v-text-field>
+                          class="input-spacing "
+                          color="accent"></v-text-field>
             <v-text-field v-model="username" label="Nom du responsable" placeholder="Entrez le nom du responsable"
                           variant="outlined"
                           :rules="[v => !!v || 'Le nom du responsable est nécessaire']" required
                           rounded="xl"
                           density="compact"
-                          class="input-spacing"></v-text-field>
+                          class="input-spacing "
+                          color="accent"></v-text-field>
             <v-text-field v-model="password" label="Mot de passe" placeholder="Entrez votre mot de passe"
                           variant="outlined"
                           :rules="[v => !!v || 'Le mot de passe est nécessaire', v => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(v) || 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre']"
@@ -130,7 +135,8 @@ const switchView = () => {
                           :type="visible ? 'text' : 'password'"
                           @click:append-inner="visible = !visible"
                           density="compact"
-                          class="input-spacing"></v-text-field>
+                          class="input-spacing "
+                          color="accent"></v-text-field>
             <v-text-field label="Retaper votre mot de passe" placeholder="Retaper votre mot de passe" variant="outlined"
                           :rules="[v => (v === password) || 'Les mots de passe sont différents']"
                           required rounded="xl"
@@ -138,7 +144,8 @@ const switchView = () => {
                           :type="visible ? 'text' : 'password'"
                           @click:append-inner="visible = !visible"
                           density="compact"
-                          class="input-spacing"></v-text-field>
+                          class="input-spacing "
+                          color="accent"></v-text-field>
             <v-btn variant="text" density="compact" :ripple="false" color="primary" class="mt-4 text-underline"
                    @click="switchView">
               <span class="underline"> Vous avez déjà un compte ? Connectez-vous ! </span>
@@ -160,7 +167,10 @@ const switchView = () => {
       multi-line
       color="error"
   >
-    <div class="text-subtitle-1 pb-2">Une erreur est survenu :</div>
+
+    <div class="text-subtitle-1 pb-2">
+      Une erreur est survenu :
+    </div>
     <p>{{ errorText }}</p>
 
     <template v-slot:actions>
@@ -168,6 +178,27 @@ const switchView = () => {
           color="white"
           variant="text"
           @click="snackbar = false"
+      >
+        Fermer
+      </v-btn>
+    </template>
+  </v-snackbar>
+
+
+  <v-snackbar
+      v-model="snackbarLogout"
+      color="accent"
+      timeout="2500"
+  >
+    <div class="text-white">
+      Vous êtes déconnecté.
+    </div>
+
+    <template v-slot:actions>
+      <v-btn
+          color="white"
+          variant="text"
+          @click="snackbarLogout = false"
       >
         Fermer
       </v-btn>

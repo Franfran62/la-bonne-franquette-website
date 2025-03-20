@@ -4,9 +4,6 @@ import LoginComponent from '@/components/LoginComponent.vue';
 </script>
 
 <template>
-    <header>
-        
-    </header>
     <div class="grid place-content-center">
         <LoginComponent />
     </div>

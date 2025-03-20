@@ -9,7 +9,6 @@ import { RouterView } from 'vue-router'
     <main>
       <RouterView />
     </main>
-
     <FooterComponent />
   </div>
 </template>
