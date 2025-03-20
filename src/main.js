@@ -8,6 +8,9 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import '@mdi/font/css/materialdesignicons.css'
+import franquetteTheme from "@/themes/franquetteTheme.js";
+
+
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -15,6 +18,12 @@ const vuetify = createVuetify({
     components,
     directives,
     iconfont: 'mdi',
+    theme: {
+        defaultTheme: 'franquetteTheme',
+        themes: {
+            franquetteTheme,
+        },
+    },
   })
 
 app.use(pinia);
