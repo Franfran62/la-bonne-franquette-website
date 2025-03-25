@@ -6,6 +6,7 @@ const franquetteTheme = {
         primary: '#EDD382',
         secondary: '#020122',
         accent: '#FC9E4F',
+        greenBg: '#34C85E',
         error: colors.red['600'],
         info: colors.blue['400'],
         success: colors.green['600'],
