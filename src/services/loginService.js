@@ -1,9 +1,5 @@
 import axiosInstance from "@/middlewares/axiosConfig";
 import {useAuthTokenStore, useRefreshTokenStore} from "@/stores/authToken";
-import {useRouter} from "vue-router";
-
-const apiURL = import.meta.env.VITE_API_URL;
-
 
 const _login = (username, password) => {
     return axiosInstance.post(`/auth/login`, {
