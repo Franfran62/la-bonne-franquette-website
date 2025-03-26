@@ -1,10 +1,15 @@
 <script setup>
-import {fetchUsers} from "@/services/userService.js";
-import {computed, onBeforeMount, ref, watch} from "vue";
+import {createUser, fetchUsers, updateUser} from "@/services/userService.js";
+import {computed, onBeforeMount, onUpdated, ref, watch} from "vue";
 import User from "@/model/User.js";
+import {login} from "@/services/loginService.js";
 
 const snackbarError = ref(false);
+const snackbarSuccess = ref(false)
 const errorText = ref("");
+const succesText = ref("");
+
+const valid = ref(false);
 
 const visible = ref(false);
 const username = ref("")
@@ -31,12 +36,7 @@ onBeforeMount(() => {
 
 watch(selectedUser, (newValue) => {
   if (newValue === null) {
-    formTitle.value = "Ajouter un nouveau membre";
-    buttonTitle.value = "Ajouter";
-    username.value = "";
-    password.value = "";
-    oldPassword.value = "";
-    newRole.value = "";
+    clearCurrentUser();
   }
 });
 
@@ -63,19 +63,64 @@ const refreshUsers = async () => {
   try {
     const response = await fetchUsers();
     if (response.status !== 200) {
+      console.log(response)
       errorText.value = response.message;
       snackbarError.value = true;
       return;
     }
-
+    users.value = [];
     response.data.forEach(user => {
       users.value.push(new User(user.id, user.username, user.restaurantId, user.roles));
     });
   } catch (e) {
+    console.log(e)
     errorText.value = e.message;
     snackbarError.value = true;
   }
+}
 
+const handleSubmit = async () => {
+  if(valid.value) {
+    try {
+      if(selectedUser.value === null) {
+        const response = await createUser(username.value, password.value, newRole.value);
+        if (response.status !== 200) {
+          console.log(response)
+          errorText.value = response.message;
+          snackbarError.value = true;
+        } else {
+          succesText.value = "L'utilisateur à été créé."
+          snackbarSuccess.value = true;
+          await refreshUsers();
+        }
+      } else {
+        const response = await updateUser(username.value, password.value, newRole.value, selectedUser.value.username, oldPassword.value);
+        if (response.status !== 200) {
+          console.log(response)
+          errorText.value = response.message;
+          snackbarError.value = true;
+        } else {
+          succesText.value = "L'utilisateur à été modifié."
+          snackbarSuccess.value = true;
+          await refreshUsers();
+          clearCurrentUser();
+        }
+      }
+    } catch (e) {
+      console.log(e)
+      errorText.value = e.message;
+      snackbarError.value = true;
+    }
+  }
+}
+
+const clearCurrentUser = () => {
+  formTitle.value = "Ajouter un nouveau membre";
+  buttonTitle.value = "Ajouter";
+  username.value = "";
+  password.value = "";
+  oldPassword.value = "";
+  newRole.value = "";
 }
 </script>
 
@@ -87,7 +132,7 @@ const refreshUsers = async () => {
         Gestion des membres de l'équipe
       </v-card-title>
       <v-card-actions class="flex justify-start">
-        <v-btn base-color="greenBg" rounded="xl" variant="elevated" class="px-8">
+        <v-btn base-color="greenBg" rounded="xl" variant="elevated" class="px-8" @click="clearCurrentUser">
         <span class="whiteText">
           Ajouter un membre
         </span>
@@ -99,6 +144,8 @@ const refreshUsers = async () => {
                   color="accent"
                   rounded="xl" max-width="225" class="mt-6">
         </v-select>
+        <v-btn @click="refreshUsers" icon="mdi-refresh" variant="text">
+        </v-btn>
       </v-card-actions>
       <v-list>
         <v-list-item v-for="(u, i) in filterByRole" :value="u" :key="i"
@@ -124,13 +171,14 @@ const refreshUsers = async () => {
                 rounded="xl" class="input-spacing"
       >
       </v-select>
-      <v-text-field v-model="username" label="Nom d'utilisateur" placeholder="Entrez le nouveau nom d'utilisateur"
-                    variant="outlined"
-                    :rules="[v => !!v || 'Le nom d\'utilisateur est nécessaire']" required
-                    rounded="xl"
-                    density="compact"
-                    class="input-spacing"
-                    color="accent"></v-text-field>
+      <v-form v-model="valid" @submit.prevent="handleSubmit">
+        <v-text-field v-model="username" label="Nom d'utilisateur" placeholder="Entrez le nouveau nom d'utilisateur"
+                      variant="outlined"
+                      :rules="[v => !!v || 'Le nom d\'utilisateur est nécessaire']" required
+                      rounded="xl"
+                      density="compact"
+                      class="input-spacing"
+                      color="accent"></v-text-field>
 
         <span v-if="selectedUser && selectedUser.value !== null">
            <v-text-field v-model="oldPassword" label="Ancient mot de passe" placeholder="Entrez l'ancient mot de passe"
@@ -154,7 +202,7 @@ const refreshUsers = async () => {
                         :type="visible ? 'text' : 'password'"
                         @click:append-inner="visible = !visible"></v-text-field>
         </span>
-      <span v-else>
+        <span v-else>
         <v-text-field v-model="password" label="Mot de passe" placeholder="Entrez le mot de passe"
                       variant="outlined"
                       :rules="[v => !!v || 'Le mot de passe est nécessaire', v => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(v) || 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre']"
@@ -176,11 +224,13 @@ const refreshUsers = async () => {
                       color="accent"></v-text-field>
       </span>
 
-      <div class="d-flex justify-center pb-8">
-        <v-btn type="submit" color="primary" rounded="xl" size="large">
-          <div class="justify-start font-semibold">{{ buttonTitle }}</div>
-        </v-btn>
-      </div>
+        <div class="d-flex justify-center pb-8">
+          <v-btn type="submit" color="primary" rounded="xl" size="large">
+            <div class="justify-start font-semibold">{{ buttonTitle }}</div>
+          </v-btn>
+        </div>
+      </v-form>
+
     </v-card>
 
   </div>
@@ -201,6 +251,26 @@ const refreshUsers = async () => {
           color="white"
           variant="text"
           @click="snackbarError = false"
+      >
+        Fermer
+      </v-btn>
+    </template>
+  </v-snackbar>
+
+  <v-snackbar
+      v-model="snackbarSuccess"
+      color="success"
+      timeout="2500"
+  >
+    <div class="text-white">
+      {{ succesText }}
+    </div>
+
+    <template v-slot:actions>
+      <v-btn
+          color="white"
+          variant="text"
+          @click="snackbarSuccess = false"
       >
         Fermer
       </v-btn>
