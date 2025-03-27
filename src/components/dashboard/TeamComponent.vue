@@ -170,6 +170,7 @@ const clearCurrentUser = () => {
   password.value = "";
   oldPassword.value = "";
   newRole.value = "";
+  selectedUser.value = null;
 }
 </script>
 
@@ -196,9 +197,9 @@ const clearCurrentUser = () => {
         <v-btn @click="refreshUsers" icon="mdi-refresh" variant="text">
         </v-btn>
       </v-card-actions>
-      <v-list>
+      <v-list >
         <v-list-item v-for="(u, i) in filterByRole" :value="u" :key="i"
-                     color="accent" base-color="primary"
+                     color="primary" base-color="primary"
                      rounded="lg" variant="elevated"
                      min-height="32"
                      height="32" class="my-2 mx-2"
@@ -220,7 +221,7 @@ const clearCurrentUser = () => {
           </span>
         </v-btn>
       </v-card-actions>
-      <v-form v-model="valid" class="my-8 mx-2 px-8" @submit.prevent="handleSubmit">
+      <v-form v-model="valid" class="my-8 mx-2 px-8" validate-on="submit" @submit.prevent="handleSubmit">
         <v-select label="Role" :items="availableRoles" v-model="newRole"
                   item-title="name" item-value="value"
                   variant="outlined" density="compact"
