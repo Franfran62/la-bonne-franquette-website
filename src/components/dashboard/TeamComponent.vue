@@ -1,13 +1,17 @@
 <script setup>
-import {createUser, fetchUsers, updateUser} from "@/services/userService.js";
-import {computed, onBeforeMount, onUpdated, ref, watch} from "vue";
+import {createUser, deleteUser, fetchUsers, updateUser} from "@/services/userService.js";
+import {computed, onBeforeMount, ref, watch} from "vue";
 import User from "@/model/User.js";
-import {login} from "@/services/loginService.js";
 
 const snackbarError = ref(false);
 const snackbarSuccess = ref(false)
+const snackbarInfo = ref(false)
 const errorText = ref("");
 const succesText = ref("");
+const infoText = ref("");
+
+const deleteConfirmDialog = ref(false);
+const deleteChoice = ref(null);
 
 const valid = ref(false);
 
@@ -63,12 +67,12 @@ const refreshUsers = async () => {
   try {
     const response = await fetchUsers();
     if (response.status !== 200) {
-      console.log(response)
       errorText.value = response.message;
       snackbarError.value = true;
       return;
     }
     users.value = [];
+    selectedUser.value = null;
     response.data.forEach(user => {
       users.value.push(new User(user.id, user.username, user.restaurantId, user.roles));
     });
@@ -80,9 +84,9 @@ const refreshUsers = async () => {
 }
 
 const handleSubmit = async () => {
-  if(valid.value) {
+  if (valid.value) {
     try {
-      if(selectedUser.value === null) {
+      if (selectedUser.value === null) {
         const response = await createUser(username.value, password.value, newRole.value);
         if (response.status !== 200) {
           console.log(response)
@@ -96,7 +100,6 @@ const handleSubmit = async () => {
       } else {
         const response = await updateUser(username.value, password.value, newRole.value, selectedUser.value.username, oldPassword.value);
         if (response.status !== 200) {
-          console.log(response)
           errorText.value = response.message;
           snackbarError.value = true;
         } else {
@@ -107,10 +110,56 @@ const handleSubmit = async () => {
         }
       }
     } catch (e) {
-      console.log(e)
       errorText.value = e.message;
       snackbarError.value = true;
     }
+  }
+}
+
+const cancelDelete = () => {
+  deleteConfirmDialog.value = false;
+  deleteChoice.value = false;
+};
+
+const confirmDelete = () => {
+  deleteConfirmDialog.value = false;
+  deleteChoice.value = true;
+};
+
+const handleDelete = async () => {
+  try {
+    if (selectedUser.value !== null) {
+      if (selectedUser.value.roles.split(',').includes("ROLE_ADMIN") && users.value.filter(user => user.roles.split(',').includes("ROLE_ADMIN")).length <= 1) {
+        infoText.value = "Vous devez avoir au moins 1 administrateur dans le restaurant."
+        snackbarInfo.value = true;
+      } else {
+        if (deleteChoice.value === null) {
+          deleteConfirmDialog.value = true;
+          if (!deleteChoice.value) {
+            deleteChoice.value = null;
+            return;
+          }
+        }
+        deleteChoice.value = null;
+        const response = await deleteUser(selectedUser.value.username);
+        if (response.status !== 200) {
+          errorText.value = response.message;
+          snackbarError.value = true;
+        } else {
+          succesText.value = "L'utilisateur à été supprimé."
+          snackbarSuccess.value = true;
+          await refreshUsers();
+          clearCurrentUser();
+        }
+      }
+    } else {
+      infoText.value = "Sélectionner un utilisateur pour le supprimer."
+      snackbarInfo.value = true;
+
+    }
+  } catch (error) {
+    errorText.value = error.message;
+    snackbarError.value = true;
   }
 }
 
@@ -125,14 +174,14 @@ const clearCurrentUser = () => {
 </script>
 
 <template>
-  <div class="flex justify-center">
-
-    <v-card min-width="700" variant="text">
+  <div class="flex justify-center mt-16">
+    <v-card min-width="700" variant="text" class="px-8">
       <v-card-title>
         Gestion des membres de l'équipe
       </v-card-title>
       <v-card-actions class="flex justify-start">
-        <v-btn base-color="greenBg" rounded="xl" variant="elevated" class="px-8" @click="clearCurrentUser">
+        <v-btn base-color="success" rounded="xl" variant="elevated" class="pr-4" prepend-icon="mdi-plus"
+               @click="clearCurrentUser">
         <span class="whiteText">
           Ajouter un membre
         </span>
@@ -153,25 +202,32 @@ const clearCurrentUser = () => {
                      rounded="lg" variant="elevated"
                      min-height="32"
                      height="32" class="my-2 mx-2"
-                     @click="handleSelectedUser(u)"
-        >
+                     @click="handleSelectedUser(u)">
           <v-list-item-title v-text="u.username"></v-list-item-title>
         </v-list-item>
       </v-list>
     </v-card>
 
-    <v-card min-width="700" variant="text">
+    <v-card min-width="700" variant="text" class="px-8">
       <v-card-title>
         {{ formTitle }}
       </v-card-title>
-      <v-select label="Role" :items="availableRoles" v-model="newRole"
-                item-title="name" item-value="value"
-                variant="outlined" density="compact"
-                color="accent" :rules="[v => !!v || 'le role est nécessaire']"
-                rounded="xl" class="input-spacing"
-      >
-      </v-select>
-      <v-form v-model="valid" @submit.prevent="handleSubmit">
+      <v-card-actions class="flex justify-start">
+        <v-btn base-color="delete" rounded="xl" variant="elevated" prepend-icon="mdi-delete" class="pr-4 mt-6"
+               @click="handleDelete">
+          <span class="whiteText">
+            Supprimer
+          </span>
+        </v-btn>
+      </v-card-actions>
+      <v-form v-model="valid" class="my-8 mx-2 px-8" @submit.prevent="handleSubmit">
+        <v-select label="Role" :items="availableRoles" v-model="newRole"
+                  item-title="name" item-value="value"
+                  variant="outlined" density="compact"
+                  color="accent" :rules="[v => !!v || 'le role est nécessaire']"
+                  rounded="xl" class="input-spacing"
+        >
+        </v-select>
         <v-text-field v-model="username" label="Nom d'utilisateur" placeholder="Entrez le nouveau nom d'utilisateur"
                       variant="outlined"
                       :rules="[v => !!v || 'Le nom d\'utilisateur est nécessaire']" required
@@ -230,7 +286,6 @@ const clearCurrentUser = () => {
           </v-btn>
         </div>
       </v-form>
-
     </v-card>
 
   </div>
@@ -276,6 +331,49 @@ const clearCurrentUser = () => {
       </v-btn>
     </template>
   </v-snackbar>
+
+  <v-snackbar
+      v-model="snackbarInfo"
+      color="info"
+      timeout="2500"
+  >
+    <div class="text-white">
+      {{ infoText }}
+    </div>
+
+    <template v-slot:actions>
+      <v-btn
+          color="white"
+          variant="text"
+          @click="snackbarSuccess = false"
+      >
+        Fermer
+      </v-btn>
+    </template>
+  </v-snackbar>
+
+  <v-dialog
+      v-model="deleteConfirmDialog"
+      max-width="450"
+      persistent
+  >
+    <v-card
+        prepend-icon="mdi-alert"
+        title="Vous allez supprimer un utilisateur.">
+      <v-card-text>Vous êtes sur le point de supprimer l'utilisateur {{ selectedUser.username }}, êtes-vous sûr
+        ?
+      </v-card-text>
+      <v-spacer></v-spacer>
+      <v-card-actions>
+        <v-btn @click="cancelDelete">
+          Non
+        </v-btn>
+        <v-btn @click="confirmDelete">
+          Oui
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style scoped>

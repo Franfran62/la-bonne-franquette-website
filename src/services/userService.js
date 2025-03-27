@@ -31,7 +31,6 @@ const createUser = async (username, password, role) => {
 
 const updateUser = async (username, password, role, oldUsername, oldPassword) => {
     try {
-        console.log(oldUsername)
         const data = {
             username,
             password,
@@ -52,4 +51,16 @@ const updateUser = async (username, password, role, oldUsername, oldPassword) =>
     }
 }
 
-export {fetchUsers, createUser, updateUser};
+const deleteUser = async (username) => {
+    try {
+        return await axiosInstance.delete(`equipe/${username}`);
+    } catch (error) {
+        if (error.response) {
+            return {status: error.response.status, message: error.response.data["Erreur"]};
+        } else {
+            throw new Error(error);
+        }
+    }
+}
+
+export {fetchUsers, createUser, updateUser, deleteUser};

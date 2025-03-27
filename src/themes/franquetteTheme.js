@@ -11,6 +11,7 @@ const franquetteTheme = {
         info: colors.blue['400'],
         success: colors.green['600'],
         warning: colors.amber['500'],
+        delete: colors.red['500'],
     },
 }
 
