@@ -21,6 +21,7 @@ const valid = ref(false);
 const visible = ref(false);
 const username = ref("")
 const password = ref("")
+const passwordTest = ref("")
 const oldPassword = ref("")
 const newRole = ref("")
 
@@ -161,6 +162,7 @@ const clearCurrentUser = () => {
   buttonTitle.value = "Ajouter";
   username.value = "";
   password.value = "";
+  passwordTest.value = "";
   oldPassword.value = "";
   newRole.value = "";
   selectedUser.value = null;
@@ -263,7 +265,7 @@ const clearCurrentUser = () => {
                       :append-inner-icon="!visible ? 'mdi-eye-off' : 'mdi-eye'"
                       :type="visible ? 'text' : 'password'"
                       @click:append-inner="visible = !visible"></v-text-field>
-        <v-text-field label="Retaper votre mot de passe" placeholder="Retaper votre mot de passe" variant="outlined"
+        <v-text-field v-model:validate-on="passwordTest" label="Retaper votre mot de passe" placeholder="Retaper votre mot de passe" variant="outlined"
                       :rules="[v => (v === password) || 'Les mots de passe sont différents']"
                       required rounded="xl"
                       :append-inner-icon="!visible ? 'mdi-eye-off' : 'mdi-eye'"
