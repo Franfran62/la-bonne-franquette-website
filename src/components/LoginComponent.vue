@@ -4,6 +4,8 @@ import {onBeforeMount, ref} from 'vue';
 import logo from '@/assets/img/logo.png';
 import {useRouter} from "vue-router";
 import {previousRoute} from "@/router/index.js";
+import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
+import LogoutInfo from "@/components/snackbars/LogoutInfo.vue";
 
 const router = useRouter();
 
@@ -162,48 +164,9 @@ const switchView = () => {
     </v-container>
   </div>
 
-  <v-snackbar
-      v-model="snackbar"
-      multi-line
-      color="error"
-  >
+  <ErrorInfo :text="errorText" :enable="snackbar" @onClose="(v) => snackbar = v"/>
 
-    <div class="text-subtitle-1 pb-2">
-      Une erreur est survenu :
-    </div>
-    <p>{{ errorText }}</p>
-
-    <template v-slot:actions>
-      <v-btn
-          color="white"
-          variant="text"
-          @click="snackbar = false"
-      >
-        Fermer
-      </v-btn>
-    </template>
-  </v-snackbar>
-
-
-  <v-snackbar
-      v-model="snackbarLogout"
-      color="accent"
-      timeout="2500"
-  >
-    <div class="text-white">
-      Vous êtes déconnecté.
-    </div>
-
-    <template v-slot:actions>
-      <v-btn
-          color="white"
-          variant="text"
-          @click="snackbarLogout = false"
-      >
-        Fermer
-      </v-btn>
-    </template>
-  </v-snackbar>
+  <LogoutInfo :enable="snackbarLogout" @onClose="(v) => snackbarLogout = v"/>
 </template>
 
 <style scoped>

@@ -2,6 +2,10 @@
 import {createUser, deleteUser, fetchUsers, updateUser} from "@/services/userService.js";
 import {computed, onBeforeMount, ref, watch} from "vue";
 import User from "@/model/User.js";
+import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
+import SuccessInfo from "@/components/snackbars/SuccessInfo.vue";
+import HintInfo from "@/components/snackbars/HintInfo.vue";
+import AlertDeleteUserDialog from "@/components/dialogs/AlertDeleteUserDialog.vue";
 
 const snackbarError = ref(false);
 const snackbarSuccess = ref(false)
@@ -11,7 +15,6 @@ const succesText = ref("");
 const infoText = ref("");
 
 const deleteConfirmDialog = ref(false);
-const deleteChoice = ref(null);
 
 const valid = ref(false);
 
@@ -89,11 +92,10 @@ const handleSubmit = async () => {
       if (selectedUser.value === null) {
         const response = await createUser(username.value, password.value, newRole.value);
         if (response.status !== 200) {
-          console.log(response)
           errorText.value = response.message;
           snackbarError.value = true;
         } else {
-          succesText.value = "L'utilisateur à été créé."
+          succesText.value = "L'utilisateur a été créé."
           snackbarSuccess.value = true;
           await refreshUsers();
         }
@@ -103,7 +105,7 @@ const handleSubmit = async () => {
           errorText.value = response.message;
           snackbarError.value = true;
         } else {
-          succesText.value = "L'utilisateur à été modifié."
+          succesText.value = "L'utilisateur a été modifié."
           snackbarSuccess.value = true;
           await refreshUsers();
           clearCurrentUser();
@@ -116,46 +118,37 @@ const handleSubmit = async () => {
   }
 }
 
-const cancelDelete = () => {
+const updateDelete = async (result) => {
+  const usernameDeletedUser = selectedUser.value.username;
+  if(result) {
+    const response = await deleteUser(usernameDeletedUser);
+    if (response.status !== 200) {
+      errorText.value = response.message;
+      snackbarError.value = true;
+    } else {
+      succesText.value = `L'utilisateur ${ usernameDeletedUser } à été supprimé.`
+      snackbarSuccess.value = true;
+      await refreshUsers();
+      clearCurrentUser();
+    }
+  }
   deleteConfirmDialog.value = false;
-  deleteChoice.value = false;
-};
+}
 
-const confirmDelete = () => {
-  deleteConfirmDialog.value = false;
-  deleteChoice.value = true;
-};
-
-const handleDelete = async () => {
+const handleDeleteSubmit = async () => {
   try {
     if (selectedUser.value !== null) {
       if (selectedUser.value.roles.split(',').includes("ROLE_ADMIN") && users.value.filter(user => user.roles.split(',').includes("ROLE_ADMIN")).length <= 1) {
         infoText.value = "Vous devez avoir au moins 1 administrateur dans le restaurant."
         snackbarInfo.value = true;
       } else {
-        if (deleteChoice.value === null) {
+        if (!deleteConfirmDialog.value) {
           deleteConfirmDialog.value = true;
-          if (!deleteChoice.value) {
-            deleteChoice.value = null;
-            return;
-          }
-        }
-        deleteChoice.value = null;
-        const response = await deleteUser(selectedUser.value.username);
-        if (response.status !== 200) {
-          errorText.value = response.message;
-          snackbarError.value = true;
-        } else {
-          succesText.value = "L'utilisateur à été supprimé."
-          snackbarSuccess.value = true;
-          await refreshUsers();
-          clearCurrentUser();
         }
       }
     } else {
       infoText.value = "Sélectionner un utilisateur pour le supprimer."
       snackbarInfo.value = true;
-
     }
   } catch (error) {
     errorText.value = error.message;
@@ -215,13 +208,13 @@ const clearCurrentUser = () => {
       </v-card-title>
       <v-card-actions class="flex justify-start">
         <v-btn base-color="delete" rounded="xl" variant="elevated" prepend-icon="mdi-delete" class="pr-4 mt-6"
-               @click="handleDelete">
+               @click="handleDeleteSubmit">
           <span class="whiteText">
             Supprimer
           </span>
         </v-btn>
       </v-card-actions>
-      <v-form v-model="valid" class="my-8 mx-2 px-8" validate-on="submit" @submit.prevent="handleSubmit">
+      <v-form v-model="valid" class="my-10 mx-2" validate-on="invalid-input" @submit.prevent="handleSubmit">
         <v-select label="Role" :items="availableRoles" v-model="newRole"
                   item-title="name" item-value="value"
                   variant="outlined" density="compact"
@@ -291,90 +284,14 @@ const clearCurrentUser = () => {
 
   </div>
 
-  <v-snackbar
-      v-model="snackbarError"
-      multi-line
-      color="error"
-  >
+  <ErrorInfo :text="errorText" :enable="snackbarError" @onClose="(v) => snackbarError = v"/>
 
-    <div class="text-subtitle-1 pb-2">
-      Une erreur est survenu :
-    </div>
-    <p>{{ errorText }}</p>
+  <SuccessInfo :text="succesText" :enable="snackbarSuccess" @onClose="(v) => snackbarSuccess = v"/>
 
-    <template v-slot:actions>
-      <v-btn
-          color="white"
-          variant="text"
-          @click="snackbarError = false"
-      >
-        Fermer
-      </v-btn>
-    </template>
-  </v-snackbar>
+  <HintInfo :text="infoText" :enable="snackbarInfo" @onClose="(v) => snackbarInfo = v"/>
 
-  <v-snackbar
-      v-model="snackbarSuccess"
-      color="success"
-      timeout="2500"
-  >
-    <div class="text-white">
-      {{ succesText }}
-    </div>
+  <AlertDeleteUserDialog :username="selectedUser?.value?.username" :enable="deleteConfirmDialog" @result="updateDelete"/>
 
-    <template v-slot:actions>
-      <v-btn
-          color="white"
-          variant="text"
-          @click="snackbarSuccess = false"
-      >
-        Fermer
-      </v-btn>
-    </template>
-  </v-snackbar>
-
-  <v-snackbar
-      v-model="snackbarInfo"
-      color="info"
-      timeout="2500"
-  >
-    <div class="text-white">
-      {{ infoText }}
-    </div>
-
-    <template v-slot:actions>
-      <v-btn
-          color="white"
-          variant="text"
-          @click="snackbarSuccess = false"
-      >
-        Fermer
-      </v-btn>
-    </template>
-  </v-snackbar>
-
-  <v-dialog
-      v-model="deleteConfirmDialog"
-      max-width="450"
-      persistent
-  >
-    <v-card
-        prepend-icon="mdi-alert"
-        title="Vous allez supprimer un utilisateur.">
-      <v-card-text>Vous êtes sur le point de supprimer l'utilisateur {{ selectedUser.username }}, êtes-vous sûr
-        ?
-      </v-card-text>
-      <v-spacer></v-spacer>
-      <v-card-actions>
-        <v-btn @click="cancelDelete">
-          Non
-        </v-btn>
-        <v-btn @click="confirmDelete">
-          Oui
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
 </template>
 
 <style scoped>
