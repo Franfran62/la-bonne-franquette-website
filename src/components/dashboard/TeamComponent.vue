@@ -42,6 +42,7 @@ const availableRoles = [
 onBeforeMount(() => refreshUsers());
 
 watch(selectedUser, (newValue) => {
+  console.log("new user", newValue);
   if (!newValue) clearCurrentUser();
 });
 
@@ -51,17 +52,14 @@ const filterByRole = computed(() => {
 });
 
 const handleSelectedUser = (user) => {
-  if (selectedUser.value?.id === user.id) {
-    selectedUser.value = null;
-  } else {
-    selectedUser.value = user;
-    formTitle.value = "Modifier un utilisateur";
-    buttonTitle.value = "Modifier";
-    username.value = user.username;
-    password.value = user.password;
-    oldPassword.value = "";
-    newRole.value = user.roles;
-  }
+  selectedUser.value = user;
+  formTitle.value = "Modifier un utilisateur";
+  buttonTitle.value = "Modifier";
+  username.value = user.username;
+  password.value = user.password;
+  oldPassword.value = "";
+  newRole.value = user.roles;
+
 };
 
 const refreshUsers = async () => {
@@ -94,29 +92,35 @@ const handleSubmit = async () => {
 };
 
 const updateDelete = async (result) => {
-  if (!result) return (deleteConfirmDialog.value = false);
+  if (!result) {
+    selectedUser.value = null;
+    return (deleteConfirmDialog.value = false);
+  }
   try {
     const response = await deleteUser(selectedUser.value.username);
     if (response.status !== 200) throw new Error(response.message);
     succesText.value = `L'utilisateur ${selectedUser.value.username} à été supprimé.`;
     snackbarSuccess.value = true;
+    selectedUser.value = null;
     await refreshUsers();
-    clearCurrentUser();
   } catch (e) {
     errorText.value = e.message;
     snackbarError.value = true;
+    selectedUser.value = null;
   } finally {
     deleteConfirmDialog.value = false;
+    selectedUser.value = null;
   }
 };
 
-const handleDeleteSubmit = () => {
-  if (!selectedUser.value) {
+const handleDeleteSubmit = async (userToDelete) => {
+  if (!userToDelete) {
     infoText.value = "Sélectionner un utilisateur pour le supprimer.";
     snackbarInfo.value = true;
     return;
   }
-  if (selectedUser.value.roles.includes("ROLE_ADMIN") && users.value.filter(user => user.roles.includes("ROLE_ADMIN")).length <= 1) {
+  if (userToDelete.roles.includes("ROLE_ADMIN") && users.value.filter(user => user.roles.includes("ROLE_ADMIN")).length <= 1) {
+    selectedUser.value = null;
     infoText.value = "Vous devez avoir au moins 1 administrateur dans le restaurant.";
     snackbarInfo.value = true;
     return;
@@ -151,29 +155,29 @@ const clearCurrentUser = () => {
           </v-btn>
           <span class="ml-14" v-show="!isMobile">Trier par role : </span>
           <v-select label="Role" :items="availableRoles" v-model="selectedRole" item-title="name" item-value="value"
-                    clearable variant="outlined" density="compact" color="accent" rounded="xl" :width="!isMobile ? 225: 25"
+                    clearable variant="outlined" density="compact" color="accent" rounded="xl"
+                    :width="!isMobile ? 225: 25"
                     class="mt-6"/>
-          <v-btn @click="clearCurrentUser" icon="mdi-plus" variant="text" base-color="success" rounded="xl" v-show="isMobile" ></v-btn>
+          <v-btn @click="clearCurrentUser" icon="mdi-plus" variant="text" base-color="success" rounded="xl"
+                 v-show="isMobile"></v-btn>
           <v-btn @click="refreshUsers" icon="mdi-refresh" variant="text"></v-btn>
         </v-card-actions>
         <v-list>
           <v-list-item v-for="(u, i) in filterByRole" :key="i" color="primary" base-color="primary" rounded="lg"
-                       variant="elevated" min-height="32" height="32" class="my-2 mx-2" @click="handleSelectedUser(u)">
-            <v-list-item-title>{{ u.username }}</v-list-item-title>
+                       variant="elevated" min-height="32" height="32" class="flex justify-space-around my-2 mx-2" @click="handleSelectedUser(u)">
+            <v-list-item-title class="flex justify-space-between">
+              {{ u.username }}
+               <v-icon color="white" variant="text" icon="mdi-delete" @click="handleDeleteSubmit(u)"/>
+            </v-list-item-title>
           </v-list-item>
         </v-list>
       </div>
     </v-card>
 
-    <v-card :width="isMobile ? 450 : 700" variant="text" :class="{'px-8': !isMobile, 'px-8 mx-auto': isMobile }">
+    <v-card :width="isMobile ? 400 : 700" variant="text" :class="{'px-8': !isMobile, 'px-8 mx-auto': isMobile }">
       <v-card-title>{{ formTitle }}</v-card-title>
-      <v-card-actions class="flex justify-start">
-        <v-btn base-color="delete" rounded="xl" variant="elevated" prepend-icon="mdi-delete" :class="{'pr-4 mt-8':!isMobile, 'pr-4':isMobile}"
-               @click="handleDeleteSubmit">
-          <span class="whiteText">Supprimer</span>
-        </v-btn>
-      </v-card-actions>
-      <v-form v-model="valid" :class="{'my-10 mx-2': !isMobile, 'my-2 mx-2': isMobile}" validate-on="invalid-input" @submit.prevent="handleSubmit">
+      <v-form v-model="valid" :class="{'my-9 mx-2': !isMobile, 'my-2 mx-2': isMobile}" validate-on="invalid-input"
+              @submit.prevent="handleSubmit">
         <v-select label="Role" :items="availableRoles" v-model="newRole" item-title="name" item-value="value"
                   variant="outlined" density="compact" color="accent" :rules="[v => !!v || 'le role est nécessaire']"
                   rounded="xl" class="input-spacing"/>
@@ -214,7 +218,7 @@ const clearCurrentUser = () => {
                               class="input-spacing" color="accent"/>
               </span>
         <div :class="{'d-flex justify-center pb-8': !isMobile, 'd-flex justify-center': isMobile}">
-          <v-btn type="submit" color="primary" rounded="xl" size="large">
+          <v-btn type="submit" color="primary" rounded="xl" :size="isMobile ? 'default' : 'large'">
             <div class="justify-start font-semibold">{{ buttonTitle }}</div>
           </v-btn>
         </div>
