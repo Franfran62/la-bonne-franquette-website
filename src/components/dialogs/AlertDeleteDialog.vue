@@ -2,7 +2,10 @@
 import {defineProps, ref, watch} from "vue";
 
 const props = defineProps({
-  username: {
+  title: {
+    type: String
+  },
+  body: {
     type: String
   },
   enable: {
@@ -20,13 +23,11 @@ watch(() => props.enable, (newVal) => {
 
 const handleAccept = () => {
   emit('result', true);
-  console.log("expected result : true")
   localEnable.value = false;
 }
 
 const handleCancel = () => {
   emit('result', false);
-  console.log("expected result : false")
   localEnable.value = false;
 }
 
@@ -39,10 +40,9 @@ const handleCancel = () => {
   >
     <v-card
         prepend-icon="mdi-alert"
-        title="Vous allez supprimer un utilisateur.">
-      <v-card-text>
-        Vous êtes sur le point de supprimer l'utilisateur {{ props.username }}, êtes-vous sûr ?
-      </v-card-text>
+        :title="title"
+        :text="body"
+    >
       <v-spacer></v-spacer>
       <v-card-actions>
         <v-btn @click="handleCancel">

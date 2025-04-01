@@ -5,7 +5,7 @@ import User from "@/model/User.js";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import SuccessInfo from "@/components/snackbars/SuccessInfo.vue";
 import HintInfo from "@/components/snackbars/HintInfo.vue";
-import AlertDeleteUserDialog from "@/components/dialogs/AlertDeleteUserDialog.vue";
+import AlertDeleteDialog from "@/components/dialogs/AlertDeleteDialog.vue";
 import {useDisplay} from "vuetify";
 
 const snackbarError = ref(false);
@@ -229,8 +229,10 @@ const clearCurrentUser = () => {
   <ErrorInfo :text="errorText" :enable="snackbarError" @onClose="(v) => snackbarError = v"/>
   <SuccessInfo :text="succesText" :enable="snackbarSuccess" @onClose="(v) => snackbarSuccess = v"/>
   <HintInfo :text="infoText" :enable="snackbarInfo" @onClose="(v) => snackbarInfo = v"/>
-  <AlertDeleteUserDialog :username="selectedUser?.value?.username" :enable="deleteConfirmDialog"
-                         @result="updateDelete"/>
+  <AlertDeleteDialog :title="'Vous allez supprimer un utilisateur.'"
+                     :body="`Vous êtes sur le point de supprimer l\'utilisateur ${ selectedUser?.value?.username }, êtes-vous sûr ?selectedUser?.value?.username`"
+                     :enable="deleteConfirmDialog"
+                     @result="updateDelete"/>
 </template>
 
 <style scoped>
