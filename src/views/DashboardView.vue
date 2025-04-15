@@ -1,14 +1,14 @@
 <script setup>
 import ToolbarComponent from "@/components/dashboard/ToolbarComponent.vue";
 import {ref} from "vue";
-import CommandComponent from "@/components/dashboard/CommandComponent.vue";
+import OrderComponent from "@/components/dashboard/OrderComponent.vue";
 import MenuComponent from "@/components/dashboard/MenuComponent.vue";
 import TeamComponent from "@/components/dashboard/TeamComponent.vue";
 
 const currentComponent = ref('CommandComponent');
 
 const components = {
-  CommandComponent,
+  CommandComponent: OrderComponent,
   MenuComponent,
   TeamComponent,
 }

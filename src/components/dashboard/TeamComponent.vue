@@ -7,6 +7,7 @@ import SuccessInfo from "@/components/snackbars/SuccessInfo.vue";
 import HintInfo from "@/components/snackbars/HintInfo.vue";
 import AlertDeleteDialog from "@/components/dialogs/AlertDeleteDialog.vue";
 import {useDisplay} from "vuetify";
+import TeamListComponent from "@/components/lists/TeamListComponent.vue";
 
 const snackbarError = ref(false);
 const snackbarSuccess = ref(false);
@@ -162,15 +163,7 @@ const clearCurrentUser = () => {
                  v-show="isMobile"></v-btn>
           <v-btn @click="refreshUsers" icon="mdi-refresh" variant="text"></v-btn>
         </v-card-actions>
-        <v-list>
-          <v-list-item v-for="(u, i) in filterByRole" :key="i" color="primary" base-color="primary" rounded="lg"
-                       variant="elevated" min-height="32" height="32" class="flex justify-space-around my-2 mx-2" @click="handleSelectedUser(u)">
-            <v-list-item-title class="flex justify-space-between">
-              {{ u.username }}
-               <v-icon color="white" variant="text" icon="mdi-delete" @click="handleDeleteSubmit(u)"/>
-            </v-list-item-title>
-          </v-list-item>
-        </v-list>
+        <TeamListComponent :on-filter="() => filterByRole" :on-select="handleSelectedUser" :on-delete="handleDeleteSubmit"/>
       </div>
     </v-card>
 
