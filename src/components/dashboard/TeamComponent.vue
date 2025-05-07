@@ -43,7 +43,6 @@ const availableRoles = [
 onBeforeMount(() => refreshUsers());
 
 watch(selectedUser, (newValue) => {
-  console.log("new user", newValue);
   if (!newValue) clearCurrentUser();
 });
 

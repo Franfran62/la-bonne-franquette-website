@@ -32,11 +32,27 @@ defineProps({
         @click="onSelect(order)"
     >
       <v-list-item-title class="flex justify-space-between">
-        Commande n°{{ order.numero }} {{ order.dateSaisie }} {{ order.nbArticles }} Prix : {{ order.prixTTC }}€
-        <v-icon color="white" variant="text" :icon="order.surPlace ? 'mdi-table-bar' : 'mdi-shopping'" />
-        <v-icon color="white" variant="text" :icon="order.status === Status.TERMINEE ? 'mdi-ok' : ( order.status === Status.ANNULEE ? 'mdi-cancel' : 'mdi-clock')" />
-        <v-icon color="white" variant="text" :icon="order.paye ? 'mdi-paid-on' : 'mdi-paid-off'" />
-        <v-icon color="white" variant="text" icon="mdi-delete" @click="onDelete(order)" />
+        <span class="flex justify-around">
+          <span class="mx-2">
+            Commande n°{{ order.getNumeroToString() }}
+          </span>
+          <span class="mx-2">
+            {{ order.getDateSaisieToString() }}
+          </span>
+          <span class="mx-2">
+            {{ order.getNbArticlesToString() }} Articles
+          </span>
+          <span class="mx-2">
+            Prix : {{ order.getPrixTTCToString() }}€
+          </span>
+        </span>
+        <span class="flex justify-end">
+        <v-icon color="white" variant="text" :icon="order.surPlace ? 'mdi-table-chair' : 'mdi-shopping'" class="mx-1"/>
+        <v-icon color="white" variant="text"
+                :icon="order.status === Status.TERMINEE ? 'mdi-check' : ( order.status === Status.ANNULEE ? 'mdi-cancel' : 'mdi-clock')" class="mx-1"/>
+        <v-icon color="white" variant="text" :icon="order.paye ? 'mdi-currency-eur' : 'mdi-currency-eur-off'" class="mx-1"/>
+        <v-icon color="white" variant="text" icon="mdi-delete" @click="onDelete(order)"/>
+        </span>
       </v-list-item-title>
     </v-list-item>
   </v-list>
