@@ -10,5 +10,5 @@ const props = defineProps({
 </script>
 
 <template>
-  <SnackbarBase :text="'Vous êtes déconnecté.'" :enable="enable" color="accent" @onClose="$emit('onClose', $event)" />
+  <SnackbarBase :timeout="4000" :text="'Vous êtes déconnecté.'" :enable="enable" color="accent" @onClose="$emit('onClose', $event)" />
 </template>
