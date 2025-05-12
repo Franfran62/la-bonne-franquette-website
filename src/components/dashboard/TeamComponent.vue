@@ -7,6 +7,7 @@ import SuccessInfo from "@/components/snackbars/SuccessInfo.vue";
 import HintInfo from "@/components/snackbars/HintInfo.vue";
 import AlertDeleteDialog from "@/components/dialogs/AlertDeleteDialog.vue";
 import {useDisplay} from "vuetify";
+import TeamListComponent from "@/components/lists/TeamListComponent.vue";
 
 const snackbarError = ref(false);
 const snackbarSuccess = ref(false);
@@ -24,14 +25,11 @@ const oldPassword = ref("");
 const newRole = ref("");
 const users = ref([]);
 const selectedUser = ref(null);
-const selectedRole = ref(null);
 const formTitle = ref("Ajouter un nouveau membre");
 const buttonTitle = ref("Ajouter");
 const {xs, sm, md, lg, xl} = useDisplay();
 
 const isMobile = computed(() => xs.value || sm.value);
-const isTablet = computed(() => md.value);
-const isDesktop = computed(() => lg.value || xl.value);
 
 const availableRoles = [
   {value: "ROLE_USER", name: "Utilisateur"},
@@ -42,13 +40,11 @@ const availableRoles = [
 onBeforeMount(() => refreshUsers());
 
 watch(selectedUser, (newValue) => {
-  console.log("new user", newValue);
   if (!newValue) clearCurrentUser();
 });
 
-const filterByRole = computed(() => {
-  if (!selectedRole.value) return users.value;
-  return users.value.filter(user => user.roles.includes(selectedRole.value));
+const getUsers = computed(() => {
+  return users.value;
 });
 
 const handleSelectedUser = (user) => {
@@ -146,31 +142,15 @@ const clearCurrentUser = () => {
   </v-card>
   <div :class="{'flex flex-column-reverse': isMobile, 'flex justify-center': !isMobile}">
     <v-card :width="isMobile ? 400 : 700" variant="text" :class="{'mx-auto': isMobile }">
-      <v-card-title v-show="!isMobile">Membres de l'équipe</v-card-title>
+      <v-card-title>Membres de l'équipe</v-card-title>
       <div>
         <v-card-actions :class="{'flex justify-start': !isMobile}">
           <v-btn base-color="success" rounded="xl" variant="elevated" class="pr-4" prepend-icon="mdi-plus"
                  @click="clearCurrentUser" v-show="!isMobile">
             <span class="whiteText">Ajouter un membre</span>
           </v-btn>
-          <span class="ml-14" v-show="!isMobile">Trier par role : </span>
-          <v-select label="Role" :items="availableRoles" v-model="selectedRole" item-title="name" item-value="value"
-                    clearable variant="outlined" density="compact" color="accent" rounded="xl"
-                    :width="!isMobile ? 225: 25"
-                    class="mt-6"/>
-          <v-btn @click="clearCurrentUser" icon="mdi-plus" variant="text" base-color="success" rounded="xl"
-                 v-show="isMobile"></v-btn>
-          <v-btn @click="refreshUsers" icon="mdi-refresh" variant="text"></v-btn>
         </v-card-actions>
-        <v-list>
-          <v-list-item v-for="(u, i) in filterByRole" :key="i" color="primary" base-color="primary" rounded="lg"
-                       variant="elevated" min-height="32" height="32" class="flex justify-space-around my-2 mx-2" @click="handleSelectedUser(u)">
-            <v-list-item-title class="flex justify-space-between">
-              {{ u.username }}
-               <v-icon color="white" variant="text" icon="mdi-delete" @click="handleDeleteSubmit(u)"/>
-            </v-list-item-title>
-          </v-list-item>
-        </v-list>
+        <TeamListComponent :on-filter="() => getUsers" :on-select="handleSelectedUser" :on-delete="handleDeleteSubmit"/>
       </div>
     </v-card>
 

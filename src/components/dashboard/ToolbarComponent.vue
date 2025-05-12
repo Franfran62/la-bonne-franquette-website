@@ -29,6 +29,11 @@ const buttonColor = (component) => {
   }
 }
 
+const textDecoration = (component) => {
+    if(currentComponent.value === component) return "underline"
+    return ""
+}
+
 watch(isMobile, (newValue) => {
   console.log(newValue);
   if (!newValue) {
@@ -46,37 +51,35 @@ const toggleDrawer = () => {
 </script>
 
 <template>
-  <v-app-bar app color="accent">
+  <v-app-bar app color="primary">
     <template v-if="!isMobile">
-      <v-img :src="logo" contain max-width="50" class="ml-8"/>
-      <v-btn :color="buttonColor('CommandComponent')" text @click="setComponent('CommandComponent')">
-        <span class="underline">Afficher les commandes </span>
+      <v-btn class="ml-8" color="secondary" text @click="setComponent('CommandComponent')">
+        <span :class="textDecoration('CommandComponent')">Afficher les commandes </span>
       </v-btn>
-      <v-btn :color="buttonColor('MenuComponent')" text @click="setComponent('MenuComponent')">
-        <span class="underline">Modifier la carte</span>
+      <v-btn color="secondary" text @click="setComponent('MenuComponent')">
+        <span :class="textDecoration('MenuComponent')">Modifier la carte</span>
       </v-btn>
-      <v-btn :color="buttonColor('TeamComponent')" text @click="setComponent('TeamComponent')">
-        <span class="underline">Modifier l'équipe</span>
+      <v-btn color="secondary" text @click="setComponent('TeamComponent')">
+        <span :class="textDecoration('TeamComponent')">Modifier l'équipe</span>
       </v-btn>
     </template>
     <template v-else>
       <v-btn icon="mdi-menu" @click="toggleDrawer" color="white"></v-btn>
       <v-spacer></v-spacer>
-      <v-img :src="logo" contain max-width="50"/>
     </template>
     <v-spacer></v-spacer>
     <v-icon icon="mdi-logout" @click="handleLogout" color="white" class="mr-4"/>
   </v-app-bar>
   <div v-if="isMobile">
     <v-navigation-drawer v-model="drawer" app>
-      <v-list-item link :base-color="buttonColor('CommandComponent')" @click="setComponent('CommandComponent')">
-        <span class="underline">Afficher les commandes </span>
+      <v-list-item link base-color="secondary" @click="setComponent('CommandComponent')">
+        <span :class="textDecoration('CommandComponent')">Afficher les commandes </span>
       </v-list-item>
-      <v-list-item link :base-color="buttonColor('MenuComponent')" @click="setComponent('MenuComponent')">
-        <span class="underline">Modifier la carte</span>
+      <v-list-item link base-color="secondary" @click="setComponent('MenuComponent')">
+        <span :class="textDecoration('MenuComponent')">Modifier la carte</span>
       </v-list-item>
-      <v-list-item link :base-color="buttonColor('TeamComponent')" @click="setComponent('TeamComponent')">
-        <span class="underline">Modifier l'équipe</span>
+      <v-list-item link base-color="secondary" @click="setComponent('TeamComponent')">
+        <span :class="textDecoration('TeamComponent')">Modifier l'équipe</span>
       </v-list-item>
     </v-navigation-drawer>
   </div>
