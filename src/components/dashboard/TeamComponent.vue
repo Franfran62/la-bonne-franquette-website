@@ -25,14 +25,11 @@ const oldPassword = ref("");
 const newRole = ref("");
 const users = ref([]);
 const selectedUser = ref(null);
-const selectedRole = ref(null);
 const formTitle = ref("Ajouter un nouveau membre");
 const buttonTitle = ref("Ajouter");
 const {xs, sm, md, lg, xl} = useDisplay();
 
 const isMobile = computed(() => xs.value || sm.value);
-const isTablet = computed(() => md.value);
-const isDesktop = computed(() => lg.value || xl.value);
 
 const availableRoles = [
   {value: "ROLE_USER", name: "Utilisateur"},
@@ -46,9 +43,8 @@ watch(selectedUser, (newValue) => {
   if (!newValue) clearCurrentUser();
 });
 
-const filterByRole = computed(() => {
-  if (!selectedRole.value) return users.value;
-  return users.value.filter(user => user.roles.includes(selectedRole.value));
+const getUsers = computed(() => {
+  return users.value;
 });
 
 const handleSelectedUser = (user) => {
@@ -146,23 +142,15 @@ const clearCurrentUser = () => {
   </v-card>
   <div :class="{'flex flex-column-reverse': isMobile, 'flex justify-center': !isMobile}">
     <v-card :width="isMobile ? 400 : 700" variant="text" :class="{'mx-auto': isMobile }">
-      <v-card-title v-show="!isMobile">Membres de l'équipe</v-card-title>
+      <v-card-title>Membres de l'équipe</v-card-title>
       <div>
         <v-card-actions :class="{'flex justify-start': !isMobile}">
           <v-btn base-color="success" rounded="xl" variant="elevated" class="pr-4" prepend-icon="mdi-plus"
                  @click="clearCurrentUser" v-show="!isMobile">
             <span class="whiteText">Ajouter un membre</span>
           </v-btn>
-          <span class="ml-14" v-show="!isMobile">Trier par role : </span>
-          <v-select label="Role" :items="availableRoles" v-model="selectedRole" item-title="name" item-value="value"
-                    clearable variant="outlined" density="compact" color="accent" rounded="xl"
-                    :width="!isMobile ? 225: 25"
-                    class="mt-6"/>
-          <v-btn @click="clearCurrentUser" icon="mdi-plus" variant="text" base-color="success" rounded="xl"
-                 v-show="isMobile"></v-btn>
-          <v-btn @click="refreshUsers" icon="mdi-refresh" variant="text"></v-btn>
         </v-card-actions>
-        <TeamListComponent :on-filter="() => filterByRole" :on-select="handleSelectedUser" :on-delete="handleDeleteSubmit"/>
+        <TeamListComponent :on-filter="() => getUsers" :on-select="handleSelectedUser" :on-delete="handleDeleteSubmit"/>
       </div>
     </v-card>
 
