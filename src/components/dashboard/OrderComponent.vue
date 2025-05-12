@@ -7,8 +7,11 @@ import Order from "@/model/Order.js";
 import {useDisplay} from "vuetify";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import DateRange from "@/model/DateRange.js";
+import InfiniteLoader from "@/components/loaders/InfiniteLoader.vue";
 
 const today = new Date();
+const isLoading = ref(true);
+onBeforeMount(() => refreshOrders());
 
 const snackbarError = ref(false);
 const errorText = ref("");
@@ -18,8 +21,6 @@ const selectedDateRange = ref(DateRange.ALL);
 const orders = ref([]);
 const selectedOrder = ref(null);
 const {xs, sm, md, lg, xl} = useDisplay();
-
-onBeforeMount(() => refreshOrders());
 
 const isMobile = computed(() => xs.value || sm.value);
 
@@ -44,10 +45,9 @@ const refreshOrders = async () => {
   try {
     const response = await fetchOrders();
     if (response.status !== 200) throw new Error(response.message);
-    console.log("Response : ")
-    console.log(response.data);
     orders.value = response.data.map(order => new Order(order.commandeId, order.numero, order.prixTTC, order.surPlace, order.status, order.paiementTypeCommande, new Date(order.dateSaisie), order.dateLivraison ? new Date(order.dateLivraison) : null, order.articles, order.nbArticle, order.menus, order.paiementSet, order.paye));
     selectedOrder.value = null;
+    isLoading.value = false;
   } catch (e) {
     errorText.value = e.message;
     snackbarError.value = true;
@@ -57,43 +57,48 @@ const refreshOrders = async () => {
 </script>
 
 <template>
-  <v-card variant="text" class="flex justify-center mx-auto">
-    <v-card-title>Commandes</v-card-title>
-  </v-card>
-  <div :class="{'flex flex-column-reverse': isMobile, 'flex justify-center': !isMobile}">
-    <v-card :width="isMobile ? 400 : 700" variant="text" :class="{'mx-auto': isMobile }">
-      <v-card-title v-show="!isMobile">Résumé des commandes</v-card-title>
-      <div>
-<!--        <div class="d-flex flex-column align-center">
-
-        </div>-->
-        <v-card-actions :class="{'flex justify-space-between': !isMobile}">
-<!--          <span class="ml-14" v-show="!isMobile">Trier par : </span>
-          <v-select label="Role" :items="availableRoles" v-model="selectedRole" item-title="name" item-value="value"
-                    clearable variant="outlined" density="compact" color="accent" rounded="xl"
-                    :width="!isMobile ? 225: 25"
-                    class="mt-6"/>-->
-          <v-btn-toggle
-              v-model="selectedDateRange"
-              color="primary"
-              mandatory
-              variant=flat
-          >
-            <v-btn :value="DateRange.ALL" rounded="lg">{{ DateRange.ALL }}</v-btn>
-            <v-btn  :value="DateRange.TODAY" rounded="lg">{{ DateRange.TODAY }}</v-btn>
-            <v-btn  :value="DateRange.WEEK" rounded="lg">{{ DateRange.WEEK }}</v-btn>
-            <v-btn  :value="DateRange.MONTH" rounded="lg">{{ DateRange.MONTH }}</v-btn>
-            <v-btn  :value="DateRange.YEAR" rounded="lg">{{ DateRange.YEAR }}</v-btn>
-          </v-btn-toggle>
-          <v-btn @click="refreshOrders" icon="mdi-refresh" variant="text"></v-btn>
-        </v-card-actions>
-        <OrderListComponent :on-filter="() => onFilter" :on-select="() => {}" :on-delete="() => {}"/>
-      </div>
+  <div v-if="isLoading">
+    <InfiniteLoader class="flex justify-center align-center h-screen"/>
+  </div>
+  <div v-else>
+    <v-card variant="text" class="flex justify-center mx-auto">
+      <v-card-title>Commandes</v-card-title>
     </v-card>
+    <div :class="{'flex flex-column-reverse': isMobile, 'flex justify-center': !isMobile}">
+      <v-card :width="isMobile ? 400 : 700" variant="text" :class="{'mx-auto': isMobile }">
+        <v-card-title v-show="!isMobile">Résumé des commandes</v-card-title>
+        <div>
+          <!--        <div class="d-flex flex-column align-center">
 
-    <v-card :width="isMobile ? 400 : 700" variant="text" :class="{'px-8': !isMobile, 'px-8 mx-auto': isMobile }">
-      <v-card-title>Affichage</v-card-title>
-    </v-card>
+                  </div>-->
+          <v-card-actions :class="{'flex justify-space-between': !isMobile}">
+            <!--          <span class="ml-14" v-show="!isMobile">Trier par : </span>
+                      <v-select label="Role" :items="availableRoles" v-model="selectedRole" item-title="name" item-value="value"
+                                clearable variant="outlined" density="compact" color="accent" rounded="xl"
+                                :width="!isMobile ? 225: 25"
+                                class="mt-6"/>-->
+            <v-btn-toggle
+                v-model="selectedDateRange"
+                color="primary"
+                mandatory
+                variant=flat
+            >
+              <v-btn :value="DateRange.ALL" rounded="lg">{{ DateRange.ALL }}</v-btn>
+              <v-btn  :value="DateRange.TODAY" rounded="lg">{{ DateRange.TODAY }}</v-btn>
+              <v-btn  :value="DateRange.WEEK" rounded="lg">{{ DateRange.WEEK }}</v-btn>
+              <v-btn  :value="DateRange.MONTH" rounded="lg">{{ DateRange.MONTH }}</v-btn>
+              <v-btn  :value="DateRange.YEAR" rounded="lg">{{ DateRange.YEAR }}</v-btn>
+            </v-btn-toggle>
+            <v-btn @click="refreshOrders" icon="mdi-refresh" variant="text"></v-btn>
+          </v-card-actions>
+          <OrderListComponent :on-filter="() => onFilter" :on-select="() => {}" :on-delete="() => {}"/>
+        </div>
+      </v-card>
+
+      <v-card :width="isMobile ? 400 : 700" variant="text" :class="{'px-8': !isMobile, 'px-8 mx-auto': isMobile }">
+        <v-card-title>Affichage</v-card-title>
+      </v-card>
+    </div>
   </div>
 
   <ErrorInfo :text="errorText" :enable="snackbarError" @onClose="(v) => snackbarError = v"/>

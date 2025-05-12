@@ -1,9 +1,18 @@
 <script setup>
 
+import {ref} from "vue";
+import InfiniteLoader from "@/components/loaders/InfiniteLoader.vue";
+
+const isLoading = ref(true)
 </script>
 
 <template>
-  <h1>MENU</h1>
+  <div v-if="isLoading">
+    <InfiniteLoader class="flex justify-center align-center h-screen"/>
+  </div>
+  <div v-else>
+
+  </div>
 </template>
 
 <style scoped>
