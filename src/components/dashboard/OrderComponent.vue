@@ -1,7 +1,7 @@
 <script setup>
 
 import OrderListComponent from "@/components/lists/OrderListComponent.vue";
-import {computed, onBeforeMount, ref} from "vue";
+import {computed, onBeforeMount, ref, watch} from "vue";
 import {fetchOrders} from "@/services/orderService.js";
 import Order from "@/model/Order.js";
 import {useDisplay} from "vuetify";
@@ -24,12 +24,15 @@ const {xs, sm, md, lg, xl} = useDisplay();
 
 const isMobile = computed(() => xs.value || sm.value);
 
-function getWeekNumber(date) {
+watch(selectedOrder, (newValue) => {
+  if (!newValue) selectedOrder.value = null;
+});
+
+const getWeekNumber = (date) => {
   const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
   const pastDaysOfYear = (date - firstDayOfYear + (firstDayOfYear.getDay() || 7) * 86400000) / 86400000;
   return Math.ceil(pastDaysOfYear / 7);
 }
-
 
 const onFilter = computed(() => {
   switch (selectedDateRange.value) {
@@ -53,6 +56,16 @@ const refreshOrders = async () => {
     snackbarError.value = true;
   }
 }
+
+const handleSelectOrder = (order) => {
+  if (order === selectedOrder.value) {
+    selectedOrder.value == null;
+    return;
+  }
+  selectedOrder.value = order;
+}
+
+const orderDisplayTitle = computed(() => (selectedOrder === null || selectedOrder.value === null) ? "Aucune commande sélectionnée" : "Commande n°"+selectedOrder.value.getNumeroToString()+" du "+selectedOrder.value.getDateSaisieToString());
 
 </script>
 
@@ -91,12 +104,18 @@ const refreshOrders = async () => {
             </v-btn-toggle>
             <v-btn @click="refreshOrders" icon="mdi-refresh" variant="text"></v-btn>
           </v-card-actions>
-          <OrderListComponent :on-filter="() => onFilter" :on-select="() => {}" :on-delete="() => {}"/>
+          <OrderListComponent :on-filter="() => onFilter" :on-select="handleSelectOrder" :on-delete="() => {}"/>
         </div>
       </v-card>
 
-      <v-card :width="isMobile ? 400 : 700" variant="text" :class="{'px-8': !isMobile, 'px-8 mx-auto': isMobile }">
-        <v-card-title>Affichage</v-card-title>
+      <v-card :width="isMobile ? 400 : 700" variant="text" :class="{'px-8': !isMobile, 'flex justify-center': isMobile }">
+        <v-card-title :class="{'text-center': isMobile}"><span class="text-xl">{{ orderDisplayTitle }}</span></v-card-title>
+        <div v-if="selectedOrder === null || selectedOrder.value === null" :class="{'my-9 mx-2': !isMobile, 'my-2 mx-2': isMobile}">
+
+        </div>
+        <div v-else>
+
+        </div>
       </v-card>
     </div>
   </div>

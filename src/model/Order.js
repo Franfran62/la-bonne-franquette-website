@@ -42,8 +42,13 @@ class Order {
         return (this.prixTTC / 100).toFixed(2).replace('.', ',');
     }
 
-    getDateSaisieToString = () => {
+    getDateSaisieAndHourToString = () => {
         const options = { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" };
+        return new Intl.DateTimeFormat("fr-FR", options).format(new Date(this.dateSaisie));
+    }
+
+    getDateSaisieToString = () => {
+        const options = { timeZone: "Europe/Paris", day: "2-digit", month: "2-digit", year: "numeric" };
         return new Intl.DateTimeFormat("fr-FR", options).format(new Date(this.dateSaisie));
     }
 

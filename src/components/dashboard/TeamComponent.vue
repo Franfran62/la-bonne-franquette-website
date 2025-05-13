@@ -151,9 +151,9 @@ const clearCurrentUser = () => {
       <v-card :width="isMobile ? 400 : 700" variant="text" :class="{'mx-auto': isMobile }">
         <v-card-title>Membres de l'équipe</v-card-title>
         <div>
-          <v-card-actions :class="{'flex justify-start': !isMobile}">
+          <v-card-actions :class="{'flex justify-start': !isMobile}" v-show="!isMobile">
             <v-btn base-color="success" rounded="xl" variant="elevated" class="pr-4" prepend-icon="mdi-plus"
-                   @click="clearCurrentUser" v-show="!isMobile">
+                   @click="clearCurrentUser">
               <span class="whiteText">Ajouter un membre</span>
             </v-btn>
           </v-card-actions>
