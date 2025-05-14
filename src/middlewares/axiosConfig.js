@@ -2,6 +2,7 @@ import { useAuthTokenStore, useRefreshTokenStore } from "@/stores/authToken";
 import axios from "axios";
 import router from "@/router";
 
+
 const apiURL = import.meta.env.VITE_API_URL;
 
 const axiosInstance = axios.create({
@@ -16,7 +17,9 @@ axiosInstance.interceptors.response.use(
     (error) => {
         if (error.response && error.response.status === 403) {
             console.log(error.response);
+            useAuthTokenStore.token = "";
             router.push({ name: "connexion" }).then();
+
         }
         return Promise.reject(error);
     }
