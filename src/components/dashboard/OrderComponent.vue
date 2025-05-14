@@ -117,11 +117,14 @@ const orderDisplayTitle = computed(() => (selectedOrder === null || selectedOrde
                                 clearable variant="outlined" density="compact" color="accent" rounded="xl"
                                 :width="!isMobile ? 225: 25"
                                 class="mt-6"/>-->
+
             <v-btn-toggle
+                v-if="!isMobile"
                 v-model="selectedDateRange"
                 color="primary"
                 mandatory
                 variant=flat
+                :class="{'': !isMobile, 'flex flex-wrap': isMobile}"
             >
               <v-btn :value="DateRange.ALL" rounded="lg">{{ DateRange.ALL }}</v-btn>
               <v-btn  :value="DateRange.TODAY" rounded="lg">{{ DateRange.TODAY }}</v-btn>
@@ -129,6 +132,9 @@ const orderDisplayTitle = computed(() => (selectedOrder === null || selectedOrde
               <v-btn  :value="DateRange.MONTH" rounded="lg">{{ DateRange.MONTH }}</v-btn>
               <v-btn  :value="DateRange.YEAR" rounded="lg">{{ DateRange.YEAR }}</v-btn>
             </v-btn-toggle>
+            <v-select v-else label="Plage des commandes" :items="Object.values(DateRange)" v-model="selectedDateRange" item-title="name" item-value="value"
+                      variant="outlined" density="compact" color="primary"
+                      rounded="xl" class="input-spacing"/>
             <v-btn @click="refreshOrders" icon="mdi-refresh" variant="text"></v-btn>
           </v-card-actions>
           <OrderListComponent :on-filter="() => onFilter" :on-select="handleSelectOrder" :on-delete="() => {}"/>
