@@ -8,6 +8,12 @@ import {useDisplay} from "vuetify";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import DateRange from "@/model/DateRange.js";
 import InfiniteLoader from "@/components/loaders/InfiniteLoader.vue";
+import ProductListComponent from "@/components/lists/ProductListComponent.vue";
+import Product from "@/model/Product.js";
+import Payment from "@/model/Payment.js";
+import PaymentListComponent from "@/components/lists/PaymentListComponent.vue";
+import Menu from "@/model/Menu.js";
+import MenuListComponent from "@/components/lists/MenuListComponent.vue";
 
 const today = new Date();
 const isLoading = ref(true);
@@ -20,12 +26,33 @@ const selectedDateRange = ref(DateRange.ALL);
 
 const orders = ref([]);
 const selectedOrder = ref(null);
-const {xs, sm, md, lg, xl} = useDisplay();
-
+const {xs, sm} = useDisplay();
+const products = ref([])
+const payments = ref([])
+const menus = ref([])
 const isMobile = computed(() => xs.value || sm.value);
 
 watch(selectedOrder, (newValue) => {
-  if (!newValue) selectedOrder.value = null;
+  if (!newValue) {
+    selectedOrder.value = null;
+    products.value = [];
+    payments.value = []
+  } else {
+    products.value = selectedOrder.value?.articles.map(
+        a => new Product(a['nom'], a['prixTTC'], a['ingredients'], a['extraSet'], (a['ingredients'].length > 0 || a['extraSet'].length > 0), a["quantite"])
+    );
+    payments.value = selectedOrder.value?.payments.map(
+        p => new Payment(p['prix'],p["type"],p['paye'],p['date'])
+    );
+    menus.value = selectedOrder.value?.menus.map(
+        m => new Menu(m['nom'],m["prixTTC"],m['articles'],m['modified'], m["quantite"])
+    );
+  }
+  console.log('\n')
+  console.log('Order:', selectedOrder?.value);
+  console.log('Articles:', products.value);
+  console.log('Menus:', menus.value);
+  console.log('Payements:', payments.value);
 });
 
 const getWeekNumber = (date) => {
@@ -59,7 +86,7 @@ const refreshOrders = async () => {
 
 const handleSelectOrder = (order) => {
   if (order === selectedOrder.value) {
-    selectedOrder.value == null;
+    selectedOrder.value = null;
     return;
   }
   selectedOrder.value = order;
@@ -110,11 +137,11 @@ const orderDisplayTitle = computed(() => (selectedOrder === null || selectedOrde
 
       <v-card :width="isMobile ? 400 : 700" variant="text" :class="{'px-8': !isMobile, 'flex justify-center': isMobile }">
         <v-card-title :class="{'text-center': isMobile}"><span class="text-xl">{{ orderDisplayTitle }}</span></v-card-title>
-        <div v-if="selectedOrder === null || selectedOrder.value === null" :class="{'my-9 mx-2': !isMobile, 'my-2 mx-2': isMobile}">
-
-        </div>
-        <div v-else>
-
+        <v-card-subtitle v-show="selectedOrder && selectedOrder.value !== null">{{"Prix : "+selectedOrder?.getPrixTTCToString()+" €"}}</v-card-subtitle>
+        <div :class="{'mx-2': !isMobile, 'my-2 mx-2': isMobile}">
+            <ProductListComponent :products="products" />
+            <MenuListComponent :menus="menus" />
+            <PaymentListComponent :payments="payments" />
         </div>
       </v-card>
     </div>

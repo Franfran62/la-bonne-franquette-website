@@ -14,7 +14,7 @@ class Order {
     articles;
     nbArticles;
     menus;
-    paiements;
+    payments;
 
     constructor(commandId, numero, prixTTC, surPlace, status, paiementTypeCommande, dateSaisie, dateLivraison, articles, nbArticles, menus, paiementSet, paye) {
         this.id = id;
@@ -28,7 +28,7 @@ class Order {
         this.articles = articles;
         this.nbArticles = nbArticles;
         this.menus = menus;
-        this.paiements = paiementSet;
+        this.payments = paiementSet;
         this.paye = paye;
     }
 
@@ -39,6 +39,7 @@ class Order {
     }
 
     getPrixTTCToString = () => {
+        console.log(this);
         return (this.prixTTC / 100).toFixed(2).replace('.', ',');
     }
 

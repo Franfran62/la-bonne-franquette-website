@@ -173,7 +173,7 @@ const clearCurrentUser = () => {
                         rounded="xl" density="compact" class="input-spacing" color="accent"/>
           <span v-if="selectedUser && selectedUser.value !== null">
                 <v-text-field v-model="oldPassword" label="Ancient mot de passe"
-                              placeholder="Entrez l'ancient mot de passe" variant="outlined"
+                              placeholder="Entrez l'ancien mot de passe" variant="outlined"
                               :rules="[v => !!v || 'Le mot de passe est nécessaire']" required
                               rounded="xl" density="compact" class="input-spacing" color="accent"
                               :append-inner-icon="!visible ? 'mdi-eye-off' : 'mdi-eye'"
