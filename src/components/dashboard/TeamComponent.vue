@@ -151,9 +151,9 @@ const clearCurrentUser = () => {
       <v-card :width="isMobile ? 400 : 700" variant="text" :class="{'mx-auto': isMobile }">
         <v-card-title>Membres de l'équipe</v-card-title>
         <div>
-          <v-card-actions :class="{'flex justify-start': !isMobile}">
+          <v-card-actions :class="{'flex justify-start': !isMobile}" v-show="!isMobile">
             <v-btn base-color="success" rounded="xl" variant="elevated" class="pr-4" prepend-icon="mdi-plus"
-                   @click="clearCurrentUser" v-show="!isMobile">
+                   @click="clearCurrentUser">
               <span class="whiteText">Ajouter un membre</span>
             </v-btn>
           </v-card-actions>
@@ -166,16 +166,16 @@ const clearCurrentUser = () => {
         <v-form v-model="valid" :class="{'my-9 mx-2': !isMobile, 'my-2 mx-2': isMobile}" validate-on="invalid-input"
                 @submit.prevent="handleSubmit">
           <v-select label="Role" :items="availableRoles" v-model="newRole" item-title="name" item-value="value"
-                    variant="outlined" density="compact" color="accent" :rules="[v => !!v || 'le role est nécessaire']"
+                    variant="outlined" density="compact" color="primary" :rules="[v => !!v || 'le role est nécessaire']"
                     rounded="xl" class="input-spacing"/>
           <v-text-field v-model="username" label="Nom d'utilisateur" placeholder="Entrez le nouveau nom d'utilisateur"
                         variant="outlined" :rules="[v => !!v || 'Le nom d\'utilisateur est nécessaire']" required
-                        rounded="xl" density="compact" class="input-spacing" color="accent"/>
+                        rounded="xl" density="compact" class="input-spacing" color="primary"/>
           <span v-if="selectedUser && selectedUser.value !== null">
                 <v-text-field v-model="oldPassword" label="Ancient mot de passe"
-                              placeholder="Entrez l'ancient mot de passe" variant="outlined"
+                              placeholder="Entrez l'ancien mot de passe" variant="outlined"
                               :rules="[v => !!v || 'Le mot de passe est nécessaire']" required
-                              rounded="xl" density="compact" class="input-spacing" color="accent"
+                              rounded="xl" density="compact" class="input-spacing" color="primary"
                               :append-inner-icon="!visible ? 'mdi-eye-off' : 'mdi-eye'"
                               :type="visible ? 'text' : 'password'"
                               @click:append-inner="visible = !visible"/>
@@ -183,7 +183,7 @@ const clearCurrentUser = () => {
                               placeholder="Entrez le nouveau mot de passe" variant="outlined"
                               :rules="[v => !!v || 'Le mot de passe est nécessaire', v => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(v) || 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre']"
                               required rounded="xl" density="compact" class="input-spacing"
-                              color="accent" :append-inner-icon="!visible ? 'mdi-eye-off' : 'mdi-eye'"
+                              color="primary" :append-inner-icon="!visible ? 'mdi-eye-off' : 'mdi-eye'"
                               :type="visible ? 'text' : 'password'"
                               @click:append-inner="visible = !visible"/>
               </span>
@@ -192,7 +192,7 @@ const clearCurrentUser = () => {
                               placeholder="Entrez le mot de passe" variant="outlined"
                               :rules="[v => !!v || 'Le mot de passe est nécessaire', v => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(v) || 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre']"
                               required rounded="xl" density="compact" class="input-spacing"
-                              color="accent" :append-inner-icon="!visible ? 'mdi-eye-off' : 'mdi-eye'"
+                              color="primary" :append-inner-icon="!visible ? 'mdi-eye-off' : 'mdi-eye'"
                               :type="visible ? 'text' : 'password'"
                               @click:append-inner="visible = !visible"/>
                 <v-text-field v-model="passwordTest" label="Retaper votre mot de passe"
@@ -202,7 +202,7 @@ const clearCurrentUser = () => {
                               :append-inner-icon="!visible ? 'mdi-eye-off' : 'mdi-eye'"
                               :type="visible ? 'text' : 'password'"
                               @click:append-inner="visible = !visible" density="compact"
-                              class="input-spacing" color="accent"/>
+                              class="input-spacing" color="primary"/>
               </span>
           <div :class="{'d-flex justify-center pb-8': !isMobile, 'd-flex justify-center': isMobile}">
             <v-btn type="submit" color="primary" rounded="xl" :size="isMobile ? 'default' : 'large'">

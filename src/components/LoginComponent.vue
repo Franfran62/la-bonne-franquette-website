@@ -93,7 +93,7 @@ const switchView = () => {
                           rounded="xl"
                           density="compact"
                           class="input-spacing"
-                          color="accent"></v-text-field>
+                          color="primary"></v-text-field>
             <v-text-field v-model="password" label="Mot de passe" placeholder="Entrez votre mot de passe"
                           variant="outlined"
                           :rules="[v => !!v || 'Le mot de passe est nécessaire']"
@@ -103,7 +103,7 @@ const switchView = () => {
                           @click:append-inner="visible = !visible"
                           density="compact"
                           class="input-spacing"
-                          color="accent"></v-text-field>
+                          color="primary"></v-text-field>
             <v-btn variant="text" density="compact" :ripple="false" color="primary" class="mt-4 text-underline"
                    @click="switchView">
               <span :class="{'underline': true, 'text-xs': isMobile, 'text-md': isDesktop || isTablet}">
@@ -130,14 +130,14 @@ const switchView = () => {
                           rounded="xl"
                           density="compact"
                           class="input-spacing"
-                          color="accent"></v-text-field>
+                          color="primary"></v-text-field>
             <v-text-field v-model="username" label="Nom du responsable" placeholder="Entrez le nom du responsable"
                           variant="outlined"
                           :rules="[v => !!v || 'Le nom du responsable est nécessaire']" required
                           rounded="xl"
                           density="compact"
                           class="input-spacing"
-                          color="accent"></v-text-field>
+                          color="primary"></v-text-field>
             <v-text-field v-model="password" label="Mot de passe" placeholder="Entrez votre mot de passe"
                           variant="outlined"
                           :rules="[v => !!v || 'Le mot de passe est nécessaire', v => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(v) || 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre']"
@@ -147,7 +147,7 @@ const switchView = () => {
                           @click:append-inner="visible = !visible"
                           density="compact"
                           class="input-spacing"
-                          color="accent"></v-text-field>
+                          color="primary"></v-text-field>
             <v-text-field label="Retaper votre mot de passe" placeholder="Retaper votre mot de passe" variant="outlined"
                           :rules="[v => (v === password) || 'Les mots de passe sont différents']"
                           required rounded="xl"
@@ -156,7 +156,7 @@ const switchView = () => {
                           @click:append-inner="visible = !visible"
                           density="compact"
                           class="input-spacing"
-                          color="accent"></v-text-field>
+                          color="primary"></v-text-field>
             <v-btn variant="text" density="compact" :ripple="false" color="primary" class="mt-4 text-underline"
                    @click="switchView">
               <span :class="{'underline': true, 'text-xs': isMobile, 'text-md': isDesktop || isTablet}"> Vous avez déjà un compte ? Connectez-vous ! </span>

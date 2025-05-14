@@ -1,11 +1,9 @@
 <script setup>
 import Status from "@/model/Status.js";
+import {useDisplay} from "vuetify";
+import {computed} from "vue";
 
 defineProps({
-  onDelete: {
-    type: Function,
-    required: true,
-  },
   onSelect: {
     type: Function,
     required: true,
@@ -15,6 +13,10 @@ defineProps({
     required: true,
   },
 });
+
+const {xs, sm} = useDisplay();
+
+const isMobile = computed(() => xs.value || sm.value);
 </script>
 
 <template>
@@ -27,32 +29,31 @@ defineProps({
         rounded="lg"
         variant="elevated"
         min-height="32"
-        height="32"
-        class="flex justify-space-around my-2 mx-2"
+
+        class="flex justify-space-around my-2 mx-2 flex-wrap"
         @click="onSelect(order)"
     >
-      <v-list-item-title class="flex justify-space-between">
-        <span class="flex justify-around">
-          <span class="mx-2">
+      <v-list-item-title :class="{'flex justify-space-between':!isMobile, 'flex flex-wrap':isMobile }">
+        <div class="flex justify-around flex-wrap">
+          <div class="mx-2">
             Commande n°{{ order.getNumeroToString() }}
-          </span>
-          <span class="mx-2">
-            {{ order.getDateSaisieToString() }}
-          </span>
-          <span class="mx-2">
-            {{ order.getNbArticlesToString() }} Articles
-          </span>
-          <span class="mx-2">
+          </div>
+          <div class="mx-2">
+            {{ order.getDateSaisieAndHourToString() }}
+          </div>
+          <div class="mx-2">
+            {{ order.getNbArticlesToString() }} Article{{ order.nbArticles > 1 ? "s" : "" }}
+          </div>
+          <div class="mx-2">
             Prix : {{ order.getPrixTTCToString() }}€
-          </span>
-        </span>
-        <span class="flex justify-end">
+          </div>
+        </div>
+        <div :class="{'flex justify-center mx-auto': isMobile, 'flex justify-end': !isMobile}">
         <v-icon color="white" variant="text" :icon="order.surPlace ? 'mdi-table-chair' : 'mdi-shopping'" class="mx-1"/>
         <v-icon color="white" variant="text"
                 :icon="order.status === Status.TERMINEE ? 'mdi-check' : ( order.status === Status.ANNULEE ? 'mdi-cancel' : 'mdi-clock')" class="mx-1"/>
         <v-icon color="white" variant="text" :icon="order.paye ? 'mdi-currency-eur' : 'mdi-currency-eur-off'" class="mx-1"/>
-        <v-icon color="white" variant="text" icon="mdi-delete" @click="onDelete(order)"/>
-        </span>
+        </div>
       </v-list-item-title>
     </v-list-item>
   </v-list>

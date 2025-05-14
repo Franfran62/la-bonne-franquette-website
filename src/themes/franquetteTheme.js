@@ -12,6 +12,8 @@ const franquetteTheme = {
         success: colors.green['600'],
         warning: colors.amber['500'],
         delete: colors.red['500'],
+        editedProduct: '#F8F9FA',
+        nonEditedProduct: '#E8F4FD',
     },
 }
 
