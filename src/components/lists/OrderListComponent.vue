@@ -42,17 +42,17 @@ const isMobile = computed(() => xs.value || sm.value);
             {{ order.getDateSaisieAndHourToString() }}
           </div>
           <div class="mx-2">
-            {{ order.getNbArticlesToString() }} Article{{ order.nbArticles > 1 ? "s" : "" }}
+            {{ order.getNbArticlesToString() }} Article{{ order.totalItems > 1 ? "s" : "" }}
           </div>
           <div class="mx-2">
             Prix : {{ order.getPrixTTCToString() }}€
           </div>
         </div>
         <div :class="{'flex justify-center mx-auto': isMobile, 'flex justify-end': !isMobile}">
-        <v-icon color="white" variant="text" :icon="order.surPlace ? 'mdi-table-chair' : 'mdi-shopping'" class="mx-1"/>
+        <v-icon color="white" variant="text" :icon="order.dineIn ? 'mdi-table-chair' : 'mdi-shopping'" class="mx-1"/>
         <v-icon color="white" variant="text"
                 :icon="order.status === Status.TERMINEE ? 'mdi-check' : ( order.status === Status.ANNULEE ? 'mdi-cancel' : 'mdi-clock')" class="mx-1"/>
-        <v-icon color="white" variant="text" :icon="order.paye ? 'mdi-currency-eur' : 'mdi-currency-eur-off'" class="mx-1"/>
+        <v-icon color="white" variant="text" :icon="order.paid ? 'mdi-currency-eur' : 'mdi-currency-eur-off'" class="mx-1"/>
         </div>
       </v-list-item-title>
     </v-list-item>

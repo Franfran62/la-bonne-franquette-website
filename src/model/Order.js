@@ -3,59 +3,59 @@ import Status from "@/model/Status.js";
 
 class Order {
     id;
-    numero;
-    prixTTC;
-    surPlace;
-    paye;
+    number;
+    totalPrice;
+    dineIn;
+    paid;
     status;
-    paiementType;
-    dateSaisie;
-    dateLivraison;
+    paymentType;
+    creationDate;
+    deliveryDate;
     articles;
-    nbArticles;
+    totalItems;
     menus;
     payments;
 
-    constructor(commandId, numero, prixTTC, surPlace, status, paiementTypeCommande, dateSaisie, dateLivraison, articles, nbArticles, menus, paiementSet, paye) {
+    constructor(commandId, number, totalPrice, dineIn, status, paymentType, creationDate, deliveryDate, articles, totalItems, menus, payments, paid) {
         this.id = id;
-        this.numero = numero;
-        this.prixTTC = prixTTC;
-        this.surPlace = surPlace;
+        this.number = number;
+        this.totalPrice = totalPrice;
+        this.dineIn = dineIn;
         this.status = Status[status] || null;
-        this.paiementType = paiementTypeCommande;
-        this.dateSaisie = dateSaisie;
-        this.dateLivraison = dateLivraison;
+        this.paymentType = paymentType;
+        this.creationDate = creationDate;
+        this.deliveryDate = deliveryDate;
         this.articles = articles;
-        this.nbArticles = nbArticles;
+        this.totalItems = totalItems;
         this.menus = menus;
-        this.payments = paiementSet;
-        this.paye = paye;
+        this.payments = payments;
+        this.paid = paid;
     }
 
     getNumeroToString = () => {
-        return this.numero < 10 ? "00" + this.numero
-            : this.numero < 100 ? "0" + this.numero
-            : this.numero.toString();
+        return this.number < 10 ? "00" + this.number
+            : this.number < 100 ? "0" + this.number
+            : this.number.toString();
     }
 
     getPrixTTCToString = () => {
         console.log(this);
-        return (this.prixTTC / 100).toFixed(2).replace('.', ',');
+        return (this.totalPrice / 100).toFixed(2).replace('.', ',');
     }
 
     getDateSaisieAndHourToString = () => {
         const options = { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" };
-        return new Intl.DateTimeFormat("fr-FR", options).format(new Date(this.dateSaisie));
+        return new Intl.DateTimeFormat("fr-FR", options).format(new Date(this.creationDate));
     }
 
     getDateSaisieToString = () => {
         const options = { timeZone: "Europe/Paris", day: "2-digit", month: "2-digit", year: "numeric" };
-        return new Intl.DateTimeFormat("fr-FR", options).format(new Date(this.dateSaisie));
+        return new Intl.DateTimeFormat("fr-FR", options).format(new Date(this.creationDate));
     }
 
     getNbArticlesToString = () => {
-        if(this.nbArticles >= 100) return "99+"
-        return this.nbArticles.toString();
+        if(this.totalItems >= 100) return "99+"
+        return this.totalItems.toString();
     }
 }
 
