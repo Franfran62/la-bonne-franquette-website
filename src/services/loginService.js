@@ -38,11 +38,9 @@ const login = async (username, password) => {
         refreshTokenStore.token = response.data["refreshToken"];
         return response;
     } catch (error) {
-        if (error.response) {
-            return {status: error.response.status, message: error.response.data["Erreur"]};
-        } else {
+
             throw new Error(error);
-        }
+
     }
 };
 
@@ -63,11 +61,8 @@ const register = async (username, restaurantName, password) => {
             return {status: response.status, message: response.data["Erreur"]};
         }
     } catch (error) {
-        if (error.response) {
-            return {status: error.response.status, message: error.response.data["Erreur"]};
-        } else {
             throw new Error(error);
-        }
+
     }
 };
 

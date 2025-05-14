@@ -1,4 +1,4 @@
-import { useAuthTokenStore, useRefreshTokenStore } from "@/stores/authToken";
+import {useAuthTokenStore, useRefreshTokenStore} from "@/stores/authToken";
 import axios from "axios";
 import router from "@/router";
 
@@ -13,13 +13,15 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.response.use(
-    (response) => response,
+    (response) =>  response,
     (error) => {
         if (error.response && error.response.status === 403) {
             console.log(error.response);
             useAuthTokenStore.token = "";
             router.push({ name: "connexion" }).then();
 
+        } else {
+            error = error.response?.data?.Erreur || error.message;
         }
         return Promise.reject(error);
     }

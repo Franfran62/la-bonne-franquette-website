@@ -5,11 +5,8 @@ const fetchUsers = async () => {
     try {
         return await axiosInstance.get(`/user`);
     } catch (error) {
-        if (error.response) {
-            return {status: error.response.status, message: error.response.data["Erreur"]};
-        } else {
             throw new Error(error);
-        }
+
     }
 }
 
@@ -21,11 +18,8 @@ const createUser = async (username, password, role) => {
             role: role,
         })
     } catch (error) {
-        if (error.response) {
-            return {status: error.response.status, message: error.response.data["Erreur"]};
-        } else {
             throw new Error(error);
-        }
+
     }
 }
 
@@ -43,11 +37,8 @@ const updateUser = async (username, password, role, oldUsername, oldPassword) =>
 
         return await axiosInstance.put(`/user`,data);
     } catch (error) {
-        if (error.response) {
-            return {status: error.response.status, message: error.response.data["Erreur"]};
-        } else {
             throw new Error(error);
-        }
+
     }
 }
 
@@ -55,11 +46,8 @@ const deleteUser = async (username) => {
     try {
         return await axiosInstance.delete(`user/${username}`);
     } catch (error) {
-        if (error.response) {
-            return {status: error.response.status, message: error.response.data["Erreur"]};
-        } else {
             throw new Error(error);
-        }
+
     }
 }
 
