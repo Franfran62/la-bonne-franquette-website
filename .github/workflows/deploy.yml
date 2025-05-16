@@ -43,7 +43,9 @@ jobs:
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
+          port: 22
           script: |
             docker login ghcr.io --username ${{ secrets.REGISTRY_USER }} --password ${{ secrets.REGISTRY_TOKEN }}
             docker pull ghcr.io/${{ secrets.REGISTRY_USER }}/siteweb:latest
