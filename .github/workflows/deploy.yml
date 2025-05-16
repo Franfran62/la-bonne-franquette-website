@@ -55,4 +55,4 @@ jobs:
               --name siteweb \
               --restart unless-stopped \
               -p 80:80 \
-              ghcr.io/${{ github.repository_owner }}/siteweb:latest
+              ghcr.io/${{ secrets.REGISTRY_USER }}/siteweb:latest
