@@ -1,4 +1,4 @@
-name: Build & Publish Docker Image
+name: Build & Publish Docker Image, then Deploy on Server
 
 permissions:
   contents: read
@@ -12,7 +12,6 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
     steps:
       # 1. Récupérer le code
       - name: Checkout repository
@@ -26,7 +25,7 @@ jobs:
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_TOKEN }}
 
-      # 3. Build et push
+      # 3. Build et push sur GHCR
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
@@ -35,3 +34,23 @@ jobs:
           tags: |
             ghcr.io/${{ secrets.REGISTRY_USER }}/siteweb:latest
             ghcr.io/${{ secrets.REGISTRY_USER }}/siteweb:${{ github.sha }}
+            
+  deploy:
+    needs: build-and-push           
+    runs-on: ubuntu-latest
+    steps:
+      - name: Déployer sur le serveur
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_IP }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            docker login ghcr.io --username ${{ secrets.REGISTRY_USER }} --password ${{ secrets.REGISTRY_TOKEN }}
+            docker pull ghcr.io/${{ secrets.REGISTRY_USER }}/siteweb:latest
+            docker stop siteweb || true
+            docker rm   siteweb || true
+            docker run -d \
+              --name siteweb \
+              --restart unless-stopped \
+              -p 80:80 \
+              ghcr.io/${{ github.repository_owner }}/siteweb:latest
