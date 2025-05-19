@@ -9,33 +9,57 @@ const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
-            path: '/la-bonne-franquette-website',
+            path: '/',
             name: 'home',
+            meta: {
+                visible: true,
+                title: 'Accueil',
+            },
             component: HomeView
         },
         {
-            path: '/la-bonne-franquette-website/mentions-legales',
+            path: '/mentions-legales',
             name: 'mentions',
+            meta: {
+                visible: true,
+                title: 'Mentions légales',
+            },
             component: () => import('../views/MentionsView.vue')
         },
         {
-            path: '/la-bonne-franquette-website/faq',
+            path: '/faq',
             name: 'faq',
+            meta: {
+                visible: true,
+                title: 'Foire aux questions',
+            },
             component: () => import('../views/FaqView.vue')
         },
         {
-            path: '/la-bonne-franquette-website/connexion',
+            path: '/connexion',
             name: 'connexion',
+            meta: {
+                visible: false,
+                title: 'Connexion',
+            },
             component: () => import('../views/LoginView.vue')
         },
         {
-            path: '/la-bonne-franquette-website/dashboard',
+            path: '/dashboard',
             name: 'dashboard',
+            meta: {
+                visible: true,
+                title: 'Panel d\'administration',
+            },
             component: () => import('../views/DashboardView.vue')
         },
         {
             path: '/:pathMatch(.*)*',
             name: 'NotFound',
+            meta: {
+                visible: false,
+                title: 'Page non trouvée',
+            },
             redirect: {name: 'home'}
         },
     ]
@@ -44,7 +68,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     const authTokenStore = useAuthTokenStore();
     previousRoute.value = from;
-    if (to.path === '/la-bonne-franquette-website/dashboard' && !authTokenStore.token) {
+    if (to.path === '/dashboard' && !authTokenStore.token) {
         next({ name: 'connexion' });
     } else {
         next();

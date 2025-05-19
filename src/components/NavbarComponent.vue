@@ -32,13 +32,17 @@
 <script setup>
 import { onMounted } from 'vue';
 import { RouterLink } from 'vue-router';
+import { useRouter } from 'vue-router';
 
-const navigation = [
-  { name: 'Accueil', href: '/la-bonne-franquette-website', current: false },
-  { name: 'F.A.Q', href: '/la-bonne-franquette-website/faq', current: false }, 
-  { name: 'Accéder au dashboard', href: '/la-bonne-franquette-website/connexion', current: false },
-  { name: 'Mentions legales', href: '/la-bonne-franquette-website/mentions-legales', current: false },
-]
+const router = useRouter();
+
+const navigation = router.getRoutes()
+  .filter(route => route.meta && route.meta.visible)
+  .map(route => ({
+    name: route.meta.title,
+    href: route.path,
+    current: false,
+  }));
 
 onMounted(() => {
   const navbar = document.getElementById("navbar");
