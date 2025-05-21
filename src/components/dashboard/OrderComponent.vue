@@ -39,13 +39,13 @@ watch(selectedOrder, (newValue) => {
     payments.value = []
   } else {
     products.value = selectedOrder.value?.articles.map(
-        a => new Product(a['nom'], a['prixTTC'], a['ingredients'], a['extraSet'], (a['ingredients'].length > 0 || a['extraSet'].length > 0), a["quantite"])
+        a => new Product(a['name'], a['totalPrice'], a['ingredients'], a['addons'], a['modified'], a["quantity"])
     );
     payments.value = selectedOrder.value?.payments.map(
-        p => new Payment(p['prix'],p["type"],p['paye'],p['date'])
+        p => new Payment(p['prix'],p["type"],p['paid'],p['date'])
     );
     menus.value = selectedOrder.value?.menus.map(
-        m => new Menu(m['nom'],m["prixTTC"],m['articles'],m['modified'], m["quantite"])
+        m => new Menu(m['name'],m["totalPrice"],m['articles'],m['modified'], m["quantity"])
     );
   }
   console.log('\n')
@@ -64,10 +64,10 @@ const getWeekNumber = (date) => {
 const onFilter = computed(() => {
   switch (selectedDateRange.value) {
     case DateRange.ALL : return orders.value;
-    case DateRange.TODAY : return orders.value.filter(order => (order.dateSaisie.getDate() === today.getDate() && order.dateSaisie.getMonth() === today.getMonth() && order.dateSaisie.getFullYear() === today.getFullYear()));
-    case DateRange.WEEK : return orders.value.filter(order => (getWeekNumber(order.dateSaisie) === getWeekNumber(today)));
-    case DateRange.MONTH : return orders.value.filter(order => (order.dateSaisie.getMonth() === today.getMonth() && order.dateSaisie.getFullYear() === today.getFullYear()));
-    case DateRange.YEAR : return orders.value.filter(order => (order.dateSaisie.getFullYear() === today.getFullYear()));
+    case DateRange.TODAY : return orders.value.filter(order => (order.creationDate.getDate() === today.getDate() && order.creationDate.getMonth() === today.getMonth() && order.creationDate.getFullYear() === today.getFullYear()));
+    case DateRange.WEEK : return orders.value.filter(order => (getWeekNumber(order.creationDate) === getWeekNumber(today)));
+    case DateRange.MONTH : return orders.value.filter(order => (order.creationDate.getMonth() === today.getMonth() && order.creationDate.getFullYear() === today.getFullYear()));
+    case DateRange.YEAR : return orders.value.filter(order => (order.creationDate.getFullYear() === today.getFullYear()));
   }
 })
 
@@ -75,7 +75,7 @@ const refreshOrders = async () => {
   try {
     const response = await fetchOrders();
     if (response.status !== 200) throw new Error(response.message);
-    orders.value = response.data.map(order => new Order(order.commandeId, order.numero, order.prixTTC, order.surPlace, order.status, order.paiementTypeCommande, new Date(order.dateSaisie), order.dateLivraison ? new Date(order.dateLivraison) : null, order.articles, order.nbArticle, order.menus, order.paiementSet, order.paye));
+    orders.value = response.data.map(order => new Order(order.id, order.number, order.totalPrice, order.dineIn, order.status, order.paymentType, new Date(order.creationDate), order.deliveryDate ? new Date(order.deliveryDate) : null, order.articles, order.totalItems, order.menus, order.payments, order.paid));
     selectedOrder.value = null;
     isLoading.value = false;
   } catch (e) {
