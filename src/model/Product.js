@@ -2,15 +2,15 @@ class Product {
     name;
     price;
     ingredients;
-    extras;
+    addons;
     modified;
     quantity;
 
-    constructor(name, price, ingredients, extras, modified, quantity) {
+    constructor(name, price, ingredients, addons, modified, quantity) {
         this.name = name;
         this.price = price;
         this.ingredients = ingredients;
-        this.extras = extras;
+        this.addons = addons;
         this.modified = modified;
         this.quantity = quantity;
     }
@@ -21,3 +21,4 @@ class Product {
 }
 
 export default Product;
+//TODO: Modification du calcul du prix total (avec TVA) lors de la création d'un produit

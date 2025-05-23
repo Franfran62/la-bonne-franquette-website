@@ -48,11 +48,6 @@ watch(selectedOrder, (newValue) => {
         m => new Menu(m['name'],m["totalPrice"],m['articles'],m['modified'], m["quantity"])
     );
   }
-  console.log('\n')
-  console.log('Order:', selectedOrder?.value);
-  console.log('Articles:', products.value);
-  console.log('Menus:', menus.value);
-  console.log('Payements:', payments.value);
 });
 
 const getWeekNumber = (date) => {
@@ -108,16 +103,7 @@ const orderDisplayTitle = computed(() => (selectedOrder === null || selectedOrde
       <v-card :width="isMobile ? 400 : 700" variant="text" :class="{'mx-auto': isMobile }">
         <v-card-title v-show="!isMobile">Résumé des commandes</v-card-title>
         <div>
-          <!--        <div class="d-flex flex-column align-center">
-
-                  </div>-->
           <v-card-actions :class="{'flex justify-space-between': !isMobile}">
-            <!--          <span class="ml-14" v-show="!isMobile">Trier par : </span>
-                      <v-select label="Role" :items="availableRoles" v-model="selectedRole" item-title="name" item-value="value"
-                                clearable variant="outlined" density="compact" color="accent" rounded="xl"
-                                :width="!isMobile ? 225: 25"
-                                class="mt-6"/>-->
-
             <v-btn-toggle
                 v-if="!isMobile"
                 v-model="selectedDateRange"

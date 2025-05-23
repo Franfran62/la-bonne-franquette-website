@@ -4,13 +4,15 @@ class Menu {
     articles;
     modified;
     quantity;
+    menuItems
 
-    constructor(name, price, articles, modified, quantity) {
+    constructor(name, price, articles, modified, quantity, menuItems) {
         this.name = name;
         this.price = price;
         this.articles = articles;
         this.modified = modified;
         this.quantity = quantity;
+        this.menuItems = menuItems;
     }
 
     getPriceToString = () => {
@@ -19,3 +21,4 @@ class Menu {
 }
 
 export default Menu;
+//TODO: Modification du calcul du prxi avec TVA lors de la création d'un Menu
