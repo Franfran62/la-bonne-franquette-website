@@ -1,12 +1,15 @@
-class Product {
+import HasPrice from "@/model/HasPrice.js";
+
+class Product extends HasPrice{
     name;
-    price;
     ingredients;
     addons;
     modified;
     quantity;
 
-    constructor(name, price, ingredients, addons, modified, quantity) {
+    constructor(name, price, ingredients, addons, modified, quantity, vatRate) {
+        console.log(addons);
+        super(price,vatRate);
         this.name = name;
         this.price = price;
         this.ingredients = ingredients;
@@ -15,9 +18,6 @@ class Product {
         this.quantity = quantity;
     }
 
-    getPriceToString = () => {
-        return (this.price / 100).toFixed(2).replace('.', ',');
-    }
 }
 
 export default Product;

@@ -4,8 +4,8 @@ const VATRate = Object.freeze({
     INTERMEDIAIRE: "Intermédiaire",
 });
 
-const getMultFromVAT = (VATRate) => {
-    switch (VATRate) {
+const getMultFromVAT = (rate) => {
+    switch (rate) {
         case VATRate.AUCUN: return 1;
         case VATRate.INTERMEDIAIRE: return 1.10;
         case VATRate.NORMAL: return 1.20;

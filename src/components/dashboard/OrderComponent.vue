@@ -42,7 +42,7 @@ watch(selectedOrder, (newValue) => {
         a => new Product(a['name'], a['totalPrice'], a['ingredients'], a['addons'], a['modified'], a["quantity"])
     );
     payments.value = selectedOrder.value?.payments.map(
-        p => new Payment(p['prix'],p["type"],p['paid'],p['date'])
+        p => new Payment(p['price'],p["type"],p['paid'],p['date'])
     );
     menus.value = selectedOrder.value?.menus.map(
         m => new Menu(m['name'],m["totalPrice"],m['articles'],m['modified'], m["quantity"])
@@ -129,7 +129,7 @@ const orderDisplayTitle = computed(() => (selectedOrder === null || selectedOrde
 
       <v-card :width="isMobile ? 400 : 700" variant="text" :class="{'px-8': !isMobile, 'flex justify-center': isMobile }">
         <v-card-title :class="{'text-center': isMobile}"><span class="text-xl">{{ orderDisplayTitle }}</span></v-card-title>
-        <v-card-subtitle v-show="selectedOrder && selectedOrder.value !== null">{{"Prix : "+selectedOrder?.getPrixTTCToString()+" €"}}</v-card-subtitle>
+        <v-card-subtitle v-show="selectedOrder && selectedOrder.value !== null">{{"Prix : "+selectedOrder?.getPriceToString()+" €"}}</v-card-subtitle>
         <div :class="{'mx-2': !isMobile, 'my-2 mx-2': isMobile}">
             <ProductListComponent :products="products" />
             <MenuListComponent :menus="menus" />

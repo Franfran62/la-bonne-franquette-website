@@ -1,10 +1,12 @@
 import {id} from "vuetify/locale";
 import Status from "@/model/Status.js";
+import HasPrice from "@/model/HasPrice.js";
+import VATRate from "@/model/VATRate.js";
 
-class Order {
+class Order extends HasPrice{
+    //Pour les Commandes, le prix HT correspond au prix TTC, expliquant la valeur de la TVA à Aucun
     id;
     number;
-    totalPrice;
     dineIn;
     paid;
     status;
@@ -16,10 +18,10 @@ class Order {
     menus;
     payments;
 
-    constructor(commandId, number, totalPrice, dineIn, status, paymentType, creationDate, deliveryDate, articles, totalItems, menus, payments, paid) {
+    constructor(commandId, number, price, dineIn, status, paymentType, creationDate, deliveryDate, articles, totalItems, menus, payments, paid) {
+        super(price, VATRate.AUCUN);
         this.id = id;
         this.number = number;
-        this.totalPrice = totalPrice;
         this.dineIn = dineIn;
         this.status = Status[status] || null;
         this.paymentType = paymentType;
@@ -36,11 +38,6 @@ class Order {
         return this.number < 10 ? "00" + this.number
             : this.number < 100 ? "0" + this.number
             : this.number.toString();
-    }
-
-    getPrixTTCToString = () => {
-        console.log(this);
-        return (this.totalPrice / 100).toFixed(2).replace('.', ',');
     }
 
     getDateSaisieAndHourToString = () => {

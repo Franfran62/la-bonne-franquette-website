@@ -1,12 +1,14 @@
-class Menu {
+import HasPrice from "@/model/HasPrice.js";
+
+class Menu extends HasPrice {
     name;
-    price;
     articles;
     modified;
     quantity;
-    menuItems
+    menuItems;
 
-    constructor(name, price, articles, modified, quantity, menuItems) {
+    constructor(name, price, articles, modified, quantity, menuItems, vatRate) {
+        super(price,vatRate);
         this.name = name;
         this.price = price;
         this.articles = articles;
@@ -14,10 +16,10 @@ class Menu {
         this.quantity = quantity;
         this.menuItems = menuItems;
     }
-
+/*
     getPriceToString = () => {
         return (this.price / 100).toFixed(2).replace('.', ',');
-    }
+    }*/
 }
 
 export default Menu;

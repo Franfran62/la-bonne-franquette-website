@@ -42,10 +42,10 @@ defineProps({
             <div class="flex flex-wrap mx-6 mb-4 justify-start">
               <div class="text-sm" :class="{'mr-2': p.ingredients.length > 0 && p.addons.length > 0}"
                    v-show="p.ingredients.length > 0">Ingrédients retirés :
-                {{ p.ingredients.map(x => x['nom']).join(', ') }}
+                {{ p.ingredients.map(x => x['name']).join(', ') }}
               </div>
               <div class="text-sm" v-show="p.addons.length > 0">Extras : {{
-                  p.addons.map(x => x['nom']).join(', ')
+                  p.addons.map(x => x['name']).join(', ')
                 }}
               </div>
             </div>

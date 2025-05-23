@@ -1,19 +1,15 @@
 import VATRate, {getMultFromVAT} from "@/model/VATRate.js";
+import HasPrice from "@/model/HasPrice.js";
 
-class Addon {
+class Addon extends HasPrice{
     id;
     name;
-    price;
-    totalPrice;
-    VATRate;
     ingredient;
 
     constructor(id, name, price, totalPrice, VATRate, ingredient) {
+        super(price,VATRate);
         this.id = id;
         this.name = name;
-        this.price = price;
-        this.totalPrice = this.totalPrice = price * getMultFromVAT(VATRate);
-        this.VATRate = VATRate;
         this.ingredient = ingredient;
     }
 }

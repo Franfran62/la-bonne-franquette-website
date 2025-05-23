@@ -1,23 +1,17 @@
-import {id} from "vuetify/locale";
-import VATRate, {getMultFromVAT} from "@/model/VATRate.js";
+import HasPrice from "@/model/HasPrice.js";
 
-class MenuItem {
+class MenuItem extends HasPrice {
     id;
     name;
     products;
     optional;
-    price;
-    totalPrice;
-    VATRate;
 
-    constructor(id, name, products, optional, price, VATRate) {
+    constructor(id, name, products, optional, price, vatRate) {
+        super(price, vatRate);
         this.id = id;
         this.name = name;
         this.products = products;
         this.optional = optional;
-        this.price = price;
-        this.totalPrice = price * getMultFromVAT(VATRate);
-        this.VATRate = VATRate;
     }
 }
 

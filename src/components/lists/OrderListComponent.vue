@@ -45,7 +45,7 @@ const isMobile = computed(() => xs.value || sm.value);
             {{ order.getNbArticlesToString() }} Article{{ order.totalItems > 1 ? "s" : "" }}
           </div>
           <div class="mx-2">
-            Prix : {{ order.getPrixTTCToString() }}€
+            Prix : {{ order.getPriceToString() }}€
           </div>
         </div>
         <div :class="{'flex justify-center mx-auto': isMobile, 'flex justify-end': !isMobile}">

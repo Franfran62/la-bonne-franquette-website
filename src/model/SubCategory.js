@@ -1,5 +1,4 @@
 import Category from "@/model/Category.js";
-import {id} from "vuetify/locale";
 
 class SubCategory extends Category {
      categoryId;
