@@ -15,11 +15,9 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
     (response) =>  response,
     (error) => {
-        if (error.response && error.response.status === 403) {
-            console.log(error.response);
+        if (error.status === 403 ) {
             useAuthTokenStore.token = "";
             router.push({ name: "connexion" }).then();
-
         } else {
             error = error.response?.data?.Erreur || error.message;
         }

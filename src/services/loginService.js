@@ -1,15 +1,16 @@
 import axiosInstance from "@/middlewares/axiosConfig";
 import {useAuthTokenStore, useRefreshTokenStore} from "@/stores/authToken";
+import {fetch, post, put, remove} from "@/services/axiosService.js";
 
 const _login = (username, password) => {
-    return axiosInstance.post(`/auth/login`, {
+    return post(`auth/login`, {
         username: username,
         password: password,
     });
 };
 
 const _register = (username, restaurantName, password) => {
-    return axiosInstance.post(`/restaurant/create`, {
+    return post(`restaurant/create`, {
         username: username,
         password: password,
         restaurantName: restaurantName,
@@ -38,9 +39,7 @@ const login = async (username, password) => {
         refreshTokenStore.token = response.data["refreshToken"];
         return response;
     } catch (error) {
-
             throw new Error(error);
-
     }
 };
 

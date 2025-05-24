@@ -1,25 +1,23 @@
-import axiosInstance from "@/middlewares/axiosConfig.js";
+import {fetch, post, put, remove} from "@/services/axiosService.js";
 
 
 const fetchUsers = async () => {
     try {
-        return await axiosInstance.get(`/user`);
-    } catch (error) {
-            throw new Error(error);
-
+        return fetch("user");
+    } catch (e) {
+        throw new Error(e);
     }
 }
 
 const createUser = async (username, password, role) => {
     try {
-        return await axiosInstance.post(`/user`,{
+        return await post("user",{
             username: username,
             password: password,
             role: role,
         })
     } catch (error) {
             throw new Error(error);
-
     }
 }
 
@@ -35,7 +33,7 @@ const updateUser = async (username, password, role, oldUsername, oldPassword) =>
 
         JSON.stringify(data);
 
-        return await axiosInstance.put(`/user`,data);
+        return await put("user",data);
     } catch (error) {
             throw new Error(error);
 
@@ -44,7 +42,7 @@ const updateUser = async (username, password, role, oldUsername, oldPassword) =>
 
 const deleteUser = async (username) => {
     try {
-        return await axiosInstance.delete(`user/${username}`);
+        return await remove("user", username);
     } catch (error) {
             throw new Error(error);
 

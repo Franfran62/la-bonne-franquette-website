@@ -6,8 +6,9 @@ class Menu extends HasPrice {
     modified;
     quantity;
     menuItems;
+    id;
 
-    constructor(name, price, articles, modified, quantity, menuItems, vatRate) {
+    constructor(name, price, articles, modified, quantity, menuItems, vatRate, id) {
         super(price,vatRate);
         this.name = name;
         this.price = price;
@@ -15,12 +16,8 @@ class Menu extends HasPrice {
         this.modified = modified;
         this.quantity = quantity;
         this.menuItems = menuItems;
+        this.id = id;
     }
-/*
-    getPriceToString = () => {
-        return (this.price / 100).toFixed(2).replace('.', ',');
-    }*/
 }
 
 export default Menu;
-//TODO: Modification du calcul du prxi avec TVA lors de la création d'un Menu

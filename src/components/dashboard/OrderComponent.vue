@@ -69,7 +69,6 @@ const onFilter = computed(() => {
 const refreshOrders = async () => {
   try {
     const response = await fetchOrders();
-    if (response.status !== 200) throw new Error(response.message);
     orders.value = response.data.map(order => new Order(order.id, order.number, order.totalPrice, order.dineIn, order.status, order.paymentType, new Date(order.creationDate), order.deliveryDate ? new Date(order.deliveryDate) : null, order.articles, order.totalItems, order.menus, order.payments, order.paid));
     selectedOrder.value = null;
     isLoading.value = false;

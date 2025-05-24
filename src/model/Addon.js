@@ -6,7 +6,7 @@ class Addon extends HasPrice{
     name;
     ingredient;
 
-    constructor(id, name, price, totalPrice, VATRate, ingredient) {
+    constructor(id, name, price, VATRate, ingredient) {
         super(price,VATRate);
         this.id = id;
         this.name = name;
