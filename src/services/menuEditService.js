@@ -62,7 +62,6 @@ const fetchElements = async (type) => {
                         const menuItemProducts = [];
                         menuItem["products"].map(product => {
                             const productIngredients = [];
-
 /*                            product["ingredients"].map(ingredient => {
                                 productIngredients.push(new Ingredients(ingredient["id"], ingredient["name"]));
                             })*/
@@ -82,11 +81,7 @@ const fetchElements = async (type) => {
             }
         }
     } catch (e) {
-        console.log(e)
         throw new Error(e);
     }
-
-
 }
-//TODO: Régler le probléme d'instentiation des Addons.
 export {fetchElements};
