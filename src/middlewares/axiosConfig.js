@@ -15,12 +15,17 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
     (response) =>  response,
     (error) => {
-        if (error.response && error.response.status === 403) {
-            console.log(error.response);
+         if (error.status === 599 || error.code === "ERR_NETWORK") {
+            console.log(error);
+            error = "Impossible de contacter le serveur, réessayez plus tard."
+        } else if(error.status >= 500) {
+             console.log(error);
+             error = "Oups, une erreur est survenue, réessayez plus tard."
+         } else if (error.status === 403 ) {
             useAuthTokenStore.token = "";
             router.push({ name: "connexion" }).then();
-
         } else {
+            console.log(error);
             error = error.response?.data?.Erreur || error.message;
         }
         return Promise.reject(error);

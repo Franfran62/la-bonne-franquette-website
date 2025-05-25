@@ -42,17 +42,12 @@ watch(selectedOrder, (newValue) => {
         a => new Product(a['name'], a['totalPrice'], a['ingredients'], a['addons'], a['modified'], a["quantity"])
     );
     payments.value = selectedOrder.value?.payments.map(
-        p => new Payment(p['prix'],p["type"],p['paid'],p['date'])
+        p => new Payment(p['price'],p["type"],p['paid'],p['date'])
     );
     menus.value = selectedOrder.value?.menus.map(
         m => new Menu(m['name'],m["totalPrice"],m['articles'],m['modified'], m["quantity"])
     );
   }
-  console.log('\n')
-  console.log('Order:', selectedOrder?.value);
-  console.log('Articles:', products.value);
-  console.log('Menus:', menus.value);
-  console.log('Payements:', payments.value);
 });
 
 const getWeekNumber = (date) => {
@@ -74,7 +69,6 @@ const onFilter = computed(() => {
 const refreshOrders = async () => {
   try {
     const response = await fetchOrders();
-    if (response.status !== 200) throw new Error(response.message);
     orders.value = response.data.map(order => new Order(order.id, order.number, order.totalPrice, order.dineIn, order.status, order.paymentType, new Date(order.creationDate), order.deliveryDate ? new Date(order.deliveryDate) : null, order.articles, order.totalItems, order.menus, order.payments, order.paid));
     selectedOrder.value = null;
     isLoading.value = false;
@@ -108,16 +102,7 @@ const orderDisplayTitle = computed(() => (selectedOrder === null || selectedOrde
       <v-card :width="isMobile ? 400 : 700" variant="text" :class="{'mx-auto': isMobile }">
         <v-card-title v-show="!isMobile">Résumé des commandes</v-card-title>
         <div>
-          <!--        <div class="d-flex flex-column align-center">
-
-                  </div>-->
           <v-card-actions :class="{'flex justify-space-between': !isMobile}">
-            <!--          <span class="ml-14" v-show="!isMobile">Trier par : </span>
-                      <v-select label="Role" :items="availableRoles" v-model="selectedRole" item-title="name" item-value="value"
-                                clearable variant="outlined" density="compact" color="accent" rounded="xl"
-                                :width="!isMobile ? 225: 25"
-                                class="mt-6"/>-->
-
             <v-btn-toggle
                 v-if="!isMobile"
                 v-model="selectedDateRange"
@@ -143,7 +128,7 @@ const orderDisplayTitle = computed(() => (selectedOrder === null || selectedOrde
 
       <v-card :width="isMobile ? 400 : 700" variant="text" :class="{'px-8': !isMobile, 'flex justify-center': isMobile }">
         <v-card-title :class="{'text-center': isMobile}"><span class="text-xl">{{ orderDisplayTitle }}</span></v-card-title>
-        <v-card-subtitle v-show="selectedOrder && selectedOrder.value !== null">{{"Prix : "+selectedOrder?.getPrixTTCToString()+" €"}}</v-card-subtitle>
+        <v-card-subtitle v-show="selectedOrder && selectedOrder.value !== null">{{"Prix : "+selectedOrder?.getPriceToString()+" €"}}</v-card-subtitle>
         <div :class="{'mx-2': !isMobile, 'my-2 mx-2': isMobile}">
             <ProductListComponent :products="products" />
             <MenuListComponent :menus="menus" />

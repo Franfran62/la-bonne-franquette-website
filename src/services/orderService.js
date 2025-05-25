@@ -1,11 +1,10 @@
-import axiosInstance from "@/middlewares/axiosConfig.js";
+import {fetch} from "@/services/axiosService.js";
 
 const fetchOrders = async () => {
     try {
-        return await axiosInstance.get(`/order`);
+        return await fetch("order");
     } catch (error) {
             throw new Error(error);
-
     }
 }
 

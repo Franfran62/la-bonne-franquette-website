@@ -1,18 +1,16 @@
-class Payment {
-    price;
+import VATRate from "@/model/VATRate.js";
+import HasPrice from "@/model/HasPrice.js";
+
+class Payment extends HasPrice{
     paymentType;
     paid;
     date;
 
     constructor(price, paymentType, paid, date) {
-        this.price = price;
+        super(price,VATRate.AUCUN);
         this.paymentType = paymentType;
         this.paid = paid;
         this.date = date;
-    }
-
-    getPriceToString = () => {
-        return (this.price / 100).toFixed(2).replace('.', ',');
     }
 
     getDateSaisieAndHourToString = () => {
