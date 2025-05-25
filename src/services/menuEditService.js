@@ -60,12 +60,12 @@ const fetchElements = async (type) => {
                     const menuItems = [];
                     e["menuItems"].map(menuItem => {
                         const menuItemProducts = [];
-                        e["menuItems"]["products"].map(product => {
+                        menuItem["products"].map(product => {
                             const productIngredients = [];
 
-                            product["ingredients"].map(ingredient => {
+/*                            product["ingredients"].map(ingredient => {
                                 productIngredients.push(new Ingredients(ingredient["id"], ingredient["name"]));
-                            })
+                            })*/
                             const productAddons = [];
                             product["addons"].map(addon => {
                                 productAddons.push(new Addon(addon["id"], addon["prixHT"], addon["name"], addon["tauxTVA"], []));
@@ -89,5 +89,4 @@ const fetchElements = async (type) => {
 
 }
 //TODO: Régler le probléme d'instentiation des Addons.
-//TODO: Régler le problème de récupération des erreurs 403 qui ne sont pas interceptés par le middleware en utilisant ce service
 export {fetchElements};
