@@ -43,7 +43,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_TOKEN }}
+          password: ${{ secrets.PAT_TOKEN }}
 
       # 5. Build et push sur GHCR
       - name: Build and push Docker image
