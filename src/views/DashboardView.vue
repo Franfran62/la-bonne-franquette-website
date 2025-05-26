@@ -15,7 +15,6 @@ const components = {
 
 const setComponent = (component) => {
   currentComponent.value = component;
-  console.log(currentComponent.value)
 }
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-  <nav id="navbar" class="bg-white fixed top-0 z-40 flex w-full flex-row justify-end px-4 sm:justify-between">
+  <nav id="navbar" class="bg-transparent fixed top-0 z-40 flex w-full flex-row justify-end px-4 sm:justify-between">
     <button id="btnSidebarToggler" @click="toggleSidebar()" type="button"
       class="my-4 py-4 px-2 text-2xl rounded-md hover-primary">
       <svg id="navClosed" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -15,7 +15,7 @@
   <div id="containerSidebar" class="z-40">
     <div class="navbar-menu relative z-40">
       <nav id="sidebar"
-        class="fixed left-0 bottom-0 flex w-3/4 -translate-x-full flex-col overflow-y-auto shadow-xl bg-white pt-6 pb-8 sm:max-w-xs lg:w-80">
+        class="fixed left-0 bottom-0 flex w-3/4 -translate-x-full flex-col overflow-y-auto shadow-xl bg-white pt-6 pb-8 sm:max-w-xs lg:w-80 h-screen">
         <ul class="mb-8">
           <li v-for="nav of navigation">
             <RouterLink class="flex items-center rounded py-3 pl-3 pr-4 hover-primary" :to="nav.href">

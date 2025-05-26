@@ -7,6 +7,7 @@ import {previousRoute} from "@/router/index.js";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import LogoutInfo from "@/components/snackbars/LogoutInfo.vue";
 import {useDisplay} from "vuetify";
+import NavbarComponent from "@/components/NavbarComponent.vue";
 
 const router = useRouter();
 
@@ -70,6 +71,7 @@ const switchView = () => {
 </script>
 
 <template>
+  <NavbarComponent />
   <div>
     <v-container class="d-flex justify-center">
       <v-card class="pa-4" :max-width="isMobile ? 350 : isTablet ? 450 : 600" flat>
