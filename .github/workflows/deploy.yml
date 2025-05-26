@@ -62,7 +62,7 @@ jobs:
         - name: Send dispatch to infra repo
           uses: peter-evans/repository-dispatch@v2
           with:
-            token: ${{ secrets.GITHUB_TOKEN }}
+            token: ${{ secrets.PAT_TOKEN }}
             repository: Franfran62/la-bonne-franquette-infra
             event-type: deploy-siteweb
             client-payload: |
