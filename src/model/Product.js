@@ -9,7 +9,6 @@ class Product extends HasPrice{
     quantity;
 
     constructor(name, price, ingredients, addons, modified, quantity, vatRate, id) {
-        console.log(addons);
         super(price,vatRate);
         this.name = name;
         this.ingredients = ingredients;
