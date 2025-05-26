@@ -2,7 +2,8 @@ name: Build & Publish Docker Image, then Deploy on Server
 
 permissions:
   contents: read
-  packages: write 
+  packages: write
+  actions: write 
 
 on:
   push:
@@ -10,14 +11,33 @@ on:
       - deploy
 
 jobs:
-  build-and-push:
+  release-build-and-push:
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.set_tag.outputs.image_tag }}
     steps:
       # 1. Récupérer le code
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Se connecter au registry GHCR
+      # 2. Création de la release et création du numéro de version
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Release v${{ github.run_number }}"
+          body: "Release auto-générée."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      #3. Défini le numéro de version correspondant pour l'image Docker
+      - name: Set image tag
+        id: set_tag
+        run: |
+          echo "image_tag=v${{ github.run_number }}" >> $GITHUB_OUTPUT
+
+      # 4. Se connecter au registry GHCR
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
@@ -25,7 +45,7 @@ jobs:
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_TOKEN }}
 
-      # 3. Build et push sur GHCR
+      # 5. Build et push sur GHCR
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
@@ -33,26 +53,19 @@ jobs:
           push: true               # push après build
           tags: |
             ghcr.io/${{ secrets.REGISTRY_USER }}/siteweb:latest
-            ghcr.io/${{ secrets.REGISTRY_USER }}/siteweb:${{ github.sha }}
-            
-  deploy:
-    needs: build-and-push           
-    runs-on: ubuntu-latest
-    steps:
-      - name: Déployer sur le serveur
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.SSH_IP }}
-          username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          port: 22
-          script: |
-            docker login ghcr.io --username ${{ secrets.REGISTRY_USER }} --password ${{ secrets.REGISTRY_TOKEN }}
-            docker pull ghcr.io/${{ secrets.REGISTRY_USER }}/siteweb:latest
-            docker stop siteweb || true
-            docker rm   siteweb || true
-            docker run -d \
-              --name siteweb \
-              --restart unless-stopped \
-              -p 8080:80 \
-              ghcr.io/${{ secrets.REGISTRY_USER }}/siteweb:latest
+            ghcr.io/${{ secrets.REGISTRY_USER }}/siteweb:${{ steps.set_tag.outputs.image_tag }}
+      
+  dispatch:
+      needs: release-build-and-push
+      runs-on: ubuntu-latest
+      steps:
+        - name: Send dispatch to infra repo
+          uses: peter-evans/repository-dispatch@v2
+          with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+            repository: Franfran62/la-bonne-franquette-infra
+            event-type: deploy-siteweb
+            client-payload: |
+              {
+                "version": "${{ needs.release-build-and-push.outputs.image_tag }}"
+              }
