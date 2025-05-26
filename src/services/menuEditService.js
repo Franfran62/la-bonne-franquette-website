@@ -1,5 +1,5 @@
-import MenuElements, {getEnumKeyByValue} from "@/model/MenuElements.js";
-import {fetch} from "@/services/axiosService.js";
+import MenuElements from "@/model/MenuElements.js";
+import {fetch, remove} from "@/services/axiosService.js";
 import Addon from "@/model/Addon.js";
 import Category from "@/model/Category.js";
 import Ingredients from "@/model/Ingredients.js";
@@ -8,12 +8,15 @@ import Product from "@/model/Product.js";
 import Menu from "@/model/Menu.js";
 import MenuItem from "@/model/MenuItem.js";
 
+const getEnumKeyByValue = (enumObj, value) => {
+    return Object.keys(enumObj).find(key => enumObj[key] === value);
+};
+
 const fetchElements = async (type) => {
     const result = [];
     const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
     try {
         const response = await fetch(key);
-        console.log(response.data);
         switch (type) {
             case MenuElements.ADDON: {
                 response.data.map(e => {
@@ -41,6 +44,7 @@ const fetchElements = async (type) => {
             }
             case MenuElements.PRODUCT: {
                 response.data.map(e => {
+                    console.log(e);
                     const productIngredients = [];
                     e["ingredients"].map(ingredient => {
                         productIngredients.push(new Ingredients(ingredient["id"], ingredient["name"]));
@@ -49,7 +53,8 @@ const fetchElements = async (type) => {
                     e["addons"].map(addon => {
                         productAddons.push(new Addon(addon["id"], addon["prixHT"], addon["name"], addon["tauxTVA"], []));
                     })
-                    const newProduct = new Product(e["name"],e["price"], productIngredients, productAddons, false, false, e["id"]);
+                    const newProduct = new Product(e["name"],e["price"], productIngredients, productAddons, false, 0, e["TauxTVA"], e["id"]);
+                    console.log(newProduct);
                     result.push(newProduct);
                     return result;
                 })
@@ -84,4 +89,12 @@ const fetchElements = async (type) => {
         throw new Error(e);
     }
 }
-export {fetchElements};
+
+const deleteElement = async (type, element) => {
+    const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
+    console.log("key",key);
+    console.log("element",element);
+    console.log("id",element.id);
+    return remove(key, element.id);
+}
+export {fetchElements, deleteElement};

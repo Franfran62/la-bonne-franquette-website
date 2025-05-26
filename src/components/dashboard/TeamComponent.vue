@@ -124,6 +124,7 @@ const handleDeleteSubmit = async (userToDelete) => {
     snackbarInfo.value = true;
     return;
   }
+  selectedUser.value = userToDelete;
   deleteConfirmDialog.value = true;
 };
 
@@ -220,7 +221,7 @@ const clearCurrentUser = () => {
   <SuccessInfo :text="succesText" :enable="snackbarSuccess" @onClose="(v) => snackbarSuccess = v"/>
   <HintInfo :text="infoText" :enable="snackbarInfo" @onClose="(v) => snackbarInfo = v"/>
   <AlertDeleteDialog :title="'Vous allez supprimer un utilisateur.'"
-                     :body="`Vous êtes sur le point de supprimer l\'utilisateur ${ selectedUser?.value?.username }, êtes-vous sûr ?selectedUser?.value?.username`"
+                     :body="`Vous êtes sur le point de supprimer l\'utilisateur ${ selectedUser?.username }, êtes-vous sûr ?`"
                      :enable="deleteConfirmDialog"
                      @result="updateDelete"/>
 </template>

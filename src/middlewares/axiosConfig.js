@@ -21,7 +21,7 @@ axiosInstance.interceptors.response.use(
         } else if(error.status >= 500) {
              console.log(error);
              error = "Oups, une erreur est survenue, réessayez plus tard."
-         } else if (error.status === 403 ) {
+         } else if (error.status === 401 ) {
             useAuthTokenStore.token = "";
             router.push({ name: "connexion" }).then();
         } else {
