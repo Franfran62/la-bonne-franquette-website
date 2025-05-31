@@ -66,7 +66,7 @@ watch(selectedAddons, (newValue) => {
 watch(selectedCategories, (newValue) => {
   const selectAll = newValue.find(item => item.isSelectAll);
   if (selectAll) {
-    selectedCategories.value = addons.value.filter(item => !item.isSelectAll);
+    selectedCategories.value = categories.value.filter(item => !item.isSelectAll);
   }
 });
 
@@ -88,6 +88,7 @@ watch(selectedVATRate, (newValue) => {
               tauxTVA: getEnumKeyByValue(VATRate,selectedVATRate),
               addons: selectedAddons,
               ingredients: selectedIngredients,
+              categoriees: selectedCategories,
               })">
     <v-text-field v-model="name"
                   label="Nom du produit"
@@ -103,6 +104,7 @@ watch(selectedVATRate, (newValue) => {
               item-title="name"
               multiple
               chips
+              clearable
               variant="outlined"
               density="compact"
               color="primary"
@@ -116,6 +118,7 @@ watch(selectedVATRate, (newValue) => {
               item-title="name"
               multiple
               chips
+              clearable
               variant="outlined"
               density="compact"
               color="primary"
@@ -129,6 +132,7 @@ watch(selectedVATRate, (newValue) => {
               item-title="name"
               multiple
               chips
+              clearable
               variant="outlined"
               density="compact"
               color="primary"

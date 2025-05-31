@@ -73,9 +73,16 @@ const removeFromList = (index) => {
       <v-list-item v-for="(menuItem, i) in menuItems"
                    :key="i" variant="text">
         <v-list-item-title>
-          {{ menuItem.name }}: <br> {{ menuItem.product.name }} - {{ menuItem.totalPrice }}€ - {{ menuItem.TauxTVA }} -
-          {{ menuItem.required ? "Requis" : "Non Requis" }}
+          {{ menuItem.totalPrice }}€ - {{ menuItem.TauxTVA }} -
+          {{ !menuItem.optional ? "Requis" : "Non Requis" }}
           <v-btn icon="mdi-window-close" variant="text" @click="removeFromList(i)"/>
+          <v-list>
+            <v-list-item v-for="(item, j) in menuItem.products" :key="j" variant="text">
+              <v-list-item>
+                {{ item.name }}
+              </v-list-item>
+            </v-list-item>
+          </v-list>
         </v-list-item-title>
       </v-list-item>
     </v-list>

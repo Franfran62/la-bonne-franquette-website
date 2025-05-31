@@ -14,11 +14,11 @@ const errorText = ref("");
 const valid = ref(false);
 const products = ref([]);
 const name = ref("");
-const selectedProduct = ref(null);
+const selectedProducts = ref(null);
 const price = ref(0.00);
 const totalPrice = ref(0.00);
 const selectedVATRate = ref(VATRate.AUCUN);
-const required = ref(false);
+const optional = ref(false);
 
 /*
 TODO: Gérer le nettoyage automatique des champs
@@ -49,12 +49,11 @@ const handleCancel = () => {
 
 const handleSubmit = () => {
   emit('result', {
-    name: selectedProduct.value.name,
     prixHT: Number((price.value*100).toFixed(2)),
     totalPrice: totalPrice.value,
     TauxTVA: getEnumKeyByValue(VATRate,selectedVATRate.value),
-    product: selectedProduct.value,
-    required: required.value,
+    products: selectedProducts.value,
+    optional: optional.value,
   });
 }
 </script>
@@ -66,18 +65,21 @@ const handleSubmit = () => {
             @submit.prevent="handleSubmit()">
       <v-select label="Produit"
                 :items="products"
-                v-model="selectedProduct"
+                v-model="selectedProducts"
                 item-title="name"
                 variant="outlined"
                 density="compact"
                 color="primary"
+                multiple
+                chips
+                clearable
                 :rules="[v => !!v || 'le produit est nécessaire']"
                 rounded="xl"
                 return-object/>
-      <v-checkbox v-model="required">
+      <v-checkbox v-model="optional">
         <template v-slot:label>
           <div>
-            Le produit est obligatoire ?
+            Le produit est optionel ?
           </div>
         </template>
       </v-checkbox>
