@@ -5,6 +5,7 @@ import MenuElements from "@/model/MenuElements.js";
 import {fetchElements} from "@/services/menuEditService.js";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import VATRate, {getMultFromVAT} from "@/model/VATRate.js";
+import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
 
 defineProps({
   handleSubmit: {
@@ -58,7 +59,7 @@ watch(selectedVATRate, (newValue) => {
 
   <v-form v-model="valid"
           validate-on="invalid-input"
-          @submit.prevent="handleSubmit({name: name, price: price, totalPrice: totalPrice, VATRate: selectedVATRate, ingredient: selectedIngredient})">
+          @submit.prevent="handleSubmit({name: name, prixHT: Number((price*100).toFixed(2)), tauxTVA: getEnumKeyByValue(VATRate,selectedVATRate), ingredient: selectedIngredient})">
     <v-text-field v-model="name"
                   label="Nom de l'extra"
                   placeholder="Entrez le nom de l'extra"

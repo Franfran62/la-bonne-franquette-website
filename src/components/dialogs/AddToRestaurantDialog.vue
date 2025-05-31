@@ -1,13 +1,23 @@
 <script setup>
 
-import {computed, defineProps, ref, watch} from "vue";
-import MenuElements, {getEnumKeyByValue} from "@/model/MenuElements.js";
+import {defineProps, ref, watch} from "vue";
+import MenuElements from "@/model/MenuElements.js";
 import CategoryForm from "@/components/forms/CategoryForm.vue";
 import SubCategoryForm from "@/components/forms/SubCategoryForm.vue";
 import AddonForm from "@/components/forms/AddonForm.vue";
 import IngredientForm from "@/components/forms/IngredientForm.vue";
 import ProductForm from "@/components/forms/ProductForm.vue";
 import MenuForm from "@/components/forms/MenuForm.vue";
+import {createNewElement} from "@/services/menuEditService.js";
+import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
+import SuccessInfo from "@/components/snackbars/SuccessInfo.vue";
+import HintInfo from "@/components/snackbars/HintInfo.vue";
+
+/*
+TODO: Ajouter la vérifications des formulaires avant leur envoie
+TODO: Gérer l'affichage des erreurs et des autres messages
+TODO: Gérer la gestion des doublons (voir le back)
+ */
 
 const props = defineProps({
   enable: {
@@ -15,6 +25,14 @@ const props = defineProps({
   },
 });
 const emit = defineEmits(['result'])
+
+const snackbarError = ref(false);
+const snackbarSuccess = ref(false);
+const snackbarInfo = ref(false);
+
+const errorText = ref("");
+const succesText = ref("");
+const infoText = ref("");
 
 const localEnable = ref(props.enable);
 const selectedElementType = ref(MenuElements.CATEGORY);
@@ -27,18 +45,23 @@ watch(selectedElementType, (newVal) => {
   console.log(newVal);
 });
 
-const selectedElementTypeKey = computed(() => {
-  return getEnumKeyByValue(MenuElements, selectedElementType.value);
-})
-
 const handleCancel = () => {
   emit('result', false);
   localEnable.value = false;
 }
 
-const handleSubmit = (data) => {
-  console.log(data);
-  //TODO: Ajouter le call de l'api ici
+const handleSubmit = async(data) => {
+  console.log(JSON.stringify(data));
+
+  const response  = await createNewElement(selectedElementType.value, data);
+  console.log(response);
+  if(response.status === 200) {
+    succesText.value = response.data["Response"];
+    snackbarSuccess.value = true;
+  } else {
+    errorText.value = response.data.message;
+    snackbarError.value = true;
+  }
   emit('result', true);
   localEnable.value = false;
 }
@@ -91,6 +114,11 @@ const handleSubmit = (data) => {
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <ErrorInfo :text="errorText" :enable="snackbarError" @onClose="(v) => snackbarError = v"/>
+  <SuccessInfo :text="succesText" :enable="snackbarSuccess" @onClose="(v) => snackbarSuccess = v"/>
+  <HintInfo :text="infoText" :enable="snackbarInfo" @onClose="(v) => snackbarInfo = v"/>
+
 </template>
 
 <style scoped>

@@ -1,5 +1,5 @@
-import MenuElements, {getEnumKeyByValue} from "@/model/MenuElements.js";
-import {fetch, remove} from "@/services/axiosService.js";
+import MenuElements from "@/model/MenuElements.js";
+import {fetch, post, remove} from "@/services/axiosService.js";
 import Addon from "@/model/Addon.js";
 import Category from "@/model/Category.js";
 import Ingredients from "@/model/Ingredients.js";
@@ -7,6 +7,7 @@ import SubCategory from "@/model/SubCategory.js";
 import Product from "@/model/Product.js";
 import Menu from "@/model/Menu.js";
 import MenuItem from "@/model/MenuItem.js";
+import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
 
 const fetchElements = async (type) => {
     const result = [];
@@ -16,7 +17,7 @@ const fetchElements = async (type) => {
         switch (type) {
             case MenuElements.ADDON: {
                 response.data.map(e => {
-                    result.push(new Addon(e["id"],  e["name"], e["prixHT"], e["tauxTVA"], []));
+                    result.push(new Addon(e["id"], e["name"], e["prixHT"], e["tauxTVA"], []));
                 })
                 return result;
             }
@@ -48,7 +49,7 @@ const fetchElements = async (type) => {
                     e["addons"].map(addon => {
                         productAddons.push(new Addon(addon["id"], addon["prixHT"], addon["name"], addon["tauxTVA"], []));
                     })
-                    const newProduct = new Product(e["name"],e["price"], productIngredients, productAddons, false, 0, e["TauxTVA"], e["id"]);
+                    const newProduct = new Product(e["name"], e["price"], productIngredients, productAddons, false, 0, e["TauxTVA"], e["id"]);
                     result.push(newProduct);
                     return result;
                 })
@@ -60,21 +61,21 @@ const fetchElements = async (type) => {
                     e["menuItems"].map(menuItem => {
                         const menuItemProducts = [];
                         menuItem["products"].map(product => {
-                            const productIngredients = [];
-/*                            product["ingredients"].map(ingredient => {
-                                productIngredients.push(new Ingredients(ingredient["id"], ingredient["name"]));
-                            })*/
-                            const productAddons = [];
-                            product["addons"].map(addon => {
-                                productAddons.push(new Addon(addon["id"], addon["prixHT"], addon["name"], addon["tauxTVA"], []));
-                            })
-                            const newProduct = new Product(e["name"],e["price"], productIngredients, productAddons, false, false, e["id"]);
-                            menuItemProducts.push(newProduct);
+                                const productIngredients = [];
+                                /*                            product["ingredients"].map(ingredient => {
+                                                                productIngredients.push(new Ingredients(ingredient["id"], ingredient["name"]));
+                                                            })*/
+                                const productAddons = [];
+                                product["addons"].map(addon => {
+                                    productAddons.push(new Addon(addon["id"], addon["prixHT"], addon["name"], addon["tauxTVA"], []));
+                                })
+                                const newProduct = new Product(e["name"], e["price"], productIngredients, productAddons, false, false, e["id"]);
+                                menuItemProducts.push(newProduct);
                             }
                         );
                         menuItems.push(new MenuItem(menuItem["id"], menuItem["name"], menuItemProducts, menuItem["optional"], menuItem["prixHT"], menuItem["tauxTVA"]));
                     });
-                    result.push(new Menu(e["name"],e["prixHT"],[],false,0,menuItems,e["tauxTVA"],e["id"]));
+                    result.push(new Menu(e["name"], e["prixHT"], [], false, 0, menuItems, e["tauxTVA"], e["id"]));
                 })
                 return result;
             }
@@ -84,8 +85,18 @@ const fetchElements = async (type) => {
     }
 }
 
+const createNewElement = async (type, payload) => {
+    const data = JSON.stringify(payload);
+    if(type === MenuElements.SUBCATEGORY) {
+        return post("category/sub", data);
+    } else {
+        const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
+        return post(key, data);
+    }
+}
+
 const deleteElement = async (type, element) => {
     const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
     return remove(key, element.id);
 }
-export {fetchElements, deleteElement};
+export {fetchElements, deleteElement, createNewElement};

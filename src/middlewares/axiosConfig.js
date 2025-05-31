@@ -16,7 +16,7 @@ axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
         console.log(error);
-        if (error.status === 401 || error.code === 'ERR_BAD_REQUEST') {
+        if (error.status === 401 || error.response.status === 401) {
             useAuthTokenStore.token = "";
             router.push({name: "connexion"}).then();
         } else if (error.status === 599 || error.code === "ERR_NETWORK") {

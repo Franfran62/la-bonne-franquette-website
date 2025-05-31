@@ -1,11 +1,14 @@
 <script setup>
-import {computed, onBeforeMount, ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import {useDisplay} from "vuetify";
-import MenuElements from "@/model/MenuElements.js";
-import {fetchElements} from "@/services/menuEditService.js";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import VATRate, {getMultFromVAT} from "@/model/VATRate.js";
 import MenuItemForm from "@/components/forms/MenuItemForm.vue";
+import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
+
+/*
+TODO: Ajouter un bouton de duplication des menuItems
+ */
 
 defineProps({
   handleSubmit: {
@@ -37,13 +40,15 @@ watch(selectedVATRate, (newValue) => {
   totalPrice.value = Number((price.value * getMultFromVAT(newValue)).toFixed(2));
 })
 
-const displayDialog = () => {showDialog.value = true;}
-
 const updateCreation = (result) => {
   if (!menuItems.value.some(item => JSON.stringify(item) === JSON.stringify(result))) {
-  menuItems.value.push(result);
+    menuItems.value.push(result);
   }
   showDialog.value = false;
+}
+
+const removeFromList = (index) => {
+  menuItems.value.splice(index, 1);
 }
 
 </script>
@@ -52,7 +57,7 @@ const updateCreation = (result) => {
 
   <v-form v-model="valid"
           validate-on="invalid-input"
-          @submit.prevent="handleSubmit({name: name, price: price, totalPrice: totalPrice, VATRate: selectedVATRate, menuItems: menuItems})">
+          @submit.prevent="handleSubmit({name: name, prixHT: Number((price*100).toFixed(2)), tauxTVA: getEnumKeyByValue(VATRate,selectedVATRate), menuItems: menuItems})">
     <v-text-field v-model="name"
                   label="Nom du menu"
                   placeholder="Entrez le nom du menu"
@@ -64,13 +69,14 @@ const updateCreation = (result) => {
     <div>
       Choix :
     </div>
-    <v-list >
+    <v-list>
       <v-list-item v-for="(menuItem, i) in menuItems"
-      :key="i" variant="text">
+                   :key="i" variant="text">
         <v-list-item-title>
-          {{ menuItem.name }}: <br> {{ menuItem.product.name }} - {{menuItem.totalPrice }}€ - {{ menuItem.VATRate }} - {{ menuItem.required ? "Requis" : "Non Requis"}}
+          {{ menuItem.name }}: <br> {{ menuItem.product.name }} - {{ menuItem.totalPrice }}€ - {{ menuItem.TauxTVA }} -
+          {{ menuItem.required ? "Requis" : "Non Requis" }}
+          <v-btn icon="mdi-window-close" variant="text" @click="removeFromList(i)"/>
         </v-list-item-title>
-
       </v-list-item>
     </v-list>
     <v-expansion-panels class="mb-6">

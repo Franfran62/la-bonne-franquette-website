@@ -10,6 +10,7 @@ import {deleteElement, fetchElements} from "@/services/menuEditService.js";
 import AlertDeleteDialog from "@/components/dialogs/AlertDeleteDialog.vue";
 import SuccessInfo from "@/components/snackbars/SuccessInfo.vue";
 import AddToRestaurantDialog from "@/components/dialogs/AddToRestaurantDialog.vue";
+import HintInfo from "@/components/snackbars/HintInfo.vue";
 
 
 const isLoading = ref(true);
@@ -91,6 +92,7 @@ const showAddToRestaurantDialog = () => {
 }
 
 const updateCreation = async (result) => {
+  console.log("result; ", result);
   if(result) await onRefresh();
   return (creationDialog.value = false);
 }
@@ -149,6 +151,7 @@ const updateCreation = async (result) => {
 
   <ErrorInfo :text="errorText" :enable="snackbarError" @onClose="(v) => snackbarError = v"/>
   <SuccessInfo :text="succesText" :enable="snackbarSuccess" @onClose="(v) => snackbarSuccess = v"/>
+  <HintInfo :text="infoText" :enable="snackbarInfo" @onClose="(v) => snackbarInfo = v"/>
   <AlertDeleteDialog :title="'Vous allez supprimer quelque chose.'"
                      :body="(selectedMenuElement === MenuElements.CATEGORY) ?
                      `Vous êtes sur le point de supprimer ${ selectedElement?.name }. Supprimer une catégorie entrainera la suppression de toutes ses sous-catégories, êtes-vous sûr ?` :

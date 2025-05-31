@@ -4,6 +4,7 @@ import MenuElements from "@/model/MenuElements.js";
 import {fetchElements} from "@/services/menuEditService.js";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import VATRate, {getMultFromVAT} from "@/model/VATRate.js";
+import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
 
 const emit = defineEmits(['result'])
 const isLoading = ref(true);
@@ -17,6 +18,12 @@ const selectedProduct = ref(null);
 const price = ref(0.00);
 const totalPrice = ref(0.00);
 const selectedVATRate = ref(VATRate.AUCUN);
+const required = ref(false);
+
+/*
+TODO: Gérer le nettoyage automatique des champs
+TODO: Gérer la vérification des champs
+ */
 
 onBeforeMount(async () => {
   try {
@@ -42,11 +49,12 @@ const handleCancel = () => {
 
 const handleSubmit = () => {
   emit('result', {
-    name: name.value,
-    price: price.value,
+    name: selectedProduct.value.name,
+    prixHT: Number((price.value*100).toFixed(2)),
     totalPrice: totalPrice.value,
-    VATRate: selectedVATRate.value,
+    TauxTVA: getEnumKeyByValue(VATRate,selectedVATRate.value),
     product: selectedProduct.value,
+    required: required.value,
   });
 }
 </script>
@@ -56,14 +64,6 @@ const handleSubmit = () => {
     <v-form v-model="valid"
             validate-on="invalid-input"
             @submit.prevent="handleSubmit()">
-      <v-text-field v-model="name"
-                    label="Nom"
-                    placeholder="Entrez le nom"
-                    variant="outlined" :rules="[v => !!v || 'Le nom est nécessaire']"
-                    required
-                    rounded="xl"
-                    density="compact"
-                    color="primary"/>
       <v-select label="Produit"
                 :items="products"
                 v-model="selectedProduct"
@@ -74,6 +74,13 @@ const handleSubmit = () => {
                 :rules="[v => !!v || 'le produit est nécessaire']"
                 rounded="xl"
                 return-object/>
+      <v-checkbox v-model="required">
+        <template v-slot:label>
+          <div>
+            Le produit est obligatoire ?
+          </div>
+        </template>
+      </v-checkbox>
       <div class="flex justify-space-between">
         <v-text-field v-model="price"
                       type="number"

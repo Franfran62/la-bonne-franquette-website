@@ -5,6 +5,7 @@ import MenuElements from "@/model/MenuElements.js";
 import {fetchElements} from "@/services/menuEditService.js";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import VATRate, {getMultFromVAT} from "@/model/VATRate.js";
+import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
 
 defineProps({
   handleSubmit: {
@@ -21,9 +22,11 @@ const valid = ref(false);
 const isMobile = computed(() => xs.value || sm.value);
 const ingredients = ref([]);
 const addons = ref([]);
+const categories = ref([]);
 const name = ref("");
 const selectedIngredients = ref([]);
 const selectedAddons = ref([]);
+const selectedCategories = ref([]);
 const price = ref(0.00);
 const totalPrice = ref(0.00);
 const selectedVATRate = ref(VATRate.AUCUN);
@@ -32,9 +35,11 @@ onBeforeMount(async () => {
   try {
     const fetchedIngredients = await fetchElements(MenuElements.INGREDIENT);
     const fetchedAddons = await fetchElements(MenuElements.ADDON);
+    const fetchCategories = await fetchElements(MenuElements.CATEGORY);
 
     ingredients.value = [{name: "Tout sélectionner", isSelectAll: true}, ...fetchedIngredients];
     addons.value = [{name: "Tout sélectionner", isSelectAll: true}, ...fetchedAddons];
+    categories.value = [{name: "Tout sélectionner", isSelectAll: true}, ...fetchCategories];
 
     isLoading.value = false;
   } catch (e) {
@@ -58,6 +63,13 @@ watch(selectedAddons, (newValue) => {
   }
 });
 
+watch(selectedCategories, (newValue) => {
+  const selectAll = newValue.find(item => item.isSelectAll);
+  if (selectAll) {
+    selectedCategories.value = addons.value.filter(item => !item.isSelectAll);
+  }
+});
+
 watch(price, (newValue) => {
   totalPrice.value = Number((newValue * getMultFromVAT(selectedVATRate.value)).toFixed(2));
 });
@@ -72,9 +84,8 @@ watch(selectedVATRate, (newValue) => {
           validate-on="invalid-input"
           @submit.prevent="handleSubmit({
               name: name,
-              price: price,
-              totalPrice: totalPrice,
-              VATRate: selectedVATRate,
+              prixHT: Number((price*100).toFixed(2)),
+              tauxTVA: getEnumKeyByValue(VATRate,selectedVATRate),
               addons: selectedAddons,
               ingredients: selectedIngredients,
               })">
@@ -109,6 +120,19 @@ watch(selectedVATRate, (newValue) => {
               density="compact"
               color="primary"
               :rules="[v => !!v || 'les extras sont nécessaires']"
+              rounded="xl"
+              return-object
+    />
+    <v-select label="Catégories"
+              :items="categories"
+              v-model="selectedCategories"
+              item-title="name"
+              multiple
+              chips
+              variant="outlined"
+              density="compact"
+              color="primary"
+              :rules="[v => !!v || 'les catégories sont nécessaires']"
               rounded="xl"
               return-object
     />
