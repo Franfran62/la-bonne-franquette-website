@@ -9,6 +9,7 @@ import MenuEditListComponent from "@/components/lists/MenuEditListComponent.vue"
 import {deleteElement, fetchElements} from "@/services/menuEditService.js";
 import AlertDeleteDialog from "@/components/dialogs/AlertDeleteDialog.vue";
 import SuccessInfo from "@/components/snackbars/SuccessInfo.vue";
+import AddToRestaurantDialog from "@/components/dialogs/AddToRestaurantDialog.vue";
 
 
 const isLoading = ref(true);
@@ -16,6 +17,7 @@ const isLoading = ref(true);
 const snackbarError = ref(false);
 const snackbarSuccess = ref(false);
 const deleteConfirmDialog = ref(false);
+const creationDialog = ref(false);
 const snackbarInfo = ref(false);
 
 const errorText = ref("");
@@ -54,13 +56,6 @@ const onDelete = (elementToDelete) => {
     snackbarInfo.value = true;
     return;
   }
-  /* Vérifier si l'utilisateur connecté est bien admin avant de continuer avec la suppression
-    if () {
-      selectedUser.value = null;
-      infoText.value = "Vous devez avoir au moins 1 administrateur dans le restaurant.";
-      snackbarInfo.value = true;
-      return;
-    }*/
   selectedElement.value = elementToDelete;
   deleteConfirmDialog.value = true;
 }
@@ -73,7 +68,6 @@ const updateDelete = async (result) => {
   try {
     const response = await deleteElement(selectedMenuElement.value, selectedElement.value);
     if (response.status !== 200) throw new Error(response.message);
-    //succesText.value = `${selectedElement.value.name} a été supprimé.`;
     succesText.value = response.data["Response"];
     snackbarSuccess.value = true;
     selectedElement.value = null;
@@ -90,6 +84,15 @@ const updateDelete = async (result) => {
 
 const onSelect = () => {
 
+}
+
+const showAddToRestaurantDialog = () => {
+  creationDialog.value = true;
+}
+
+const updateCreation = async (result) => {
+  if(result) await onRefresh();
+  return (creationDialog.value = false);
 }
 
 </script>
@@ -125,7 +128,13 @@ const onSelect = () => {
                       v-model="selectedMenuElement" item-title="name" item-value="value"
                       variant="outlined" density="compact" color="primary"
                       rounded="xl" class="input-spacing"/>
+            <span>
+              <v-btn base-color="success"variant="text" icon="mdi-plus"
+                     @click="showAddToRestaurantDialog">
+            </v-btn>
             <v-btn @click="onRefresh" icon="mdi-refresh" variant="text"></v-btn>
+            </span>
+
           </v-card-actions>
           <MenuEditListComponent :elements="elements" :on-select="onSelect" :on-delete="onDelete"/>
         </div>
@@ -139,7 +148,6 @@ const onSelect = () => {
   </div>
 
   <ErrorInfo :text="errorText" :enable="snackbarError" @onClose="(v) => snackbarError = v"/>
-  <ErrorInfo :text="errorText" :enable="snackbarError" @onClose="(v) => snackbarError = v"/>
   <SuccessInfo :text="succesText" :enable="snackbarSuccess" @onClose="(v) => snackbarSuccess = v"/>
   <AlertDeleteDialog :title="'Vous allez supprimer quelque chose.'"
                      :body="(selectedMenuElement === MenuElements.CATEGORY) ?
@@ -147,6 +155,7 @@ const onSelect = () => {
                      `Vous êtes sur le point de supprimer ${ selectedElement?.name }, êtes-vous sûr ?`"
                      :enable="deleteConfirmDialog"
                      @result="updateDelete"/>
+  <AddToRestaurantDialog :enable="creationDialog" @result="updateCreation"/>
 </template>
 
 <style scoped>
