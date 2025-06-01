@@ -11,7 +11,7 @@ import AlertDeleteDialog from "@/components/dialogs/AlertDeleteDialog.vue";
 import SuccessInfo from "@/components/snackbars/SuccessInfo.vue";
 import AddToRestaurantDialog from "@/components/dialogs/AddToRestaurantDialog.vue";
 import HintInfo from "@/components/snackbars/HintInfo.vue";
-
+import MenuEditComponent from "@/components/dashboard/MenuEditComponent.vue";
 
 const isLoading = ref(true);
 
@@ -49,8 +49,11 @@ const onRefresh = async () => {
 
 watch(selectedMenuElement, (newV) => {
   onRefresh();
+  selectedElement.value = null;
 })
 
+watch(selectedElement, (newV, oldV) => {
+})
 const onDelete = (elementToDelete) => {
   if (!elementToDelete) {
     infoText.value = "Sélectionner un élément pour le supprimer.";
@@ -83,8 +86,16 @@ const updateDelete = async (result) => {
   }
 };
 
-const onSelect = () => {
-
+const onSelect = (newElement) => {
+  if (selectedElement.value === null) {
+    selectedElement.value = newElement;
+  } else {
+    if (newElement !== selectedElement.value) {
+      selectedElement.value = newElement;
+    } else {
+      selectedElement.value = null;
+    }
+  }
 }
 
 const showAddToRestaurantDialog = () => {
@@ -143,6 +154,7 @@ const updateCreation = async (result) => {
 
       <v-card :width="isMobile ? 400 : 700" variant="text"
               :class="{'px-8': !isMobile, 'flex justify-center': isMobile }">
+        <MenuEditComponent :selectedElementType="selectedMenuElement" :element="selectedElement"/>
       </v-card>
     </div>
 

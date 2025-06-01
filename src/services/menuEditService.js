@@ -31,9 +31,9 @@ const fetchElements = async (type) => {
                 const subCategories = [];
                 response.data.map(e => {
                     if (e["categoryType"] === "category") {
-                        categories.push(new Category(e["id"], e["name"], []));
+                        categories.push(new Category(e["id"], e["name"], [], e["categoryType"]));
                     } else {
-                        subCategories.push(new SubCategory(e["id"], e["name"], [], e["categoryId"]));
+                        subCategories.push(new SubCategory(e["id"], e["name"], [], e["categoryId"], e["categoryType"]));
                     }
                 });
                 return categories.concat(subCategories);
@@ -42,7 +42,7 @@ const fetchElements = async (type) => {
                 const subCategories = [];
                 response.data.map(e => {
                     if (e["categoryType"] === "sub-category") {
-                        subCategories.push(new SubCategory(e["id"], e["name"], [], e["categoryId"]));
+                        subCategories.push(new SubCategory(e["id"], e["name"], [], e["categoryId"], e["categoryType"]));
                     }
                 });
                 return subCategories;
@@ -63,7 +63,17 @@ const fetchElements = async (type) => {
                     e["addons"].map(addon => {
                         productAddons.push(new Addon(addon["id"], addon["prixHT"], addon["name"], addon["tauxTVA"], []));
                     })
-                    const newProduct = new Product(e["name"], e["price"], productIngredients, productAddons, false, 0, e["TauxTVA"], e["id"]);
+                    const categories = [];
+                    const subCategories = [];
+                    response.data.map(e => {
+                        if (e["categoryType"] === "category") {
+                            categories.push(new Category(e["id"], e["name"], [], e["categoryType"]));
+                        } else {
+                            subCategories.push(new SubCategory(e["id"], e["name"], [], e["categoryId"], e["categoryType"]));
+                        }
+                    });
+
+                    const newProduct = new Product(e["name"], e["price"], productIngredients, productAddons, categories.concat(subCategories), false, 0, e["TauxTVA"], e["id"]);
                     result.push(newProduct);
                     return result;
                 })
