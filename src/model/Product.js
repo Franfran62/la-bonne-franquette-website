@@ -21,4 +21,3 @@ class Product extends HasPrice{
 }
 
 export default Product;
-//TODO: Modification du calcul du prix total (avec TVA) lors de la création d'un produit

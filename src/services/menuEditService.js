@@ -1,5 +1,5 @@
 import MenuElements from "@/model/MenuElements.js";
-import {fetch, remove} from "@/services/axiosService.js";
+import {fetch, post, remove} from "@/services/axiosService.js";
 import Addon from "@/model/Addon.js";
 import Category from "@/model/Category.js";
 import Ingredients from "@/model/Ingredients.js";
@@ -7,20 +7,22 @@ import SubCategory from "@/model/SubCategory.js";
 import Product from "@/model/Product.js";
 import Menu from "@/model/Menu.js";
 import MenuItem from "@/model/MenuItem.js";
-
-const getEnumKeyByValue = (enumObj, value) => {
-    return Object.keys(enumObj).find(key => enumObj[key] === value);
-};
+import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
 
 const fetchElements = async (type) => {
     const result = [];
-    const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
+    let key;
+    if (type === MenuElements.SUBCATEGORY) {
+        key = "category"
+    } else {
+        key = getEnumKeyByValue(MenuElements, type).toLowerCase();
+    }
     try {
         const response = await fetch(key);
         switch (type) {
             case MenuElements.ADDON: {
                 response.data.map(e => {
-                    result.push(new Addon(e["id"],  e["name"], e["prixHT"], e["tauxTVA"], []));
+                    result.push(new Addon(e["id"], e["name"], e["prixHT"], e["tauxTVA"], []));
                 })
                 return result;
             }
@@ -36,6 +38,15 @@ const fetchElements = async (type) => {
                 });
                 return categories.concat(subCategories);
             }
+            case MenuElements.SUBCATEGORY: {
+                const subCategories = [];
+                response.data.map(e => {
+                    if (e["categoryType"] === "sub-category") {
+                        subCategories.push(new SubCategory(e["id"], e["name"], [], e["categoryId"]));
+                    }
+                });
+                return subCategories;
+            }
             case MenuElements.INGREDIENT: {
                 response.data.map(e => {
                     result.push(new Ingredients(e["id"], e["name"]));
@@ -44,7 +55,6 @@ const fetchElements = async (type) => {
             }
             case MenuElements.PRODUCT: {
                 response.data.map(e => {
-                    console.log(e);
                     const productIngredients = [];
                     e["ingredients"].map(ingredient => {
                         productIngredients.push(new Ingredients(ingredient["id"], ingredient["name"]));
@@ -53,8 +63,7 @@ const fetchElements = async (type) => {
                     e["addons"].map(addon => {
                         productAddons.push(new Addon(addon["id"], addon["prixHT"], addon["name"], addon["tauxTVA"], []));
                     })
-                    const newProduct = new Product(e["name"],e["price"], productIngredients, productAddons, false, 0, e["TauxTVA"], e["id"]);
-                    console.log(newProduct);
+                    const newProduct = new Product(e["name"], e["price"], productIngredients, productAddons, false, 0, e["TauxTVA"], e["id"]);
                     result.push(newProduct);
                     return result;
                 })
@@ -66,21 +75,21 @@ const fetchElements = async (type) => {
                     e["menuItems"].map(menuItem => {
                         const menuItemProducts = [];
                         menuItem["products"].map(product => {
-                            const productIngredients = [];
-/*                            product["ingredients"].map(ingredient => {
-                                productIngredients.push(new Ingredients(ingredient["id"], ingredient["name"]));
-                            })*/
-                            const productAddons = [];
-                            product["addons"].map(addon => {
-                                productAddons.push(new Addon(addon["id"], addon["prixHT"], addon["name"], addon["tauxTVA"], []));
-                            })
-                            const newProduct = new Product(e["name"],e["price"], productIngredients, productAddons, false, false, e["id"]);
-                            menuItemProducts.push(newProduct);
+                                const productIngredients = [];
+                                /*                            product["ingredients"].map(ingredient => {
+                                                                productIngredients.push(new Ingredients(ingredient["id"], ingredient["name"]));
+                                                            })*/
+                                const productAddons = [];
+                                product["addons"].map(addon => {
+                                    productAddons.push(new Addon(addon["id"], addon["prixHT"], addon["name"], addon["tauxTVA"], []));
+                                })
+                                const newProduct = new Product(e["name"], e["price"], productIngredients, productAddons, false, false, e["id"]);
+                                menuItemProducts.push(newProduct);
                             }
                         );
                         menuItems.push(new MenuItem(menuItem["id"], menuItem["name"], menuItemProducts, menuItem["optional"], menuItem["prixHT"], menuItem["tauxTVA"]));
                     });
-                    result.push(new Menu(e["name"],e["prixHT"],[],false,0,menuItems,e["tauxTVA"],e["id"]));
+                    result.push(new Menu(e["name"], e["prixHT"], [], false, 0, menuItems, e["tauxTVA"], e["id"]));
                 })
                 return result;
             }
@@ -90,11 +99,28 @@ const fetchElements = async (type) => {
     }
 }
 
+const createNewElement = async (type, payload) => {
+    //Création du corps de la requête en éliminant les références infinis
+    const seen = new WeakSet();
+    const data = JSON.stringify(payload, (key, value) => {
+        if (typeof value === 'object' && value !== null) {
+            if (seen.has(value)) {
+                return;
+            }
+            seen.add(value);
+        }
+        return value;
+    });
+    if(type === MenuElements.SUBCATEGORY) {
+        return post("category/sub", data);
+    } else {
+        const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
+        return post(key, data);
+    }
+}
+
 const deleteElement = async (type, element) => {
     const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
-    console.log("key",key);
-    console.log("element",element);
-    console.log("id",element.id);
     return remove(key, element.id);
 }
-export {fetchElements, deleteElement};
+export {fetchElements, deleteElement, createNewElement};

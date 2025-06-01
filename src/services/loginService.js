@@ -1,6 +1,5 @@
-import axiosInstance from "@/middlewares/axiosConfig";
 import {useAuthTokenStore, useRefreshTokenStore} from "@/stores/authToken";
-import {fetch, post, put, remove} from "@/services/axiosService.js";
+import {post} from "@/services/axiosService.js";
 
 const _login = (username, password) => {
     return post(`auth/login`, {
@@ -53,7 +52,6 @@ const login = async (username, password) => {
 const register = async (username, restaurantName, password) => {
     try {
         const response = await _register(username, restaurantName, password);
-        console.log(response);
         if (response.status === 200) {
             await login(username, password);
         } else {
@@ -61,7 +59,6 @@ const register = async (username, restaurantName, password) => {
         }
     } catch (error) {
             throw new Error(error);
-
     }
 };
 
