@@ -1,6 +1,5 @@
 <script setup>
 import {computed, ref, watch} from "vue";
-import logo from "@/assets/img/logo-no-bg.png";
 import {useRouter} from "vue-router";
 import {useDisplay} from "vuetify";
 
@@ -35,7 +34,6 @@ const textDecoration = (component) => {
 }
 
 watch(isMobile, (newValue) => {
-  console.log(newValue);
   if (!newValue) {
     drawer.value = false;
   }

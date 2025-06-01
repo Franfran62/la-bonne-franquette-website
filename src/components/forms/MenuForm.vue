@@ -6,11 +6,7 @@ import VATRate, {getMultFromVAT} from "@/model/VATRate.js";
 import MenuItemForm from "@/components/forms/MenuItemForm.vue";
 import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
 
-/*
-TODO: Ajouter un bouton de duplication des menuItems
- */
-
-defineProps({
+const props = defineProps({
   handleSubmit: {
     type: Function,
     required: true
@@ -34,6 +30,9 @@ const showDialog = ref(false);
 
 watch(price, (newValue) => {
   totalPrice.value = Number((newValue * getMultFromVAT(selectedVATRate.value)).toFixed(2));
+  if (newValue === 0) {
+    selectedVATRate.value = VATRate.AUCUN;
+  }
 })
 
 watch(selectedVATRate, (newValue) => {
@@ -51,13 +50,36 @@ const removeFromList = (index) => {
   menuItems.value.splice(index, 1);
 }
 
+const duplicateFromList = (index) => {
+  menuItems.value.push(menuItems.value[index]);
+}
+
+const submitForm = async () => {
+  if (menuItems.value.length < 1) {
+    errorText.value = "Votre Menu doit au moins comporter un Produit"
+    snackbarError.value = true;
+    return;
+  }
+  try {
+    await props.handleSubmit({
+      name: name.value,
+      prixHT: Number((price.value * 100).toFixed(2)),
+      tauxTVA: getEnumKeyByValue(VATRate, selectedVATRate.value),
+      menuItems: menuItems.value,
+    });
+  } catch (e) {
+    errorText.value = e;
+    snackbarError.value = true;
+  }
+}
+
 </script>
 
 <template>
 
   <v-form v-model="valid"
           validate-on="invalid-input"
-          @submit.prevent="handleSubmit({name: name, prixHT: Number((price*100).toFixed(2)), tauxTVA: getEnumKeyByValue(VATRate,selectedVATRate), menuItems: menuItems})">
+          @submit.prevent="submitForm">
     <v-text-field v-model="name"
                   label="Nom du menu"
                   placeholder="Entrez le nom du menu"
@@ -65,16 +87,18 @@ const removeFromList = (index) => {
                   required
                   rounded="xl"
                   density="compact"
+                  class="input-spacing"
                   color="primary"/>
     <div>
       Choix :
     </div>
-    <v-list>
+    <v-list class="input-spacing">
       <v-list-item v-for="(menuItem, i) in menuItems"
                    :key="i" variant="text">
         <v-list-item-title>
-          {{ menuItem.totalPrice }}€ - {{ menuItem.TauxTVA }} -
-          {{ !menuItem.optional ? "Requis" : "Non Requis" }}
+          {{ menuItem.totalPrice }}€ - TVA : {{ VATRate[menuItem.tauxTVA] }} -
+          {{ menuItem.optional ? "Optionel" : "Obligatoire" }}
+          <v-btn icon="mdi-content-duplicate" variant="text" @click="duplicateFromList(i)"/>
           <v-btn icon="mdi-window-close" variant="text" @click="removeFromList(i)"/>
           <v-list>
             <v-list-item v-for="(item, j) in menuItem.products" :key="j" variant="text">
@@ -86,7 +110,7 @@ const removeFromList = (index) => {
         </v-list-item-title>
       </v-list-item>
     </v-list>
-    <v-expansion-panels class="mb-6">
+    <v-expansion-panels class="input-spacing" variant="default">
       <v-expansion-panel title="Ajouter un nouveau choix" expand-icon="mdi-plus" collapse-icon="mdi-plus">
         <v-expansion-panel-text>
           <MenuItemForm @result="updateCreation"/>
@@ -94,14 +118,14 @@ const removeFromList = (index) => {
       </v-expansion-panel>
     </v-expansion-panels>
 
-    <div class="flex justify-space-between">
+    <div class="flex justify-space-between mt-6 input-spacing">
       <v-text-field v-model="price"
                     type="number"
                     label="Prix HT"
                     placeholder="Entrez le prix HT"
                     :min="0.00"
                     :step="0.01"
-                    :rules="[v => !!v || 'Le prix est nécessaire']"
+                    :rules="[v => v >= 0 || 'Le prix est nécessaire']"
                     :formatter="v => Number(v).toFixed(2)"
                     variant="outlined"
                     required
@@ -130,8 +154,9 @@ const removeFromList = (index) => {
               variant="outlined"
               density="compact"
               color="primary"
-              :rules="[v => !!v || 'le taux de TVA est nécessaire']"
+              :rules="[v => !!v || 'Le taux de TVA est nécessaire']"
               return-object
+              class="input-spacing"
               rounded="xl"/>
     <div class="flex justify-center">
       <v-btn type="submit" color="primary" rounded="xl" :size="isMobile ? 'default' : 'large'">
@@ -139,10 +164,11 @@ const removeFromList = (index) => {
       </v-btn>
     </div>
   </v-form>
-
   <ErrorInfo :text="errorText" :enable="snackbarError" @onClose="(v) => snackbarError = v"/>
 </template>
 
 <style scoped>
-
+.input-spacing {
+  margin-bottom: 8px;
+}
 </style>

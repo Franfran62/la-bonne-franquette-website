@@ -39,7 +39,7 @@ watch(selectedOrder, (newValue) => {
     payments.value = []
   } else {
     products.value = selectedOrder.value?.articles.map(
-        a => new Product(a['name'], a['totalPrice'], a['products'], a['addons'], a['modified'], a["quantity"])
+        a => new Product(a['name'], a['totalPrice'], a['ingredients'], a['addons'], a['modified'], a["quantity"])
     );
     payments.value = selectedOrder.value?.payments.map(
         p => new Payment(p['price'],p["type"],p['paid'],p['date'])

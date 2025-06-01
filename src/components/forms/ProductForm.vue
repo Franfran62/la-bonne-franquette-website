@@ -7,7 +7,7 @@ import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import VATRate, {getMultFromVAT} from "@/model/VATRate.js";
 import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
 
-defineProps({
+const props = defineProps({
   handleSubmit: {
     type: Function,
     required: true
@@ -35,12 +35,17 @@ onBeforeMount(async () => {
   try {
     const fetchedIngredients = await fetchElements(MenuElements.INGREDIENT);
     const fetchedAddons = await fetchElements(MenuElements.ADDON);
-    const fetchCategories = await fetchElements(MenuElements.CATEGORY);
+    const fetchCategories = await fetchElements(MenuElements.SUBCATEGORY);
 
-    ingredients.value = [{name: "Tout sélectionner", isSelectAll: true}, ...fetchedIngredients];
-    addons.value = [{name: "Tout sélectionner", isSelectAll: true}, ...fetchedAddons];
-    categories.value = [{name: "Tout sélectionner", isSelectAll: true}, ...fetchCategories];
-
+    if (fetchedAddons.length !== 0) {
+      addons.value = [{name: "Tout sélectionner", isSelectAll: true}, ...fetchedAddons];
+    }
+    if (fetchedIngredients.length !== 0) {
+      ingredients.value = [{name: "Tout sélectionner", isSelectAll: true}, ...fetchedIngredients];
+    }
+    if (fetchCategories.length !== 0) {
+      categories.value = [{name: "Tout sélectionner", isSelectAll: true}, ...fetchCategories];
+    }
     isLoading.value = false;
   } catch (e) {
     errorText.value = e.message;
@@ -72,24 +77,36 @@ watch(selectedCategories, (newValue) => {
 
 watch(price, (newValue) => {
   totalPrice.value = Number((newValue * getMultFromVAT(selectedVATRate.value)).toFixed(2));
+  if (newValue === 0) {
+    selectedVATRate.value = VATRate.AUCUN;
+  }
 });
 
 watch(selectedVATRate, (newValue) => {
   totalPrice.value = Number((price.value * getMultFromVAT(newValue)).toFixed(2));
 });
+
+const submitForm = async () => {
+  try {
+    await props.handleSubmit({
+      name: name.value,
+      prixHT: Number((price.value * 100).toFixed(2)),
+      tauxTVA: price.value === 0 ? VATRate.AUCUN : getEnumKeyByValue(VATRate, selectedVATRate.value),
+      addons: selectedAddons.value,
+      ingredients: selectedIngredients.value,
+      categories: selectedCategories.value,
+    });
+  } catch (e) {
+    errorText.value = e;
+    snackbarError.value = true;
+  }
+}
 </script>
 
 <template>
   <v-form v-model="valid"
           validate-on="invalid-input"
-          @submit.prevent="handleSubmit({
-              name: name,
-              prixHT: Number((price*100).toFixed(2)),
-              tauxTVA: getEnumKeyByValue(VATRate,selectedVATRate),
-              addons: selectedAddons,
-              ingredients: selectedIngredients,
-              categoriees: selectedCategories,
-              })">
+          @submit.prevent="submitForm">
     <v-text-field v-model="name"
                   label="Nom du produit"
                   placeholder="Entrez le nom du produit"
@@ -97,6 +114,7 @@ watch(selectedVATRate, (newValue) => {
                   required
                   rounded="xl"
                   density="compact"
+                  class="input-spacing"
                   color="primary"/>
     <v-select label="Ingrédients"
               :items="ingredients"
@@ -108,8 +126,9 @@ watch(selectedVATRate, (newValue) => {
               variant="outlined"
               density="compact"
               color="primary"
-              :rules="[v => !!v || 'les ingrédients sont nécessaires']"
+              :rules="[v => !!v && v.length > 0 || 'Sélectionner au moins un ingrédient']"
               rounded="xl"
+              class="input-spacing"
               return-object
     />
     <v-select label="Extras"
@@ -122,8 +141,8 @@ watch(selectedVATRate, (newValue) => {
               variant="outlined"
               density="compact"
               color="primary"
-              :rules="[v => !!v || 'les extras sont nécessaires']"
               rounded="xl"
+              class="input-spacing"
               return-object
     />
     <v-select label="Catégories"
@@ -136,18 +155,19 @@ watch(selectedVATRate, (newValue) => {
               variant="outlined"
               density="compact"
               color="primary"
-              :rules="[v => !!v || 'les catégories sont nécessaires']"
+              :rules="[v => !!v && v.length > 0 || 'Sélectionner au moins une catégorie']"
               rounded="xl"
+              class="input-spacing"
               return-object
     />
-    <div class="flex justify-space-between">
+    <div class="flex justify-space-between input-spacing">
       <v-text-field v-model="price"
                     type="number"
                     label="Prix HT"
                     placeholder="Entrez le prix HT"
                     :min="0.00"
                     :step="0.01"
-                    :rules="[v => !!v || 'Le prix est nécessaire']"
+                    :rules="[v => v >= 0 || 'Le prix est nécessaire']"
                     :formatter="v => Number(v).toFixed(2)"
                     variant="outlined"
                     required
@@ -176,7 +196,8 @@ watch(selectedVATRate, (newValue) => {
               variant="outlined"
               density="compact"
               color="primary"
-              :rules="[v => !!v || 'le taux de TVA est nécessaire']"
+              :rules="[v => !!v || 'Le taux de TVA est nécessaire']"
+              class="input-spacing"
               rounded="xl"/>
     <div class="flex justify-center">
       <v-btn type="submit" color="primary" rounded="xl" :size="isMobile ? 'default' : 'large'">
@@ -184,6 +205,11 @@ watch(selectedVATRate, (newValue) => {
       </v-btn>
     </div>
   </v-form>
-
   <ErrorInfo :text="errorText" :enable="snackbarError" @onClose="(v) => snackbarError = v"/>
 </template>
+
+<style scoped>
+.input-spacing {
+  margin-bottom: 8px;
+}
+</style>

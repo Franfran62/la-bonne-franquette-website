@@ -5,7 +5,7 @@ import MenuElements from "@/model/MenuElements.js";
 import {fetchElements} from "@/services/menuEditService.js";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 
-defineProps({
+const props = defineProps({
   handleSubmit: {
     type: Function,
     required: true
@@ -39,12 +39,25 @@ watch(selectedCategory, (newValue) => {
   parentCategoryId.value = newValue.id;
 });
 
+const submitForm = async () => {
+  try {
+    await props.handleSubmit({
+          name: name.value,
+          category: selectedCategory.value,
+          categoryType: 'sub-category'
+        }
+    );
+  } catch (e) {
+    errorText.value = e;
+    snackbarError.value = true;
+  }
+}
 </script>
 
 <template>
   <v-form v-model="valid"
           validate-on="invalid-input"
-          @submit.prevent="handleSubmit({name: name, category: selectedCategory, categoryType: 'sub-category'})">
+          @submit.prevent="submitForm">
     <v-text-field v-model="name"
                   label="Nom de la sous-catégorie"
                   placeholder="Entrez le nom de la sous-catégorie"
@@ -52,6 +65,7 @@ watch(selectedCategory, (newValue) => {
                   required
                   rounded="xl"
                   density="compact"
+                  class="input-spacing"
                   color="primary"/>
     <v-select label="Catégorie parent"
               :items="categories"
@@ -61,7 +75,8 @@ watch(selectedCategory, (newValue) => {
               variant="outlined"
               density="compact"
               color="primary"
-              :rules="[v => !!v || 'la catégorie parent est nécessaire']"
+              :rules="[v => !!v || 'La catégorie parent est nécessaire']"
+              class="input-spacing"
               return-object
               rounded="xl"/>
     <div class="flex justify-center">
@@ -70,11 +85,11 @@ watch(selectedCategory, (newValue) => {
       </v-btn>
     </div>
   </v-form>
-
   <ErrorInfo :text="errorText" :enable="snackbarError" @onClose="(v) => snackbarError = v"/>
-
 </template>
 
 <style scoped>
-
+.input-spacing {
+  margin-bottom: 8px;
+}
 </style>

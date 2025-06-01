@@ -92,7 +92,6 @@ const showAddToRestaurantDialog = () => {
 }
 
 const updateCreation = async (result) => {
-  console.log("result; ", result);
   if(result) await onRefresh();
   return (creationDialog.value = false);
 }

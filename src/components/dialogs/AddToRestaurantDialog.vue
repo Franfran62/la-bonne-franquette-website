@@ -13,12 +13,6 @@ import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import SuccessInfo from "@/components/snackbars/SuccessInfo.vue";
 import HintInfo from "@/components/snackbars/HintInfo.vue";
 
-/*
-TODO: Ajouter la vérifications des formulaires avant leur envoie
-TODO: Gérer l'affichage des erreurs et des autres messages
-TODO: Gérer la gestion des doublons (voir le back)
- */
-
 const props = defineProps({
   enable: {
     type: Boolean
@@ -41,26 +35,18 @@ watch(() => props.enable, (newVal) => {
   localEnable.value = newVal;
 });
 
-watch(selectedElementType, (newVal) => {
-  console.log(newVal);
-});
-
 const handleCancel = () => {
   emit('result', false);
   localEnable.value = false;
 }
 
 const handleSubmit = async(data) => {
-  console.log(JSON.stringify(data));
-
   const response  = await createNewElement(selectedElementType.value, data);
-  console.log(response);
   if(response.status === 200) {
     succesText.value = response.data["Response"];
     snackbarSuccess.value = true;
   } else {
-    errorText.value = response.data.message;
-    snackbarError.value = true;
+    throw new Error(response.data.message);
   }
   emit('result', true);
   localEnable.value = false;
@@ -75,7 +61,7 @@ const handleSubmit = async(data) => {
   >
     <v-card
         prepend-icon="mdi-information"
-        title="Ajout à la carte"
+        title="Ajouter à la carte"
     >
       <v-select label="Type d'élément à ajouter"
                 :items="Object.values(MenuElements)"

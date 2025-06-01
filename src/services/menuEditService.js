@@ -11,7 +11,12 @@ import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
 
 const fetchElements = async (type) => {
     const result = [];
-    const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
+    let key;
+    if (type === MenuElements.SUBCATEGORY) {
+        key = "category"
+    } else {
+        key = getEnumKeyByValue(MenuElements, type).toLowerCase();
+    }
     try {
         const response = await fetch(key);
         switch (type) {
@@ -32,6 +37,15 @@ const fetchElements = async (type) => {
                     }
                 });
                 return categories.concat(subCategories);
+            }
+            case MenuElements.SUBCATEGORY: {
+                const subCategories = [];
+                response.data.map(e => {
+                    if (e["categoryType"] === "sub-category") {
+                        subCategories.push(new SubCategory(e["id"], e["name"], [], e["categoryId"]));
+                    }
+                });
+                return subCategories;
             }
             case MenuElements.INGREDIENT: {
                 response.data.map(e => {
@@ -86,7 +100,17 @@ const fetchElements = async (type) => {
 }
 
 const createNewElement = async (type, payload) => {
-    const data = JSON.stringify(payload);
+    //Création du corps de la requête en éliminant les références infinis
+    const seen = new WeakSet();
+    const data = JSON.stringify(payload, (key, value) => {
+        if (typeof value === 'object' && value !== null) {
+            if (seen.has(value)) {
+                return;
+            }
+            seen.add(value);
+        }
+        return value;
+    });
     if(type === MenuElements.SUBCATEGORY) {
         return post("category/sub", data);
     } else {
