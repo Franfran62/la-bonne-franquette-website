@@ -21,7 +21,7 @@ defineProps({
           min-height="32"
           class="flex justify-space-around my-2 mx-2"
       >
-        <v-card :color="m.modified ? 'editedProduct' : 'nonEditedProduct'">
+        <v-card :color="m.modified ? 'editedProduct' : 'nonEditedProduct'" variant="flat">
           <v-card-item>
             <v-card-title>
             <span class="text-base">
