@@ -1,13 +1,18 @@
 <script setup>
-import {computed, ref} from "vue";
+import {computed, onUpdated, ref} from "vue";
 import {useDisplay} from "vuetify";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
+import Category from "@/model/Category.js";
 
 const props = defineProps({
   handleSubmit: {
     type: Function,
     required: true
   },
+  category: {
+    type: Category,
+    required: false
+  }
 });
 
 const {xs, sm} = useDisplay();
@@ -16,6 +21,13 @@ const errorText = ref("");
 const valid = ref(false);
 const isMobile = computed(() => xs.value || sm.value);
 const name = ref("");
+
+onUpdated(() => {
+  if (props.category) {
+    name.value = props.category.name;
+  }
+});
+
 const submitForm = async () => {
   try {
     await props.handleSubmit({

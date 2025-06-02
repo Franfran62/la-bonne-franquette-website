@@ -40,6 +40,11 @@ watch(selectedVATRate, (newValue) => {
   totalPrice.value = Number((price.value * getMultFromVAT(newValue)).toFixed(2));
 })
 
+const formatPrice = (value) => {
+  if (value === null || value === undefined || isNaN(value)) return "0,00";
+  return Number(value).toFixed(2).replace('.', ',');
+};
+
 const submitForm = () => {
   emit('result', {
     prixHT: Number((price.value * 100).toFixed(2)),
@@ -88,8 +93,8 @@ const submitForm = () => {
                     placeholder="Entrez le prix HT"
                     :min="0.00"
                     :step="0.01"
-                    :rules="[v => v >= 0 || 'Le prix est nécessaire']"
-                    :formatter="v => Number(v).toFixed(2)"
+                    :rules="[v => v > 0 || 'Le prix est nécessaire']"
+                    :formatter="formatPrice"
                     variant="outlined"
                     required
                     rounded="xl"
@@ -101,7 +106,7 @@ const submitForm = () => {
                     label="Prix TTC"
                     :min="0.00"
                     :step="0.01"
-                    :formatter="v => Number(v).toFixed(2)"
+                    :formatter="formatPrice"
                     variant="outlined"
                     readonly
                     rounded="xl"

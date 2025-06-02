@@ -1,15 +1,20 @@
 <script setup>
-import {computed, onBeforeMount, ref, watch} from "vue";
+import {computed, onUpdated, ref, watch} from "vue";
 import {useDisplay} from "vuetify";
 import MenuElements from "@/model/MenuElements.js";
 import {fetchElements} from "@/services/menuEditService.js";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
+import SubCategory from "@/model/SubCategory.js";
 
 const props = defineProps({
   handleSubmit: {
     type: Function,
     required: true
   },
+  subCategory: {
+    type: SubCategory,
+    required: false,
+  }
 });
 
 const isLoading = ref(true);
@@ -25,13 +30,17 @@ const name = ref("");
 const selectedCategory = ref(null);
 const parentCategoryId = ref(-1);
 
-onBeforeMount(async () => {
+onUpdated(async () => {
   try {
     categories.value = await fetchElements(MenuElements.CATEGORY);
     isLoading.value = false;
   } catch (e) {
     errorText.value = e.message;
     snackbarError.value = true;
+  }
+  if (props.subCategory) {
+    name.value = props.subCategory.name;
+    selectedCategory.value = categories.value.find((x) => x["id"] === props.subCategory.categoryId);
   }
 });
 

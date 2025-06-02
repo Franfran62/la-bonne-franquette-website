@@ -9,11 +9,24 @@ import Menu from "@/model/Menu.js";
 import MenuItem from "@/model/MenuItem.js";
 import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
 
+const getCategories = (data) => {
+    const categories = [];
+    const subCategories = [];
+    data.map(e => {
+        if (e["categoryType"] === "category") {
+            categories.push(new Category(e["id"], e["name"], [], e["categoryType"]));
+        } else if (e["categoryType"] === "sub-category") {
+            subCategories.push(new SubCategory(e["id"], e["name"], [], e["categoryId"], e["categoryType"]));
+        }
+    });
+    return categories.concat(subCategories);
+};
+
 const fetchElements = async (type) => {
     const result = [];
     let key;
     if (type === MenuElements.SUBCATEGORY) {
-        key = "category"
+        key = "category";
     } else {
         key = getEnumKeyByValue(MenuElements, type).toLowerCase();
     }
@@ -22,35 +35,20 @@ const fetchElements = async (type) => {
         switch (type) {
             case MenuElements.ADDON: {
                 response.data.map(e => {
-                    result.push(new Addon(e["id"], e["name"], e["prixHT"], e["tauxTVA"], []));
-                })
+                    result.push(new Addon(e["id"], e["name"], e["prixHT"], e["tauxTVA"]));
+                });
                 return result;
             }
             case MenuElements.CATEGORY: {
-                const categories = [];
-                const subCategories = [];
-                response.data.map(e => {
-                    if (e["categoryType"] === "category") {
-                        categories.push(new Category(e["id"], e["name"], [], e["categoryType"]));
-                    } else {
-                        subCategories.push(new SubCategory(e["id"], e["name"], [], e["categoryId"], e["categoryType"]));
-                    }
-                });
-                return categories.concat(subCategories);
+                return getCategories(response.data);
             }
             case MenuElements.SUBCATEGORY: {
-                const subCategories = [];
-                response.data.map(e => {
-                    if (e["categoryType"] === "sub-category") {
-                        subCategories.push(new SubCategory(e["id"], e["name"], [], e["categoryId"], e["categoryType"]));
-                    }
-                });
-                return subCategories;
+                return getCategories(response.data).filter(e => e instanceof SubCategory);
             }
             case MenuElements.INGREDIENT: {
                 response.data.map(e => {
                     result.push(new Ingredients(e["id"], e["name"]));
-                })
+                });
                 return result;
             }
             case MenuElements.PRODUCT: {
@@ -58,25 +56,15 @@ const fetchElements = async (type) => {
                     const productIngredients = [];
                     e["ingredients"].map(ingredient => {
                         productIngredients.push(new Ingredients(ingredient["id"], ingredient["name"]));
-                    })
+                    });
                     const productAddons = [];
                     e["addons"].map(addon => {
-                        productAddons.push(new Addon(addon["id"], addon["prixHT"], addon["name"], addon["tauxTVA"], []));
-                    })
-                    const categories = [];
-                    const subCategories = [];
-                    response.data.map(e => {
-                        if (e["categoryType"] === "category") {
-                            categories.push(new Category(e["id"], e["name"], [], e["categoryType"]));
-                        } else {
-                            subCategories.push(new SubCategory(e["id"], e["name"], [], e["categoryId"], e["categoryType"]));
-                        }
+                        productAddons.push(new Addon(addon["id"], addon["name"], addon["prixHT"], addon["tauxTVA"], []));
                     });
-
-                    const newProduct = new Product(e["name"], e["price"], productIngredients, productAddons, categories.concat(subCategories), false, 0, e["TauxTVA"], e["id"]);
+                    const categories = getCategories(e["categories"]);
+                    const newProduct = new Product(e["name"], e["prixHT"], productIngredients, productAddons, categories, false, 0, e["tauxTVA"], e["id"]);
                     result.push(newProduct);
-                    return result;
-                })
+                });
                 return result;
             }
             case MenuElements.MENU: {
@@ -85,29 +73,26 @@ const fetchElements = async (type) => {
                     e["menuItems"].map(menuItem => {
                         const menuItemProducts = [];
                         menuItem["products"].map(product => {
-                                const productIngredients = [];
-                                /*                            product["ingredients"].map(ingredient => {
-                                                                productIngredients.push(new Ingredients(ingredient["id"], ingredient["name"]));
-                                                            })*/
-                                const productAddons = [];
-                                product["addons"].map(addon => {
-                                    productAddons.push(new Addon(addon["id"], addon["prixHT"], addon["name"], addon["tauxTVA"], []));
-                                })
-                                const newProduct = new Product(e["name"], e["price"], productIngredients, productAddons, false, false, e["id"]);
-                                menuItemProducts.push(newProduct);
-                            }
-                        );
+                            const productIngredients = [];
+                            const productAddons = [];
+                            product["addons"].map(addon => {
+                                productAddons.push(new Addon(addon["id"], addon["prixHT"], addon["name"], addon["tauxTVA"], []));
+                            });
+                            const categories = getCategories(product["categories"]);
+                            const newProduct = new Product(product["name"], product["prixHT"], productIngredients, productAddons, categories, false, 0, product["tauxTVA"], product["id"]);
+                            menuItemProducts.push(newProduct);
+                        });
                         menuItems.push(new MenuItem(menuItem["id"], menuItem["name"], menuItemProducts, menuItem["optional"], menuItem["prixHT"], menuItem["tauxTVA"]));
                     });
                     result.push(new Menu(e["name"], e["prixHT"], [], false, 0, menuItems, e["tauxTVA"], e["id"]));
-                })
+                });
                 return result;
             }
         }
     } catch (e) {
         throw new Error(e);
     }
-}
+};
 
 const createNewElement = async (type, payload) => {
     //Création du corps de la requête en éliminant les références infinis
@@ -121,7 +106,7 @@ const createNewElement = async (type, payload) => {
         }
         return value;
     });
-    if(type === MenuElements.SUBCATEGORY) {
+    if (type === MenuElements.SUBCATEGORY) {
         return post("category/sub", data);
     } else {
         const key = getEnumKeyByValue(MenuElements, type).toLowerCase();

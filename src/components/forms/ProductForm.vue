@@ -1,17 +1,22 @@
 <script setup>
-import {computed, onBeforeMount, ref, watch} from "vue";
+import {computed, onUpdated, ref, watch} from "vue";
 import {useDisplay} from "vuetify";
 import MenuElements from "@/model/MenuElements.js";
 import {fetchElements} from "@/services/menuEditService.js";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import VATRate, {getMultFromVAT} from "@/model/VATRate.js";
 import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
+import Product from "@/model/Product.js";
 
 const props = defineProps({
   handleSubmit: {
     type: Function,
     required: true
   },
+  product: {
+    type: Product,
+    required: false,
+  }
 });
 
 const isLoading = ref(true);
@@ -31,7 +36,7 @@ const price = ref(0.00);
 const totalPrice = ref(0.00);
 const selectedVATRate = ref(VATRate.AUCUN);
 
-onBeforeMount(async () => {
+onUpdated(async () => {
   try {
     const fetchedIngredients = await fetchElements(MenuElements.INGREDIENT);
     const fetchedAddons = await fetchElements(MenuElements.ADDON);
@@ -50,6 +55,16 @@ onBeforeMount(async () => {
   } catch (e) {
     errorText.value = e.message;
     snackbarError.value = true;
+  }
+  if (props.product) {
+    console.log(props.product);
+    name.value = props.product.name;
+    selectedVATRate.value = VATRate[props.product.vatRate];
+    price.value = props.product.price / 100;
+    totalPrice.value = props.product.totalPrice / 100
+    selectedCategories.value = props.product.categories;
+    selectedIngredients.value = props.product.ingredients;
+    selectedAddons.value = props.product.addons;
   }
 });
 
@@ -85,6 +100,11 @@ watch(price, (newValue) => {
 watch(selectedVATRate, (newValue) => {
   totalPrice.value = Number((price.value * getMultFromVAT(newValue)).toFixed(2));
 });
+
+const formatPrice = (value) => {
+  if (value === null || value === undefined || isNaN(value)) return "0,00";
+  return Number(value).toFixed(2).replace('.', ',');
+};
 
 const submitForm = async () => {
   try {
@@ -168,7 +188,7 @@ const submitForm = async () => {
                     :min="0.00"
                     :step="0.01"
                     :rules="[v => v >= 0 || 'Le prix est nécessaire']"
-                    :formatter="v => Number(v).toFixed(2)"
+                    :formatter="formatPrice"
                     variant="outlined"
                     required
                     rounded="xl"
@@ -180,7 +200,7 @@ const submitForm = async () => {
                     label="Prix TTC"
                     :min="0.00"
                     :step="0.01"
-                    :formatter="v => Number(v).toFixed(2)"
+                    :formatter="formatPrice"
                     variant="outlined"
                     readonly
                     rounded="xl"

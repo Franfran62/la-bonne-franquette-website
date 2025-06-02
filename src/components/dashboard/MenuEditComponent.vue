@@ -8,6 +8,12 @@ import ProductForm from "@/components/forms/ProductForm.vue";
 import MenuForm from "@/components/forms/MenuForm.vue";
 import {computed, defineProps, onBeforeMount, ref, watch} from "vue";
 import {useDisplay} from "vuetify";
+import Ingredients from "@/model/Ingredients.js";
+import Category from "@/model/Category.js";
+import SubCategory from "@/model/SubCategory.js";
+import Addon from "@/model/Addon.js";
+import Product from "@/model/Product.js";
+import Menu from "@/model/Menu.js";
 
 const props = defineProps({
   selectedElementType: {
@@ -22,7 +28,6 @@ const props = defineProps({
 });
 
 onBeforeMount(() => {
-  console.log(props.element);
   checkCategoryType();
 });
 
@@ -37,8 +42,8 @@ const checkCategoryType = () => {
 };
 
 watch(() => props.element, () => {
-  console.log(props.element);
   checkCategoryType();
+  console.log(props.element)
 });
 
 const {xs, sm} = useDisplay();
@@ -63,32 +68,71 @@ const handleSubmit = () => {
     <div v-if="elementType === MenuElements.CATEGORY">
       <v-card-title :class="{'text-center': isMobile}"><span
           class="text-xl">Modification d'une catégorie</span></v-card-title>
-      <CategoryForm :handle-submit="handleSubmit"/>
+      <CategoryForm :handle-submit="handleSubmit"
+                    :category="new Category(
+                        props.element.id,
+                        props.element.name,
+                        props.element.products,
+                        props.element.categoryType)"/>
     </div>
     <div v-else-if="elementType === MenuElements.SUBCATEGORY">
       <v-card-title :class="{'text-center': isMobile}"><span
           class="text-xl">Modification d'une sous-catégorie</span></v-card-title>
-      <SubCategoryForm :handle-submit="handleSubmit"/>
+      <SubCategoryForm :handle-submit="handleSubmit"
+                       :sub-category="new SubCategory(
+                           props.element.id,
+                           props.element.name,
+                           props.element.products,
+                           props.element.categoryId,
+                           props.element.categoryType)"/>
     </div>
     <div v-else-if="elementType === MenuElements.ADDON">
       <v-card-title :class="{'text-center': isMobile}"><span
           class="text-xl">Modification d'un extra</span></v-card-title>
-      <AddonForm :handle-submit="handleSubmit"/>
+      <AddonForm :handle-submit="handleSubmit"
+                 :addon="new Addon(
+                     props.element.id,
+                     props.element.name,
+                     props.element.price,
+                     props.element.vatRate,
+                     props.element.ingredient)"/>
     </div>
     <div v-else-if="elementType === MenuElements.INGREDIENT">
       <v-card-title :class="{'text-center': isMobile}"><span
           class="text-xl">Modification d'un ingrédient</span></v-card-title>
-      <IngredientForm :handle-submit="handleSubmit"/>
+      <IngredientForm :handle-submit="handleSubmit"
+                      :ingredient="new Ingredients(
+                          props.element.id,
+                          props.element.name)"/>
     </div>
     <div v-else-if="elementType === MenuElements.PRODUCT">
       <v-card-title :class="{'text-center': isMobile}"><span
           class="text-xl">Modification d'un produit</span></v-card-title>
-      <ProductForm :handle-submit="handleSubmit"/>
+      <ProductForm :handle-submit="handleSubmit"
+                   :product="new Product(
+                       props.element.name,
+                       props.element.price,
+                       props.element.ingredients,
+                       props.element.addons,
+                       props.element.categories,
+                       false,
+                       0,
+                       props.element.vatRate,
+                       props.element.id)"/>
     </div>
     <div v-else-if="elementType === MenuElements.MENU">
       <v-card-title :class="{'text-center': isMobile}"><span
           class="text-xl">Modification d'un menu</span></v-card-title>
-      <MenuForm :handle-submit="handleSubmit"/>
+      <MenuForm :handle-submit="handleSubmit"
+                :menu="new Menu(
+                    props.element.name,
+                    props.element.price,
+                    [],
+                    false,
+                    0,
+                    props.element.menuItems,
+                    props.element.vatRate,
+                    props.element.id)"/>
     </div>
 
   </div>

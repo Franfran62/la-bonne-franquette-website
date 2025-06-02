@@ -1,6 +1,10 @@
-import { getMultFromVAT } from "@/model/VATRate.js";
+import {getMultFromVAT} from "@/model/VATRate.js";
 
 class HasPrice {
+    price;
+    totalPrice;
+    vatRate;
+
     constructor(price, vatRate) {
         if (new.target === HasPrice) {
             throw new Error("La classe HasPrice est abstraite et ne peut pas être instanciée directement.");

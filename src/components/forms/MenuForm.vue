@@ -1,16 +1,21 @@
 <script setup>
-import {computed, ref, watch} from "vue";
+import {computed, onUpdated, ref, watch} from "vue";
 import {useDisplay} from "vuetify";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import VATRate, {getMultFromVAT} from "@/model/VATRate.js";
 import MenuItemForm from "@/components/forms/MenuItemForm.vue";
 import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
+import Menu from "@/model/Menu.js";
 
 const props = defineProps({
   handleSubmit: {
     type: Function,
     required: true
   },
+  menu: {
+    type: Menu,
+    required: false,
+  }
 });
 
 const isLoading = ref(true);
@@ -39,7 +44,20 @@ watch(selectedVATRate, (newValue) => {
   totalPrice.value = Number((price.value * getMultFromVAT(newValue)).toFixed(2));
 })
 
+onUpdated(() => {
+  if (props.menu) {
+    console.log(props.menu)
+    name.value = props.menu.name;
+    selectedVATRate.value = VATRate[props.menu.vatRate];
+    price.value = props.menu.price / 100;
+    totalPrice.value = props.menu.totalPrice / 100;
+    menuItems.value = props.menu.menuItems;
+  }
+});
+
 const updateCreation = (result) => {
+  result.price = result.price * 100;
+  result.totalPrice = result.totalPrice * 100;
   if (!menuItems.value.some(item => JSON.stringify(item) === JSON.stringify(result))) {
     menuItems.value.push(result);
   }
@@ -53,6 +71,11 @@ const removeFromList = (index) => {
 const duplicateFromList = (index) => {
   menuItems.value.push(menuItems.value[index]);
 }
+
+const formatPrice = (value) => {
+  if (value === null || value === undefined || isNaN(value)) return "0,00";
+  return Number(value).toFixed(2).replace('.', ',');
+};
 
 const submitForm = async () => {
   if (menuItems.value.length < 1) {
@@ -96,7 +119,7 @@ const submitForm = async () => {
       <v-list-item v-for="(menuItem, i) in menuItems"
                    :key="i" variant="text">
         <v-list-item-title>
-          {{ menuItem.totalPrice }}€ - TVA : {{ VATRate[menuItem.tauxTVA] }} -
+          {{ Number((menuItem.totalPrice / 100).toFixed(2)) }}€ - TVA : {{ VATRate[menuItem.tauxTVA] }} -
           {{ menuItem.optional ? "Optionel" : "Obligatoire" }}
           <v-btn icon="mdi-content-duplicate" variant="text" @click="duplicateFromList(i)"/>
           <v-btn icon="mdi-window-close" variant="text" @click="removeFromList(i)"/>
@@ -126,7 +149,7 @@ const submitForm = async () => {
                     :min="0.00"
                     :step="0.01"
                     :rules="[v => v >= 0 || 'Le prix est nécessaire']"
-                    :formatter="v => Number(v).toFixed(2)"
+                    :formatter="formatPrice"
                     variant="outlined"
                     required
                     rounded="xl"
@@ -138,7 +161,7 @@ const submitForm = async () => {
                     label="Prix TTC"
                     :min="0.00"
                     :step="0.01"
-                    :formatter="v => Number(v).toFixed(2)"
+                    :formatter="formatPrice"
                     variant="outlined"
                     readonly
                     rounded="xl"

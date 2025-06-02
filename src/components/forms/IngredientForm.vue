@@ -1,13 +1,18 @@
 <script setup>
-import {computed, ref} from "vue";
+import {computed, onUpdated, ref} from "vue";
 import {useDisplay} from "vuetify";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
+import Ingredients from "@/model/Ingredients.js";
 
 const props = defineProps({
   handleSubmit: {
     type: Function,
     required: true
   },
+  ingredient: {
+    type: Ingredients,
+    required: false,
+  }
 });
 
 const {xs, sm} = useDisplay();
@@ -17,6 +22,12 @@ const errorText = ref("");
 const valid = ref(false);
 const isMobile = computed(() => xs.value || sm.value);
 const name = ref("");
+
+onUpdated(() => {
+  if (props.ingredient) {
+    name.value = props.ingredient.name;
+  }
+});
 
 const submitForm = async () => {
   try {
