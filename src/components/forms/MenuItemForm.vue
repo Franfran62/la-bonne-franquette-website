@@ -130,7 +130,7 @@ const submitForm = () => {
     </div>
     <div class="flex justify-center">
       <v-btn @click="submitForm" variant="text">
-        Ajouter
+        Valider
       </v-btn>
     </div>
   </v-form>

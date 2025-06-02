@@ -127,7 +127,7 @@ const submitForm = async () => {
               class="input-spacing"/>
     <div class="flex justify-center">
       <v-btn type="submit" color="primary" rounded="xl" :size="isMobile ? 'default' : 'large'">
-        <div class="justify-start font-semibold">Ajouter</div>
+        <div class="justify-start font-semibold">Valider</div>
       </v-btn>
     </div>
   </v-form>
