@@ -47,9 +47,9 @@ const formatPrice = (value) => {
 
 const submitForm = () => {
   emit('result', {
-    prixHT: Number((price.value * 100).toFixed(2)),
+    price: Number((price.value * 100).toFixed(2)),
     totalPrice: totalPrice.value,
-    tauxTVA: getEnumKeyByValue(VATRate, selectedVATRate.value),
+    vatrate: getEnumKeyByValue(VATRate, selectedVATRate.value),
     products: selectedProducts.value,
     optional: optional.value,
   });

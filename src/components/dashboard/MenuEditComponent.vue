@@ -14,6 +14,10 @@ import SubCategory from "@/model/SubCategory.js";
 import Addon from "@/model/Addon.js";
 import Product from "@/model/Product.js";
 import Menu from "@/model/Menu.js";
+import SuccessInfo from "@/components/snackbars/SuccessInfo.vue";
+import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
+import HintInfo from "@/components/snackbars/HintInfo.vue";
+import {updateElement} from "@/services/menuEditService.js";
 
 const props = defineProps({
   selectedElementType: {
@@ -26,6 +30,8 @@ const props = defineProps({
     required: false
   }
 });
+
+const emit = defineEmits(['result'])
 
 onBeforeMount(() => {
   checkCategoryType();
@@ -43,20 +49,35 @@ const checkCategoryType = () => {
 
 watch(() => props.element, () => {
   checkCategoryType();
-  console.log(props.element)
 });
 
 const {xs, sm} = useDisplay();
 const isMobile = computed(() => xs.value || sm.value);
 const elementType = ref(null);
 
-const handleSubmit = (data) => {
-  data.id = props.element.id;
-  console.log("avant : ")
-  console.log(props.element);
-  console.log("après : ")
-  console.log(data);
+const snackbarError = ref(false);
+const snackbarSuccess = ref(false);
+const snackbarInfo = ref(false);
 
+const errorText = ref("");
+const succesText = ref("");
+const infoText = ref("");
+
+const handleSubmit = async (data) => {
+  data.id = props.element.id;
+  let response;
+  if (data.categoryType === "sub-category") {
+    response = await updateElement(MenuElements.SUBCATEGORY, data);
+  } else {
+    response = await updateElement(props.selectedElementType, data);
+  }
+  if (response.status === 200) {
+    succesText.value = response.data["Response"];
+    snackbarSuccess.value = true;
+  } else {
+    throw new Error(response.data.message);
+  }
+  emit('result', true);
 }
 
 </script>
@@ -105,7 +126,7 @@ const handleSubmit = (data) => {
                      props.element.id,
                      props.element.name,
                      props.element.price,
-                     props.element.vatRate,
+                     props.element.vatrate,
                      props.element.ingredient)"/>
       </div>
     </div>
@@ -134,7 +155,7 @@ const handleSubmit = (data) => {
                        props.element.categories,
                        false,
                        0,
-                       props.element.vatRate,
+                       props.element.vatrate,
                        props.element.id)"/>
       </div>
     </div>
@@ -151,11 +172,15 @@ const handleSubmit = (data) => {
                     false,
                     0,
                     props.element.menuItems,
-                    props.element.vatRate,
+                    props.element.vatrate,
                     props.element.id)"/>
       </div>
     </div>
   </div>
+
+  <ErrorInfo :text="errorText" :enable="snackbarError" @onClose="(v) => snackbarError = v"/>
+  <SuccessInfo :text="succesText" :enable="snackbarSuccess" @onClose="(v) => snackbarSuccess = v"/>
+  <HintInfo :text="infoText" :enable="snackbarInfo" @onClose="(v) => snackbarInfo = v"/>
 
 </template>
 

@@ -1,5 +1,5 @@
 <script setup>
-import {computed, onUpdated, ref} from "vue";
+import {computed, ref, watch} from "vue";
 import {useDisplay} from "vuetify";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import Ingredients from "@/model/Ingredients.js";
@@ -15,6 +15,7 @@ const props = defineProps({
   }
 });
 
+const isLoading = ref(true);
 const {xs, sm} = useDisplay();
 const snackbarError = ref(false);
 const errorText = ref("");
@@ -23,11 +24,12 @@ const valid = ref(false);
 const isMobile = computed(() => xs.value || sm.value);
 const name = ref("");
 
-onUpdated(() => {
-  if (props.ingredient) {
-    name.value = props.ingredient.name;
+watch(() => props.ingredient, (newIngredient) => {
+  if (newIngredient) {
+    name.value = newIngredient.name;
   }
-});
+}, {immediate: true});
+
 
 const submitForm = async () => {
   try {

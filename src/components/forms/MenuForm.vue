@@ -1,5 +1,5 @@
 <script setup>
-import {computed, onUpdated, ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import {useDisplay} from "vuetify";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import VATRate, {getMultFromVAT} from "@/model/VATRate.js";
@@ -17,8 +17,6 @@ const props = defineProps({
     required: false,
   }
 });
-
-const isLoading = ref(true);
 
 const snackbarError = ref(false);
 const errorText = ref("");
@@ -38,26 +36,25 @@ watch(price, (newValue) => {
   if (newValue === 0) {
     selectedVATRate.value = VATRate.AUCUN;
   }
-})
+});
 
 watch(selectedVATRate, (newValue) => {
   totalPrice.value = Number((price.value * getMultFromVAT(newValue)).toFixed(2));
-})
-
-onUpdated(() => {
-  if (props.menu) {
-    console.log(props.menu)
-    name.value = props.menu.name;
-    selectedVATRate.value = VATRate[props.menu.vatRate];
-    price.value = props.menu.price / 100;
-    totalPrice.value = props.menu.totalPrice / 100;
-    menuItems.value = props.menu.menuItems;
-  }
 });
 
+watch(() => props.menu, (newMenu) => {
+  if (newMenu) {
+    name.value = newMenu.name;
+    selectedVATRate.value = VATRate[newMenu.vatrate];
+    price.value = newMenu.price / 100;
+    totalPrice.value = newMenu.totalPrice / 100;
+    menuItems.value = newMenu.menuItems;
+  }
+}, {immediate: true});
+
 const updateCreation = (result) => {
-  result.price = result.price * 100;
-  result.totalPrice = result.totalPrice * 100;
+  result.price = result.price;
+  result.totalPrice = result.totalPrice;
   if (!menuItems.value.some(item => JSON.stringify(item) === JSON.stringify(result))) {
     menuItems.value.push(result);
   }
@@ -69,8 +66,9 @@ const removeFromList = (index) => {
 }
 
 const duplicateFromList = (index) => {
-  menuItems.value.push(menuItems.value[index]);
-}
+  const duplicatedMenuItem = JSON.parse(JSON.stringify(menuItems.value[index]));
+  menuItems.value.push(duplicatedMenuItem);
+};
 
 const formatPrice = (value) => {
   if (value === null || value === undefined || isNaN(value)) return "0,00";
@@ -86,8 +84,8 @@ const submitForm = async () => {
   try {
     await props.handleSubmit({
       name: name.value,
-      prixHT: Number((price.value * 100).toFixed(2)),
-      tauxTVA: getEnumKeyByValue(VATRate, selectedVATRate.value),
+      price: Number((price.value * 100).toFixed(2)),
+      vatrate: getEnumKeyByValue(VATRate, selectedVATRate.value),
       menuItems: menuItems.value,
     });
   } catch (e) {
@@ -119,7 +117,7 @@ const submitForm = async () => {
       <v-list-item v-for="(menuItem, i) in menuItems"
                    :key="i" variant="text">
         <v-list-item-title>
-          {{ Number((menuItem.totalPrice / 100).toFixed(2)) }}€ - TVA : {{ VATRate[menuItem.tauxTVA] }} -
+          {{ Number((menuItem.totalPrice / 100).toFixed(2)) }}€ - TVA : {{ VATRate[menuItem.VATRate] }} -
           {{ menuItem.optional ? "Optionel" : "Obligatoire" }}
           <v-btn icon="mdi-content-duplicate" variant="text" @click="duplicateFromList(i)"/>
           <v-btn icon="mdi-window-close" variant="text" @click="removeFromList(i)"/>

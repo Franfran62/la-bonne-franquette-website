@@ -51,23 +51,24 @@ onUpdated(async () => {
     if (fetchCategories.length !== 0) {
       categories.value = [{name: "Tout sélectionner", isSelectAll: true}, ...fetchCategories];
     }
-    isLoading.value = false;
   } catch (e) {
     errorText.value = e.message;
     snackbarError.value = true;
   }
-  if (props.product) {
-    console.log(props.product);
-    name.value = props.product.name;
-    selectedVATRate.value = VATRate[props.product.vatRate];
-    price.value = props.product.price / 100;
-    totalPrice.value = props.product.totalPrice / 100
-    selectedCategories.value = props.product.categories;
-    selectedIngredients.value = props.product.ingredients;
-    selectedAddons.value = props.product.addons;
-  }
+  isLoading.value = false;
 });
 
+watch(() => props.product, (newProduct) => {
+  if (newProduct) {
+    name.value = newProduct.name;
+    selectedVATRate.value = VATRate[newProduct.vatrate];
+    price.value = newProduct.price / 100;
+    totalPrice.value = newProduct.totalPrice / 100
+    selectedCategories.value = newProduct.categories;
+    selectedIngredients.value = newProduct.ingredients;
+    selectedAddons.value = newProduct.addons;
+  }
+}, {immediate: true});
 
 watch(selectedIngredients, (newValue) => {
   const selectAll = newValue.find(item => item.isSelectAll);
@@ -110,8 +111,8 @@ const submitForm = async () => {
   try {
     await props.handleSubmit({
       name: name.value,
-      prixHT: Number((price.value * 100).toFixed(2)),
-      tauxTVA: price.value === 0 ? VATRate.AUCUN : getEnumKeyByValue(VATRate, selectedVATRate.value),
+      price: Number((price.value * 100).toFixed(2)),
+      vatrate: price.value === 0 ? VATRate.AUCUN : getEnumKeyByValue(VATRate, selectedVATRate.value),
       addons: selectedAddons.value,
       ingredients: selectedIngredients.value,
       categories: selectedCategories.value,

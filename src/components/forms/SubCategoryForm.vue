@@ -33,16 +33,18 @@ const parentCategoryId = ref(-1);
 onUpdated(async () => {
   try {
     categories.value = await fetchElements(MenuElements.CATEGORY);
-    isLoading.value = false;
   } catch (e) {
     errorText.value = e.message;
     snackbarError.value = true;
   }
-  if (props.subCategory) {
-    name.value = props.subCategory.name;
-    selectedCategory.value = categories.value.find((x) => x["id"] === props.subCategory.categoryId);
-  }
 });
+
+watch(() => props.subCategory, (newSubCategory) => {
+  if (newSubCategory) {
+    name.value = newSubCategory.name;
+    selectedCategory.value = categories.value.find((x) => x["id"] === newSubCategory.categoryId);
+  }
+}, {immediate: true});
 
 watch(selectedCategory, (newValue) => {
   parentCategoryId.value = newValue.id;

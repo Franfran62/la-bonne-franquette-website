@@ -1,5 +1,5 @@
 <script setup>
-import {computed, onUpdated, ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import {useDisplay} from "vuetify";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import VATRate, {getMultFromVAT} from "@/model/VATRate.js";
@@ -30,16 +30,16 @@ const price = ref(0.00);
 const totalPrice = ref(0.00);
 const selectedVATRate = ref(VATRate.AUCUN);
 
-onUpdated(async () => {
-  if (props.addon) {
-    console.log(props.addon)
-    name.value = props.addon.name
-    selectedVATRate.value = VATRate[props.addon.vatRate];
-    price.value = props.addon.price / 100;
-    totalPrice.value = props.addon.totalPrice / 100;
-  }
-});
 
+watch(() => props.addon, (newAddon) => {
+  if (newAddon) {
+    name.value = newAddon.name
+    selectedVATRate.value = VATRate[newAddon.vatrate];
+    price.value = newAddon.price / 100;
+    totalPrice.value = newAddon.totalPrice / 100;
+    isLoading.value = false;
+  }
+}, {immediate: true});
 
 watch(price, (newValue) => {
   totalPrice.value = Number((newValue * getMultFromVAT(selectedVATRate.value)).toFixed(2));
@@ -61,8 +61,8 @@ const submitForm = async () => {
   try {
     await props.handleSubmit({
       name: name.value,
-      prixHT: Number((price.value * 100).toFixed(2)),
-      tauxTVA: price.value === 0 ? VATRate.AUCUN : getEnumKeyByValue(VATRate, selectedVATRate.value),
+      price: Number((price.value * 100).toFixed(2)),
+      vatrate: price.value === 0 ? VATRate.AUCUN : getEnumKeyByValue(VATRate, selectedVATRate.value),
     });
   } catch (e) {
     errorText.value = e;

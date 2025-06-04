@@ -1,5 +1,5 @@
 <script setup>
-import {computed, onUpdated, ref} from "vue";
+import {computed, ref, watch} from "vue";
 import {useDisplay} from "vuetify";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import Category from "@/model/Category.js";
@@ -14,7 +14,7 @@ const props = defineProps({
     required: false
   }
 });
-
+const isLoading = ref(true);
 const {xs, sm} = useDisplay();
 const snackbarError = ref(false);
 const errorText = ref("");
@@ -22,11 +22,12 @@ const valid = ref(false);
 const isMobile = computed(() => xs.value || sm.value);
 const name = ref("");
 
-onUpdated(() => {
-  if (props.category) {
-    name.value = props.category.name;
+
+watch(() => props.category, (newCategory) => {
+  if (newCategory) {
+    name.value = newCategory.name;
   }
-});
+}, {immediate: true});
 
 const submitForm = async () => {
   try {

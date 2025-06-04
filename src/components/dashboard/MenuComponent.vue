@@ -103,8 +103,17 @@ const showAddToRestaurantDialog = () => {
 }
 
 const updateCreation = async (result) => {
-  if(result) await onRefresh();
+  if (result) {
+    await onRefresh();
+  }
   return (creationDialog.value = false);
+}
+
+const updateModification = async (result) => {
+  if (result) {
+    selectedElement.value = null;
+    await onRefresh();
+  }
 }
 
 </script>
@@ -141,7 +150,7 @@ const updateCreation = async (result) => {
                       variant="outlined" density="compact" color="primary"
                       rounded="xl" class="input-spacing"/>
             <span>
-              <v-btn base-color="success"variant="text" icon="mdi-plus"
+              <v-btn base-color="success" variant="text" icon="mdi-plus"
                      @click="showAddToRestaurantDialog">
             </v-btn>
             <v-btn @click="onRefresh" icon="mdi-refresh" variant="text"></v-btn>
@@ -154,7 +163,8 @@ const updateCreation = async (result) => {
 
       <v-card :width="isMobile ? 400 : 700" variant="text"
               :class="{'px-8': !isMobile, 'flex justify-center': isMobile }">
-        <MenuEditComponent :selectedElementType="selectedMenuElement" :element="selectedElement"/>
+        <MenuEditComponent :selectedElementType="selectedMenuElement" :element="selectedElement"
+                           @result="updateModification"/>
       </v-card>
     </div>
 

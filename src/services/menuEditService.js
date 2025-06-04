@@ -1,5 +1,5 @@
 import MenuElements from "@/model/MenuElements.js";
-import {fetch, post, remove} from "@/services/axiosService.js";
+import {fetch, post, put, remove} from "@/services/axiosService.js";
 import Addon from "@/model/Addon.js";
 import Category from "@/model/Category.js";
 import Ingredients from "@/model/Ingredients.js";
@@ -22,6 +22,19 @@ const getCategories = (data) => {
     return categories.concat(subCategories);
 };
 
+const cleanData = (data) => {
+    const seen = new WeakSet();
+    return JSON.stringify(data, (key, value) => {
+        if (typeof value === 'object' && value !== null) {
+            if (seen.has(value)) {
+                return;
+            }
+            seen.add(value);
+        }
+        return value;
+    });
+}
+
 const fetchElements = async (type) => {
     const result = [];
     let key;
@@ -35,7 +48,7 @@ const fetchElements = async (type) => {
         switch (type) {
             case MenuElements.ADDON: {
                 response.data.map(e => {
-                    result.push(new Addon(e["id"], e["name"], e["prixHT"], e["tauxTVA"]));
+                    result.push(new Addon(e["id"], e["name"], e["price"], e["VATRate"]));
                 });
                 return result;
             }
@@ -59,10 +72,10 @@ const fetchElements = async (type) => {
                     });
                     const productAddons = [];
                     e["addons"].map(addon => {
-                        productAddons.push(new Addon(addon["id"], addon["name"], addon["prixHT"], addon["tauxTVA"], []));
+                        productAddons.push(new Addon(addon["id"], addon["name"], addon["price"], addon["vatrate"], []));
                     });
                     const categories = getCategories(e["categories"]);
-                    const newProduct = new Product(e["name"], e["prixHT"], productIngredients, productAddons, categories, false, 0, e["tauxTVA"], e["id"]);
+                    const newProduct = new Product(e["name"], e["price"], productIngredients, productAddons, categories, false, 0, e["vatrate"], e["id"]);
                     result.push(newProduct);
                 });
                 return result;
@@ -76,15 +89,15 @@ const fetchElements = async (type) => {
                             const productIngredients = [];
                             const productAddons = [];
                             product["addons"].map(addon => {
-                                productAddons.push(new Addon(addon["id"], addon["prixHT"], addon["name"], addon["tauxTVA"], []));
+                                productAddons.push(new Addon(addon["id"], addon["name"], addon["price"], addon["vatrate"], []));
                             });
                             const categories = getCategories(product["categories"]);
-                            const newProduct = new Product(product["name"], product["prixHT"], productIngredients, productAddons, categories, false, 0, product["tauxTVA"], product["id"]);
+                            const newProduct = new Product(product["name"], product["price"], productIngredients, productAddons, categories, false, 0, product["vatrate"], product["id"]);
                             menuItemProducts.push(newProduct);
                         });
-                        menuItems.push(new MenuItem(menuItem["id"], menuItem["name"], menuItemProducts, menuItem["optional"], menuItem["prixHT"], menuItem["tauxTVA"]));
+                        menuItems.push(new MenuItem(menuItem["id"], menuItemProducts, menuItem["optional"], menuItem["price"], menuItem["vatrate"]));
                     });
-                    result.push(new Menu(e["name"], e["prixHT"], [], false, 0, menuItems, e["tauxTVA"], e["id"]));
+                    result.push(new Menu(e["name"], e["price"], [], false, 0, menuItems, e["vatrate"], e["id"]));
                 });
                 return result;
             }
@@ -95,17 +108,7 @@ const fetchElements = async (type) => {
 };
 
 const createNewElement = async (type, payload) => {
-    //Création du corps de la requête en éliminant les références infinis
-    const seen = new WeakSet();
-    const data = JSON.stringify(payload, (key, value) => {
-        if (typeof value === 'object' && value !== null) {
-            if (seen.has(value)) {
-                return;
-            }
-            seen.add(value);
-        }
-        return value;
-    });
+    const data = cleanData(payload);
     if (type === MenuElements.SUBCATEGORY) {
         return post("category/sub", data);
     } else {
@@ -114,8 +117,18 @@ const createNewElement = async (type, payload) => {
     }
 }
 
+const updateElement = async (type, payload) => {
+    const data = cleanData(payload);
+    if (type === MenuElements.SUBCATEGORY) {
+        return put("category/sub", data);
+    } else {
+        const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
+        return put(key, data);
+    }
+}
+
 const deleteElement = async (type, element) => {
     const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
     return remove(key, element.id);
 }
-export {fetchElements, deleteElement, createNewElement};
+export {fetchElements, deleteElement, createNewElement, updateElement};
