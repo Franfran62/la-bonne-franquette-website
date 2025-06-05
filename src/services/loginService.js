@@ -23,12 +23,6 @@ const logout = () => {
     refreshTokenStore.$reset();
 }
 
-/**
- * Lance une requête de connexion à l'api
- * @param username Nom de l'utilisateur
- * @param password Mot de passe de l'utilisateur
- * @returns {Promise<AxiosResponse<any>|{status: number, message}>} Réponse de l'api
- */
 const login = async (username, password) => {
     try {
         const response = await _login(username, password);
@@ -42,18 +36,12 @@ const login = async (username, password) => {
     }
 };
 
-/**
- * Lance une requête de création de restaurant à l'api puis appel la méthode login pour se connecter
- * @param username Nom du responsable du nouveau restaurant
- * @param restaurantName Nom du restaurant
- * @param password Mot de passe du responsable du restaurant
- * @returns {Promise<{status: number, message}>} Réponse de l'api
- */
 const register = async (username, restaurantName, password) => {
     try {
         const response = await _register(username, restaurantName, password);
+        console.log(response);
         if (response.status === 200) {
-            await login(username, password);
+            return await login(username, password);
         } else {
             return {status: response.status, message: response.data["Erreur"]};
         }
