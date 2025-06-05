@@ -29,6 +29,7 @@ const {xs, sm} = useDisplay();
 const isMobile = computed(() => xs.value || sm.value);
 const selectedMenuElement = ref(MenuElements.CATEGORY);
 const selectedElement = ref(null);
+const selectedElementToDelete = ref(null);
 
 const elements = ref([]);
 
@@ -60,29 +61,31 @@ const onDelete = (elementToDelete) => {
     snackbarInfo.value = true;
     return;
   }
-  selectedElement.value = elementToDelete;
+  selectedElementToDelete.value = elementToDelete;
+  console.log(elementToDelete);
+  console.log(selectedElementToDelete.value)
   deleteConfirmDialog.value = true;
 }
 
 const updateDelete = async (result) => {
   if (!result) {
-    selectedElement.value = null;
+    selectedElementToDelete.value = null;
     return (deleteConfirmDialog.value = false);
   }
   try {
-    const response = await deleteElement(selectedMenuElement.value, selectedElement.value);
+    const response = await deleteElement(selectedMenuElement.value, selectedElementToDelete.value);
     if (response.status !== 200) throw new Error(response.message);
     succesText.value = response.data["Response"];
     snackbarSuccess.value = true;
-    selectedElement.value = null;
+    selectedElementToDelete.value = null;
     await onRefresh();
   } catch (e) {
     errorText.value = e.message;
     snackbarError.value = true;
-    selectedElement.value = null;
+    selectedElementToDelete.value = null;
   } finally {
     deleteConfirmDialog.value = false;
-    selectedElement.value = null;
+    selectedElementToDelete.value = null;
   }
 };
 
@@ -175,8 +178,8 @@ const updateModification = async (result) => {
   <HintInfo :text="infoText" :enable="snackbarInfo" @onClose="(v) => snackbarInfo = v"/>
   <AlertDeleteDialog :title="'Vous allez supprimer quelque chose.'"
                      :body="(selectedMenuElement === MenuElements.CATEGORY) ?
-                     `Vous êtes sur le point de supprimer ${ selectedElement?.name }. Supprimer une catégorie entrainera la suppression de toutes ses sous-catégories, êtes-vous sûr ?` :
-                     `Vous êtes sur le point de supprimer ${ selectedElement?.name }, êtes-vous sûr ?`"
+                     `Vous êtes sur le point de supprimer ${ selectedElementToDelete?.name }. Supprimer une catégorie entrainera la suppression de toutes ses sous-catégories, êtes-vous sûr ?` :
+                     `Vous êtes sur le point de supprimer ${ selectedElementToDelete?.name }, êtes-vous sûr ?`"
                      :enable="deleteConfirmDialog"
                      @result="updateDelete"/>
   <AddToRestaurantDialog :enable="creationDialog" @result="updateCreation"/>

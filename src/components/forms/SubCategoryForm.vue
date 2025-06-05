@@ -16,9 +16,6 @@ const props = defineProps({
     required: false,
   }
 });
-
-const isLoading = ref(true);
-
 const snackbarError = ref(false);
 const errorText = ref("");
 
@@ -33,6 +30,9 @@ const parentCategoryId = ref(-1);
 onUpdated(async () => {
   try {
     categories.value = await fetchElements(MenuElements.CATEGORY);
+    if (props.subCategory) {
+      selectedCategory.value = categories.value.find((x) => x["id"] === props.subCategory.categoryId);
+    }
   } catch (e) {
     errorText.value = e.message;
     snackbarError.value = true;
