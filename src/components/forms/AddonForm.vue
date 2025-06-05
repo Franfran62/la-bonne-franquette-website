@@ -1,17 +1,20 @@
 <script setup>
-import {computed, onBeforeMount, ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import {useDisplay} from "vuetify";
-import MenuElements from "@/model/MenuElements.js";
-import {fetchElements} from "@/services/menuEditService.js";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import VATRate, {getMultFromVAT} from "@/model/VATRate.js";
 import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
+import Addon from "@/model/Addon.js";
 
 const props = defineProps({
   handleSubmit: {
     type: Function,
     required: true
   },
+  addon: {
+    type: Addon,
+    required: false,
+  }
 });
 
 const isLoading = ref(true);
@@ -22,23 +25,21 @@ const errorText = ref("");
 const {xs, sm} = useDisplay();
 const valid = ref(false);
 const isMobile = computed(() => xs.value || sm.value);
-const ingredients = ref([]);
 const name = ref("");
-const selectedIngredient = ref(null);
 const price = ref(0.00);
 const totalPrice = ref(0.00);
 const selectedVATRate = ref(VATRate.AUCUN);
 
-onBeforeMount(async () => {
-  try {
-    ingredients.value = await fetchElements(MenuElements.INGREDIENT);
-    isLoading.value = false;
-  } catch (e) {
-    errorText.value = e.message;
-    snackbarError.value = true;
-  }
-});
 
+watch(() => props.addon, (newAddon) => {
+  if (newAddon) {
+    name.value = newAddon.name
+    selectedVATRate.value = VATRate[newAddon.vatrate];
+    price.value = newAddon.price / 100;
+    totalPrice.value = newAddon.totalPrice / 100;
+    isLoading.value = false;
+  }
+}, {immediate: true});
 
 watch(price, (newValue) => {
   totalPrice.value = Number((newValue * getMultFromVAT(selectedVATRate.value)).toFixed(2));
@@ -51,13 +52,17 @@ watch(selectedVATRate, (newValue) => {
   totalPrice.value = Number((price.value * getMultFromVAT(newValue)).toFixed(2));
 });
 
+const formatPrice = (value) => {
+  if (value === null || value === undefined || isNaN(value)) return "0,00";
+  return Number(value).toFixed(2).replace('.', ',');
+};
+
 const submitForm = async () => {
   try {
     await props.handleSubmit({
       name: name.value,
-      prixHT: Number((price.value * 100).toFixed(2)),
-      tauxTVA: price.value === 0 ? VATRate.AUCUN : getEnumKeyByValue(VATRate, selectedVATRate.value),
-      ingredient: selectedIngredient.value,
+      price: Number((price.value * 100).toFixed(2)),
+      vatrate: price.value === 0 ? VATRate.AUCUN : getEnumKeyByValue(VATRate, selectedVATRate.value),
     });
   } catch (e) {
     errorText.value = e;
@@ -81,17 +86,6 @@ const submitForm = async () => {
                   density="compact"
                   class="input-spacing"
                   color="primary"/>
-    <v-select label="Ingrédient correspondant"
-              :items="ingredients"
-              v-model="selectedIngredient"
-              item-title="name"
-              variant="outlined"
-              density="compact"
-              color="primary"
-              :rules="[v => !!v || 'L\'ingrédient est nécessaire']"
-              return-object
-              class="input-spacing"
-              rounded="xl"/>
     <div class="flex justify-space-between input-spacing">
       <v-text-field v-model="price"
                     type="number"
@@ -100,7 +94,7 @@ const submitForm = async () => {
                     :min="0.00"
                     :step="0.01"
                     :rules="[v => v >= 0 || 'Le prix est nécessaire']"
-                    :formatter="v => Number(v).toFixed(2)"
+                    :formatter="formatPrice"
                     variant="outlined"
                     required
                     rounded="xl"
@@ -112,7 +106,7 @@ const submitForm = async () => {
                     label="Prix TTC"
                     :min="0.00"
                     :step="0.01"
-                    :formatter="v => Number(v).toFixed(2)"
+                    :formatter="formatPrice"
                     variant="outlined"
                     readonly
                     rounded="xl"
@@ -133,7 +127,7 @@ const submitForm = async () => {
               class="input-spacing"/>
     <div class="flex justify-center">
       <v-btn type="submit" color="primary" rounded="xl" :size="isMobile ? 'default' : 'large'">
-        <div class="justify-start font-semibold">Ajouter</div>
+        <div class="justify-start font-semibold">Valider</div>
       </v-btn>
     </div>
   </v-form>

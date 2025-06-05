@@ -1,15 +1,21 @@
 <script setup>
-import {computed, ref} from "vue";
+import {computed, ref, watch} from "vue";
 import {useDisplay} from "vuetify";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
+import Ingredients from "@/model/Ingredients.js";
 
 const props = defineProps({
   handleSubmit: {
     type: Function,
     required: true
   },
+  ingredient: {
+    type: Ingredients,
+    required: false,
+  }
 });
 
+const isLoading = ref(true);
 const {xs, sm} = useDisplay();
 const snackbarError = ref(false);
 const errorText = ref("");
@@ -17,6 +23,13 @@ const errorText = ref("");
 const valid = ref(false);
 const isMobile = computed(() => xs.value || sm.value);
 const name = ref("");
+
+watch(() => props.ingredient, (newIngredient) => {
+  if (newIngredient) {
+    name.value = newIngredient.name;
+  }
+}, {immediate: true});
+
 
 const submitForm = async () => {
   try {
@@ -45,7 +58,7 @@ const submitForm = async () => {
                   color="primary"/>
     <div class="flex justify-center">
       <v-btn type="submit" color="primary" rounded="xl" :size="isMobile ? 'default' : 'large'">
-        <div class="justify-start font-semibold">Ajouter</div>
+        <div class="justify-start font-semibold">Valider</div>
       </v-btn>
     </div>
   </v-form>

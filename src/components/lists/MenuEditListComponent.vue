@@ -1,9 +1,6 @@
 <script setup>
-import Status from "@/model/Status.js";
-import {useDisplay} from "vuetify";
-import {computed} from "vue";
 
-defineProps({
+const props = defineProps({
   elements: {
     type: Array,
     required: true,
@@ -17,7 +14,6 @@ defineProps({
     required: true,
   }
 });
-
 </script>
 
 <template>
@@ -36,7 +32,10 @@ defineProps({
     >
       <v-list-item-title class="flex justify-space-between">
         {{ element.name }}
-        <v-icon color="white" variant="text" icon="mdi-delete" @click="onDelete(element)" />
+        <span>
+          <v-icon v-if="element.categories?.length <= 0" color="white" variant="text" icon="mdi-alert"/>
+          <v-icon color="white" variant="text" icon="mdi-delete" @click="onDelete(element)"/>
+        </span>
       </v-list-item-title>
     </v-list-item>
   </v-list>

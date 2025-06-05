@@ -1,5 +1,5 @@
 import MenuElements from "@/model/MenuElements.js";
-import {fetch, post, remove} from "@/services/axiosService.js";
+import {fetch, post, put, remove} from "@/services/axiosService.js";
 import Addon from "@/model/Addon.js";
 import Category from "@/model/Category.js";
 import Ingredients from "@/model/Ingredients.js";
@@ -9,100 +9,22 @@ import Menu from "@/model/Menu.js";
 import MenuItem from "@/model/MenuItem.js";
 import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
 
-const fetchElements = async (type) => {
-    const result = [];
-    let key;
-    if (type === MenuElements.SUBCATEGORY) {
-        key = "category"
-    } else {
-        key = getEnumKeyByValue(MenuElements, type).toLowerCase();
-    }
-    try {
-        const response = await fetch(key);
-        switch (type) {
-            case MenuElements.ADDON: {
-                response.data.map(e => {
-                    result.push(new Addon(e["id"], e["name"], e["prixHT"], e["tauxTVA"], []));
-                })
-                return result;
-            }
-            case MenuElements.CATEGORY: {
-                const categories = [];
-                const subCategories = [];
-                response.data.map(e => {
-                    if (e["categoryType"] === "category") {
-                        categories.push(new Category(e["id"], e["name"], []));
-                    } else {
-                        subCategories.push(new SubCategory(e["id"], e["name"], [], e["categoryId"]));
-                    }
-                });
-                return categories.concat(subCategories);
-            }
-            case MenuElements.SUBCATEGORY: {
-                const subCategories = [];
-                response.data.map(e => {
-                    if (e["categoryType"] === "sub-category") {
-                        subCategories.push(new SubCategory(e["id"], e["name"], [], e["categoryId"]));
-                    }
-                });
-                return subCategories;
-            }
-            case MenuElements.INGREDIENT: {
-                response.data.map(e => {
-                    result.push(new Ingredients(e["id"], e["name"]));
-                })
-                return result;
-            }
-            case MenuElements.PRODUCT: {
-                response.data.map(e => {
-                    const productIngredients = [];
-                    e["ingredients"].map(ingredient => {
-                        productIngredients.push(new Ingredients(ingredient["id"], ingredient["name"]));
-                    })
-                    const productAddons = [];
-                    e["addons"].map(addon => {
-                        productAddons.push(new Addon(addon["id"], addon["prixHT"], addon["name"], addon["tauxTVA"], []));
-                    })
-                    const newProduct = new Product(e["name"], e["price"], productIngredients, productAddons, false, 0, e["TauxTVA"], e["id"]);
-                    result.push(newProduct);
-                    return result;
-                })
-                return result;
-            }
-            case MenuElements.MENU: {
-                response.data.map(e => {
-                    const menuItems = [];
-                    e["menuItems"].map(menuItem => {
-                        const menuItemProducts = [];
-                        menuItem["products"].map(product => {
-                                const productIngredients = [];
-                                /*                            product["ingredients"].map(ingredient => {
-                                                                productIngredients.push(new Ingredients(ingredient["id"], ingredient["name"]));
-                                                            })*/
-                                const productAddons = [];
-                                product["addons"].map(addon => {
-                                    productAddons.push(new Addon(addon["id"], addon["prixHT"], addon["name"], addon["tauxTVA"], []));
-                                })
-                                const newProduct = new Product(e["name"], e["price"], productIngredients, productAddons, false, false, e["id"]);
-                                menuItemProducts.push(newProduct);
-                            }
-                        );
-                        menuItems.push(new MenuItem(menuItem["id"], menuItem["name"], menuItemProducts, menuItem["optional"], menuItem["prixHT"], menuItem["tauxTVA"]));
-                    });
-                    result.push(new Menu(e["name"], e["prixHT"], [], false, 0, menuItems, e["tauxTVA"], e["id"]));
-                })
-                return result;
-            }
+const getCategories = (data) => {
+    const categories = [];
+    const subCategories = [];
+    data.map(e => {
+        if (e["categoryType"] === "category") {
+            categories.push(new Category(e["id"], e["name"], [], e["categoryType"]));
+        } else if (e["categoryType"] === "sub-category") {
+            subCategories.push(new SubCategory(e["id"], e["name"], [], e["categoryId"], e["categoryType"]));
         }
-    } catch (e) {
-        throw new Error(e);
-    }
-}
+    });
+    return categories.concat(subCategories);
+};
 
-const createNewElement = async (type, payload) => {
-    //Création du corps de la requête en éliminant les références infinis
+const cleanData = (data) => {
     const seen = new WeakSet();
-    const data = JSON.stringify(payload, (key, value) => {
+    return JSON.stringify(data, (key, value) => {
         if (typeof value === 'object' && value !== null) {
             if (seen.has(value)) {
                 return;
@@ -111,7 +33,83 @@ const createNewElement = async (type, payload) => {
         }
         return value;
     });
-    if(type === MenuElements.SUBCATEGORY) {
+}
+
+const fetchElements = async (type) => {
+    const result = [];
+    let key;
+    if (type === MenuElements.SUBCATEGORY) {
+        key = "category";
+    } else {
+        key = getEnumKeyByValue(MenuElements, type).toLowerCase();
+    }
+    try {
+        const response = await fetch(key);
+        switch (type) {
+            case MenuElements.ADDON: {
+                response.data.map(e => {
+                    result.push(new Addon(e["id"], e["name"], e["price"], e["VATRate"]));
+                });
+                return result;
+            }
+            case MenuElements.CATEGORY: {
+                return getCategories(response.data);
+            }
+            case MenuElements.SUBCATEGORY: {
+                return getCategories(response.data).filter(e => e instanceof SubCategory);
+            }
+            case MenuElements.INGREDIENT: {
+                response.data.map(e => {
+                    result.push(new Ingredients(e["id"], e["name"]));
+                });
+                return result;
+            }
+            case MenuElements.PRODUCT: {
+                response.data.map(e => {
+                    const productIngredients = [];
+                    e["ingredients"].map(ingredient => {
+                        productIngredients.push(new Ingredients(ingredient["id"], ingredient["name"]));
+                    });
+                    const productAddons = [];
+                    e["addons"].map(addon => {
+                        productAddons.push(new Addon(addon["id"], addon["name"], addon["price"], addon["vatrate"], []));
+                    });
+                    const categories = getCategories(e["categories"]);
+                    const newProduct = new Product(e["name"], e["price"], productIngredients, productAddons, categories, false, 0, e["vatrate"], e["id"]);
+                    result.push(newProduct);
+                });
+                return result;
+            }
+            case MenuElements.MENU: {
+                response.data.map(e => {
+                    const menuItems = [];
+                    e["menuItems"].map(menuItem => {
+                        const menuItemProducts = [];
+                        menuItem["products"].map(product => {
+                            const productIngredients = [];
+                            const productAddons = [];
+                            product["addons"].map(addon => {
+                                productAddons.push(new Addon(addon["id"], addon["name"], addon["price"], addon["vatrate"], []));
+                            });
+                            const categories = getCategories(product["categories"]);
+                            const newProduct = new Product(product["name"], product["price"], productIngredients, productAddons, categories, false, 0, product["vatrate"], product["id"]);
+                            menuItemProducts.push(newProduct);
+                        });
+                        menuItems.push(new MenuItem(menuItem["id"], menuItemProducts, menuItem["optional"], menuItem["price"], menuItem["vatrate"]));
+                    });
+                    result.push(new Menu(e["name"], e["price"], [], false, 0, menuItems, e["vatrate"], e["id"]));
+                });
+                return result;
+            }
+        }
+    } catch (e) {
+        throw new Error(e);
+    }
+};
+
+const createNewElement = async (type, payload) => {
+    const data = cleanData(payload);
+    if (type === MenuElements.SUBCATEGORY) {
         return post("category/sub", data);
     } else {
         const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
@@ -119,8 +117,18 @@ const createNewElement = async (type, payload) => {
     }
 }
 
+const updateElement = async (type, payload) => {
+    const data = cleanData(payload);
+    if (type === MenuElements.SUBCATEGORY) {
+        return put("category/sub", data);
+    } else {
+        const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
+        return put(key, data);
+    }
+}
+
 const deleteElement = async (type, element) => {
     const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
     return remove(key, element.id);
 }
-export {fetchElements, deleteElement, createNewElement};
+export {fetchElements, deleteElement, createNewElement, updateElement};

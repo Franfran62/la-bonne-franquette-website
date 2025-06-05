@@ -1,19 +1,21 @@
 <script setup>
-import {computed, onBeforeMount, ref, watch} from "vue";
+import {computed, onUpdated, ref, watch} from "vue";
 import {useDisplay} from "vuetify";
 import MenuElements from "@/model/MenuElements.js";
 import {fetchElements} from "@/services/menuEditService.js";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
+import SubCategory from "@/model/SubCategory.js";
 
 const props = defineProps({
   handleSubmit: {
     type: Function,
     required: true
   },
+  subCategory: {
+    type: SubCategory,
+    required: false,
+  }
 });
-
-const isLoading = ref(true);
-
 const snackbarError = ref(false);
 const errorText = ref("");
 
@@ -25,15 +27,24 @@ const name = ref("");
 const selectedCategory = ref(null);
 const parentCategoryId = ref(-1);
 
-onBeforeMount(async () => {
+onUpdated(async () => {
   try {
     categories.value = await fetchElements(MenuElements.CATEGORY);
-    isLoading.value = false;
+    if (props.subCategory) {
+      selectedCategory.value = categories.value.find((x) => x["id"] === props.subCategory.categoryId);
+    }
   } catch (e) {
     errorText.value = e.message;
     snackbarError.value = true;
   }
 });
+
+watch(() => props.subCategory, (newSubCategory) => {
+  if (newSubCategory) {
+    name.value = newSubCategory.name;
+    selectedCategory.value = categories.value.find((x) => x["id"] === newSubCategory.categoryId);
+  }
+}, {immediate: true});
 
 watch(selectedCategory, (newValue) => {
   parentCategoryId.value = newValue.id;
@@ -81,7 +92,7 @@ const submitForm = async () => {
               rounded="xl"/>
     <div class="flex justify-center">
       <v-btn type="submit" color="primary" rounded="xl" :size="isMobile ? 'default' : 'large'">
-        <div class="justify-start font-semibold">Ajouter</div>
+        <div class="justify-start font-semibold">Valider</div>
       </v-btn>
     </div>
   </v-form>

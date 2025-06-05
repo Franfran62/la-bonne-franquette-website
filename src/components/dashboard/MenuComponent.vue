@@ -11,7 +11,7 @@ import AlertDeleteDialog from "@/components/dialogs/AlertDeleteDialog.vue";
 import SuccessInfo from "@/components/snackbars/SuccessInfo.vue";
 import AddToRestaurantDialog from "@/components/dialogs/AddToRestaurantDialog.vue";
 import HintInfo from "@/components/snackbars/HintInfo.vue";
-
+import MenuEditComponent from "@/components/dashboard/MenuEditComponent.vue";
 
 const isLoading = ref(true);
 
@@ -29,6 +29,7 @@ const {xs, sm} = useDisplay();
 const isMobile = computed(() => xs.value || sm.value);
 const selectedMenuElement = ref(MenuElements.CATEGORY);
 const selectedElement = ref(null);
+const selectedElementToDelete = ref(null);
 
 const elements = ref([]);
 
@@ -49,42 +50,53 @@ const onRefresh = async () => {
 
 watch(selectedMenuElement, (newV) => {
   onRefresh();
+  selectedElement.value = null;
 })
 
+watch(selectedElement, (newV, oldV) => {
+})
 const onDelete = (elementToDelete) => {
   if (!elementToDelete) {
     infoText.value = "Sélectionner un élément pour le supprimer.";
     snackbarInfo.value = true;
     return;
   }
-  selectedElement.value = elementToDelete;
+  selectedElementToDelete.value = elementToDelete;
   deleteConfirmDialog.value = true;
 }
 
 const updateDelete = async (result) => {
   if (!result) {
-    selectedElement.value = null;
+    selectedElementToDelete.value = null;
     return (deleteConfirmDialog.value = false);
   }
   try {
-    const response = await deleteElement(selectedMenuElement.value, selectedElement.value);
+    const response = await deleteElement(selectedMenuElement.value, selectedElementToDelete.value);
     if (response.status !== 200) throw new Error(response.message);
     succesText.value = response.data["Response"];
     snackbarSuccess.value = true;
-    selectedElement.value = null;
+    selectedElementToDelete.value = null;
     await onRefresh();
   } catch (e) {
     errorText.value = e.message;
     snackbarError.value = true;
-    selectedElement.value = null;
+    selectedElementToDelete.value = null;
   } finally {
     deleteConfirmDialog.value = false;
-    selectedElement.value = null;
+    selectedElementToDelete.value = null;
   }
 };
 
-const onSelect = () => {
-
+const onSelect = (newElement) => {
+  if (selectedElement.value === null) {
+    selectedElement.value = newElement;
+  } else {
+    if (newElement !== selectedElement.value) {
+      selectedElement.value = newElement;
+    } else {
+      selectedElement.value = null;
+    }
+  }
 }
 
 const showAddToRestaurantDialog = () => {
@@ -92,8 +104,17 @@ const showAddToRestaurantDialog = () => {
 }
 
 const updateCreation = async (result) => {
-  if(result) await onRefresh();
+  if (result) {
+    await onRefresh();
+  }
   return (creationDialog.value = false);
+}
+
+const updateModification = async (result) => {
+  if (result) {
+    selectedElement.value = null;
+    await onRefresh();
+  }
 }
 
 </script>
@@ -130,7 +151,7 @@ const updateCreation = async (result) => {
                       variant="outlined" density="compact" color="primary"
                       rounded="xl" class="input-spacing"/>
             <span>
-              <v-btn base-color="success"variant="text" icon="mdi-plus"
+              <v-btn base-color="success" variant="text" icon="mdi-plus"
                      @click="showAddToRestaurantDialog">
             </v-btn>
             <v-btn @click="onRefresh" icon="mdi-refresh" variant="text"></v-btn>
@@ -143,6 +164,8 @@ const updateCreation = async (result) => {
 
       <v-card :width="isMobile ? 400 : 700" variant="text"
               :class="{'px-8': !isMobile, 'flex justify-center': isMobile }">
+        <MenuEditComponent :selectedElementType="selectedMenuElement" :element="selectedElement"
+                           @result="updateModification"/>
       </v-card>
     </div>
 
@@ -153,8 +176,8 @@ const updateCreation = async (result) => {
   <HintInfo :text="infoText" :enable="snackbarInfo" @onClose="(v) => snackbarInfo = v"/>
   <AlertDeleteDialog :title="'Vous allez supprimer quelque chose.'"
                      :body="(selectedMenuElement === MenuElements.CATEGORY) ?
-                     `Vous êtes sur le point de supprimer ${ selectedElement?.name }. Supprimer une catégorie entrainera la suppression de toutes ses sous-catégories, êtes-vous sûr ?` :
-                     `Vous êtes sur le point de supprimer ${ selectedElement?.name }, êtes-vous sûr ?`"
+                     `Vous êtes sur le point de supprimer ${ selectedElementToDelete?.name }. Supprimer une catégorie entrainera la suppression de toutes ses sous-catégories, êtes-vous sûr ?` :
+                     `Vous êtes sur le point de supprimer ${ selectedElementToDelete?.name }, êtes-vous sûr ?`"
                      :enable="deleteConfirmDialog"
                      @result="updateDelete"/>
   <AddToRestaurantDialog :enable="creationDialog" @result="updateCreation"/>

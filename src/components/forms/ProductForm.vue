@@ -1,17 +1,22 @@
 <script setup>
-import {computed, onBeforeMount, ref, watch} from "vue";
+import {computed, onUpdated, ref, watch} from "vue";
 import {useDisplay} from "vuetify";
 import MenuElements from "@/model/MenuElements.js";
 import {fetchElements} from "@/services/menuEditService.js";
 import ErrorInfo from "@/components/snackbars/ErrorInfo.vue";
 import VATRate, {getMultFromVAT} from "@/model/VATRate.js";
 import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
+import Product from "@/model/Product.js";
 
 const props = defineProps({
   handleSubmit: {
     type: Function,
     required: true
   },
+  product: {
+    type: Product,
+    required: false,
+  }
 });
 
 const isLoading = ref(true);
@@ -31,7 +36,7 @@ const price = ref(0.00);
 const totalPrice = ref(0.00);
 const selectedVATRate = ref(VATRate.AUCUN);
 
-onBeforeMount(async () => {
+onUpdated(async () => {
   try {
     const fetchedIngredients = await fetchElements(MenuElements.INGREDIENT);
     const fetchedAddons = await fetchElements(MenuElements.ADDON);
@@ -46,13 +51,24 @@ onBeforeMount(async () => {
     if (fetchCategories.length !== 0) {
       categories.value = [{name: "Tout sélectionner", isSelectAll: true}, ...fetchCategories];
     }
-    isLoading.value = false;
   } catch (e) {
     errorText.value = e.message;
     snackbarError.value = true;
   }
+  isLoading.value = false;
 });
 
+watch(() => props.product, (newProduct) => {
+  if (newProduct) {
+    name.value = newProduct.name;
+    selectedVATRate.value = VATRate[newProduct.vatrate];
+    price.value = newProduct.price / 100;
+    totalPrice.value = newProduct.totalPrice / 100
+    selectedCategories.value = newProduct.categories;
+    selectedIngredients.value = newProduct.ingredients;
+    selectedAddons.value = newProduct.addons;
+  }
+}, {immediate: true});
 
 watch(selectedIngredients, (newValue) => {
   const selectAll = newValue.find(item => item.isSelectAll);
@@ -86,12 +102,17 @@ watch(selectedVATRate, (newValue) => {
   totalPrice.value = Number((price.value * getMultFromVAT(newValue)).toFixed(2));
 });
 
+const formatPrice = (value) => {
+  if (value === null || value === undefined || isNaN(value)) return "0,00";
+  return Number(value).toFixed(2).replace('.', ',');
+};
+
 const submitForm = async () => {
   try {
     await props.handleSubmit({
       name: name.value,
-      prixHT: Number((price.value * 100).toFixed(2)),
-      tauxTVA: price.value === 0 ? VATRate.AUCUN : getEnumKeyByValue(VATRate, selectedVATRate.value),
+      price: Number((price.value * 100).toFixed(2)),
+      vatrate: price.value === 0 ? VATRate.AUCUN : getEnumKeyByValue(VATRate, selectedVATRate.value),
       addons: selectedAddons.value,
       ingredients: selectedIngredients.value,
       categories: selectedCategories.value,
@@ -168,7 +189,7 @@ const submitForm = async () => {
                     :min="0.00"
                     :step="0.01"
                     :rules="[v => v >= 0 || 'Le prix est nécessaire']"
-                    :formatter="v => Number(v).toFixed(2)"
+                    :formatter="formatPrice"
                     variant="outlined"
                     required
                     rounded="xl"
@@ -180,7 +201,7 @@ const submitForm = async () => {
                     label="Prix TTC"
                     :min="0.00"
                     :step="0.01"
-                    :formatter="v => Number(v).toFixed(2)"
+                    :formatter="formatPrice"
                     variant="outlined"
                     readonly
                     rounded="xl"
@@ -201,7 +222,7 @@ const submitForm = async () => {
               rounded="xl"/>
     <div class="flex justify-center">
       <v-btn type="submit" color="primary" rounded="xl" :size="isMobile ? 'default' : 'large'">
-        <div class="justify-start font-semibold">Ajouter</div>
+        <div class="justify-start font-semibold">Valider</div>
       </v-btn>
     </div>
   </v-form>
