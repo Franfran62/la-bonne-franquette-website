@@ -39,7 +39,6 @@ const login = async (username, password) => {
 const register = async (username, restaurantName, password) => {
     try {
         const response = await _register(username, restaurantName, password);
-        console.log(response);
         if (response.status === 200) {
             return await login(username, password);
         } else {

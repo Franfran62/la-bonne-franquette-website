@@ -62,8 +62,6 @@ const onDelete = (elementToDelete) => {
     return;
   }
   selectedElementToDelete.value = elementToDelete;
-  console.log(elementToDelete);
-  console.log(selectedElementToDelete.value)
   deleteConfirmDialog.value = true;
 }
 

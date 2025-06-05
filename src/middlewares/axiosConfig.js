@@ -41,6 +41,10 @@ axiosInstance.interceptors.request.use(
             config.headers["Auth-Token"] = authToken;
         }
 
+        if (refreshToken) {
+            config.headers["Refresh-Token"] = refreshToken;
+        }
+
         return config;
     },
     (error) => {
