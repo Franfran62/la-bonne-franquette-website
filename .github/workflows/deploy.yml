@@ -7,8 +7,9 @@ permissions:
 
 on:
   push:
-    branches:
-      - deploy
+    tags:
+      - '**'
+  workflow_dispatch:
 
 jobs:
   release-build-and-push:
