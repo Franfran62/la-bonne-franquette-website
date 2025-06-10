@@ -3,10 +3,8 @@ import axios from "axios";
 import router from "@/router";
 
 
-const apiURL = import.meta.env.VITE_API_URL;
-
 const axiosInstance = axios.create({
-    baseURL: `${apiURL}/api/v1`,
+    baseURL: `/api/v1`,
     headers: {
         "Content-Type": "application/json",
     },
