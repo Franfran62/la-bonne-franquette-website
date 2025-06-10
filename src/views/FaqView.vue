@@ -36,14 +36,12 @@ listereponses.value = [
         Foire aux questions
       </h2>
       <div v-for="(question, index) in listeQuestions">
-        <p>
         <h2 class="text-xl sm:text-2xl sm:leading-none color-primary lato-regular font-bold">
           {{ question }}
         </h2>
         <div class="text-lg sm:text-xl sm:leading-none pt-1 pb-4">
           {{ listereponses[index] }}
         </div>
-        </p>
       </div>
       <div class="mt-16 flex flex-col gap-10 md:flex-row">
         <div>

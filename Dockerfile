@@ -1,11 +1,16 @@
-FROM node:latest as build-stage
+# 1) Build
+FROM node:23.11.1-alpine3.21 AS builder
 WORKDIR /app
+
 COPY package*.json ./
-RUN npm install
-COPY ./ .
+RUN npm ci
+
+COPY . .
 RUN npm run build
 
-FROM nginx as production-stage
-RUN mkdir /app
-COPY --from=build-stage /app/dist /app
-COPY nginx.conf /etc/nginx/nginx.conf
+# 2) Runtime
+FROM nginx:1.28.0-alpine-slim 
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
