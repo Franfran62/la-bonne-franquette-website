@@ -14,9 +14,8 @@ defineProps({
   },
 });
 
-const {xs, sm} = useDisplay();
-
-const isMobile = computed(() => xs.value || sm.value);
+const {xs, sm, md} = useDisplay();
+const isMobile = computed(() => xs.value || sm.value || md.value);
 </script>
 
 <template>

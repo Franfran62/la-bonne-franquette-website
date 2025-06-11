@@ -15,13 +15,12 @@ const props = defineProps({
   }
 });
 
-const isLoading = ref(true);
-const {xs, sm} = useDisplay();
 const snackbarError = ref(false);
 const errorText = ref("");
 
 const valid = ref(false);
-const isMobile = computed(() => xs.value || sm.value);
+const {xs, sm, md} = useDisplay();
+const isMobile = computed(() => xs.value || sm.value || md.value);
 const name = ref("");
 
 watch(() => props.ingredient, (newIngredient) => {

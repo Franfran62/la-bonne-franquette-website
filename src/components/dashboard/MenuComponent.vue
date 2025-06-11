@@ -25,8 +25,8 @@ const errorText = ref("");
 const succesText = ref("");
 const infoText = ref("");
 
-const {xs, sm} = useDisplay();
-const isMobile = computed(() => xs.value || sm.value);
+const {xs, sm, md} = useDisplay();
+const isMobile = computed(() => xs.value || sm.value || md.value);
 const selectedMenuElement = ref(MenuElements.CATEGORY);
 const selectedElement = ref(null);
 const selectedElementToDelete = ref(null);

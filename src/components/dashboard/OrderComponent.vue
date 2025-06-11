@@ -26,11 +26,11 @@ const selectedDateRange = ref(DateRange.ALL);
 
 const orders = ref([]);
 const selectedOrder = ref(null);
-const {xs, sm} = useDisplay();
+const {xs, sm, md} = useDisplay();
+const isMobile = computed(() => xs.value || sm.value || md.value);
 const products = ref([])
 const payments = ref([])
 const menus = ref([])
-const isMobile = computed(() => xs.value || sm.value);
 
 watch(selectedOrder, (newValue) => {
   if (!newValue) {

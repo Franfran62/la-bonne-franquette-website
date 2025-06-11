@@ -28,10 +28,10 @@ const users = ref([]);
 const selectedUser = ref(null);
 const formTitle = ref("Ajouter un nouveau membre");
 const buttonTitle = ref("Ajouter");
-const {xs, sm, md, lg, xl} = useDisplay();
 const isLoading = ref(true);
 
-const isMobile = computed(() => xs.value || sm.value);
+const {xs, sm, md} = useDisplay();
+const isMobile = computed(() => xs.value || sm.value || md.value);
 
 const availableRoles = [
   {value: "ROLE_USER", name: "Utilisateur"},

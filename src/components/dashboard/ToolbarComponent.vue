@@ -5,9 +5,9 @@ import {useDisplay} from "vuetify";
 
 const router = useRouter();
 
-const {xs} = useDisplay();
+const {xs, sm, md} = useDisplay();
+const isMobile = computed(() => xs.value || sm.value || md.value);
 
-const isMobile = computed(() => xs.value);
 const drawer = ref(false);
 
 const emits = defineEmits(['setComponent']);

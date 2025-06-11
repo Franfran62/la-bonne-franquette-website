@@ -14,12 +14,11 @@ const props = defineProps({
     required: false
   }
 });
-const isLoading = ref(true);
-const {xs, sm} = useDisplay();
+const {xs, sm, md} = useDisplay();
+const isMobile = computed(() => xs.value || sm.value || md.value);
 const snackbarError = ref(false);
 const errorText = ref("");
 const valid = ref(false);
-const isMobile = computed(() => xs.value || sm.value);
 const name = ref("");
 
 

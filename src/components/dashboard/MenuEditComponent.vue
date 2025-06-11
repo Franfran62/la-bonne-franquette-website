@@ -51,8 +51,8 @@ watch(() => props.element, () => {
   checkCategoryType();
 });
 
-const {xs, sm} = useDisplay();
-const isMobile = computed(() => xs.value || sm.value);
+const {xs, sm, md} = useDisplay();
+const isMobile = computed(() => xs.value || sm.value || md.value);
 const elementType = ref(null);
 
 const snackbarError = ref(false);
@@ -86,12 +86,12 @@ const handleSubmit = async (data) => {
 
   <div v-if="props.element === null">
     <v-card-title :class="{'text-center': isMobile}"><span
-        class="text-xl">Sélectionner un élément pour le modifier</span></v-card-title>
+        class="text-xl text-wrap">Sélectionner un élément pour le modifier</span></v-card-title>
   </div>
   <div v-else>
     <div v-if="elementType === MenuElements.CATEGORY">
       <v-card-title :class="{'text-center': isMobile}"><span
-          class="text-xl">Modification d'une catégorie</span></v-card-title>
+          class="text-xl text-wrap">Modification d'une catégorie</span></v-card-title>
       <div :class="{'my-9 mx-2': !isMobile, 'my-2 mx-2': isMobile}">
         <CategoryForm
             :handle-submit="handleSubmit"
@@ -104,7 +104,7 @@ const handleSubmit = async (data) => {
     </div>
     <div v-else-if="elementType === MenuElements.SUBCATEGORY">
       <v-card-title :class="{'text-center': isMobile}"><span
-          class="text-xl">Modification d'une sous-catégorie</span></v-card-title>
+          class="text-xl text-wrap">Modification d'une sous-catégorie</span></v-card-title>
       <div :class="{'my-9 mx-2': !isMobile, 'my-2 mx-2': isMobile}">
         <SubCategoryForm
             :handle-submit="handleSubmit"
@@ -118,7 +118,7 @@ const handleSubmit = async (data) => {
     </div>
     <div v-else-if="elementType === MenuElements.ADDON">
       <v-card-title :class="{'text-center': isMobile}"><span
-          class="text-xl">Modification d'un extra</span></v-card-title>
+          class="text-xl text-wrap">Modification d'un extra</span></v-card-title>
       <div :class="{'my-9 mx-2': !isMobile, 'my-2 mx-2': isMobile}">
         <AddonForm
             :handle-submit="handleSubmit"
@@ -132,7 +132,7 @@ const handleSubmit = async (data) => {
     </div>
     <div v-else-if="elementType === MenuElements.INGREDIENT">
       <v-card-title :class="{'text-center': isMobile}"><span
-          class="text-xl">Modification d'un ingrédient</span></v-card-title>
+          class="text-xl text-wrap">Modification d'un ingrédient</span></v-card-title>
       <div :class="{'my-9 mx-2': !isMobile, 'my-2 mx-2': isMobile}">
         <IngredientForm
             :handle-submit="handleSubmit"
@@ -143,7 +143,7 @@ const handleSubmit = async (data) => {
     </div>
     <div v-else-if="elementType === MenuElements.PRODUCT">
       <v-card-title :class="{'text-center': isMobile}"><span
-          class="text-xl">Modification d'un produit</span></v-card-title>
+          class="text-xl etxt-wrap">Modification d'un produit</span></v-card-title>
       <div :class="{'my-9 mx-2': !isMobile, 'my-2 mx-2': isMobile}">
         <ProductForm
             :handle-submit="handleSubmit"
@@ -161,7 +161,7 @@ const handleSubmit = async (data) => {
     </div>
     <div v-else-if="elementType === MenuElements.MENU">
       <v-card-title :class="{'text-center': isMobile}"><span
-          class="text-xl">Modification d'un menu</span></v-card-title>
+          class="text-xl text-wrap">Modification d'un menu</span></v-card-title>
       <div :class="{'my-9 mx-2': !isMobile, 'my-2 mx-2': isMobile}">
         <MenuForm
             :handle-submit="handleSubmit"

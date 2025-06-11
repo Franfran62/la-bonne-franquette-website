@@ -22,9 +22,9 @@ const props = defineProps({
 const isLoading = ref(true);
 const snackbarError = ref(false);
 const errorText = ref("");
-const {xs, sm} = useDisplay();
 const valid = ref(false);
-const isMobile = computed(() => xs.value || sm.value);
+const {xs, sm, md} = useDisplay();
+const isMobile = computed(() => xs.value || sm.value || md.value);
 const ingredients = ref([]);
 const addons = ref([]);
 const categories = ref([]);
