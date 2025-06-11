@@ -2,9 +2,10 @@ import {useAuthTokenStore, useRefreshTokenStore} from "@/stores/authToken";
 import axios from "axios";
 import router from "@/router";
 
+const apiURL = import.meta.env.VITE_API_URL !== null ? `${import.meta.env.VITE_API_URL}/api/v1` : 'https://labonnefranquette.fun/api/v1';
 
 const axiosInstance = axios.create({
-    baseURL: `/api/v1`,
+    baseURL: apiURL,
     headers: {
         "Content-Type": "application/json",
     },
