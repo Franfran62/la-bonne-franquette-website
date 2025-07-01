@@ -10,6 +10,7 @@ import MenuItem from "@/model/MenuItem.js";
 import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
 import PaymentType from "@/model/PaymentType";
 
+//Fonction pour séparer les catégories des sous-catégories
 const getCategories = (data) => {
     const categories = [];
     const subCategories = [];
@@ -23,6 +24,7 @@ const getCategories = (data) => {
     return categories.concat(subCategories);
 };
 
+//Nettoie le corps d'une requête pour ne pas avoir de récursion infinie
 const cleanData = (data) => {
     const seen = new WeakSet();
     return JSON.stringify(data, (key, value) => {
