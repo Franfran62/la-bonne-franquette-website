@@ -60,6 +60,9 @@ const toggleDrawer = () => {
       <v-btn color="secondary" text @click="setComponent('TeamComponent')">
         <span :class="textDecoration('TeamComponent')">Modifier l'équipe</span>
       </v-btn>
+      <v-btn color="secondary" text @click="setComponent('RestaurantComponent')">
+        <span :class="textDecoration('RestaurantComponent')">Gérer le restaurant</span>
+      </v-btn>
     </template>
     <template v-else>
       <v-btn icon="mdi-menu" @click="toggleDrawer" color="white"></v-btn>
