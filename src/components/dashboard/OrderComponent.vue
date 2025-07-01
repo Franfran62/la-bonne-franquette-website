@@ -56,20 +56,43 @@ const getWeekNumber = (date) => {
   return Math.ceil(pastDaysOfYear / 7);
 }
 
+const isSameDay = (date1, date2) =>
+    date1.getDate() === date2.getDate() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getFullYear() === date2.getFullYear();
+
+const isSameMonth = (date1, date2) =>
+    date1.getMonth() === date2.getMonth() &&
+    date1.getFullYear() === date2.getFullYear();
+
 const onFilter = computed(() => {
-  switch (selectedDateRange.value) {
-    case DateRange.ALL : return orders.value;
-    case DateRange.TODAY : return orders.value.filter(order => (order.creationDate.getDate() === today.getDate() && order.creationDate.getMonth() === today.getMonth() && order.creationDate.getFullYear() === today.getFullYear()));
-    case DateRange.WEEK : return orders.value.filter(order => (getWeekNumber(order.creationDate) === getWeekNumber(today)));
-    case DateRange.MONTH : return orders.value.filter(order => (order.creationDate.getMonth() === today.getMonth() && order.creationDate.getFullYear() === today.getFullYear()));
-    case DateRange.YEAR : return orders.value.filter(order => (order.creationDate.getFullYear() === today.getFullYear()));
-  }
-})
+  const filters = {
+    [DateRange.ALL]: () => orders.value,
+    [DateRange.TODAY]: () => orders.value.filter(order => isSameDay(order.creationDate, today)),
+    [DateRange.WEEK]: () => orders.value.filter(order => getWeekNumber(order.creationDate) === getWeekNumber(today)),
+    [DateRange.MONTH]: () => orders.value.filter(order => isSameMonth(order.creationDate, today)),
+    [DateRange.YEAR]: () => orders.value.filter(order => order.creationDate.getFullYear() === today.getFullYear()),
+  };
+  return filters[selectedDateRange.value]();
+});
+
 
 const refreshOrders = async () => {
   try {
     const response = await fetchOrders();
-    orders.value = response.data.map(order => new Order(order.id, order.number, order.totalPrice, order.dineIn, order.status, order.paymentType, new Date(order.creationDate), order.deliveryDate ? new Date(order.deliveryDate) : null, order.articles, order.totalItems, order.menus, order.payments, order.paid));
+    orders.value = response.data.map(order => new Order(
+        order.id,
+        order.number,
+        order.totalPrice,
+        order.dineIn,
+        order.status,
+        order.paymentType,
+        new Date(order.creationDate), order.deliveryDate ? new Date(order.deliveryDate) : null,
+        order.articles,
+        order.totalItems,
+        order.menus,
+        order.payments,
+        order.paid));
     selectedOrder.value = null;
     isLoading.value = false;
   } catch (e) {
@@ -86,7 +109,10 @@ const handleSelectOrder = (order) => {
   selectedOrder.value = order;
 }
 
-const orderDisplayTitle = computed(() => (selectedOrder === null || selectedOrder.value === null) ? "Aucune commande sélectionnée" : "Commande n°"+selectedOrder.value.getNumeroToString()+" du "+selectedOrder.value.getDateSaisieToString());
+const orderDisplayTitle = computed(
+    () => (selectedOrder === null || selectedOrder.value === null)
+        ? "Aucune commande sélectionnée"
+        : "Commande n°" + selectedOrder.value.getNumeroToString() + " du " + selectedOrder.value.getDateSaisieToString());
 
 </script>
 
@@ -122,7 +148,7 @@ const orderDisplayTitle = computed(() => (selectedOrder === null || selectedOrde
                       rounded="xl" class="input-spacing"/>
             <v-btn @click="refreshOrders" icon="mdi-refresh" variant="text"></v-btn>
           </v-card-actions>
-          <OrderListComponent :on-filter="() => onFilter" :on-select="handleSelectOrder" :on-delete="() => {}"/>
+          <OrderListComponent :on-filter="() => onFilter" :on-select="handleSelectOrder"/>
         </div>
       </v-card>
 

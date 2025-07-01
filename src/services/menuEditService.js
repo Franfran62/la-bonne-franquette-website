@@ -9,6 +9,7 @@ import Menu from "@/model/Menu.js";
 import MenuItem from "@/model/MenuItem.js";
 import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
 
+//Fonction pour séparer les catégories des sous-catégories
 const getCategories = (data) => {
     const categories = [];
     const subCategories = [];
@@ -22,6 +23,7 @@ const getCategories = (data) => {
     return categories.concat(subCategories);
 };
 
+//Nettoie le corps d'une requête pour ne pas avoir de récursion infinie
 const cleanData = (data) => {
     const seen = new WeakSet();
     return JSON.stringify(data, (key, value) => {
@@ -33,6 +35,31 @@ const cleanData = (data) => {
         }
         return value;
     });
+}
+
+const createNewElement = async (type, payload) => {
+    const data = cleanData(payload);
+    if (type === MenuElements.SUBCATEGORY) {
+        return post("category/sub", data);
+    } else {
+        const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
+        return post(key, data);
+    }
+}
+
+const updateElement = async (type, payload) => {
+    const data = cleanData(payload);
+    if (type === MenuElements.SUBCATEGORY) {
+        return put("category/sub", data);
+    } else {
+        const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
+        return put(key, data);
+    }
+}
+
+const deleteElement = async (type, element) => {
+    const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
+    return remove(key, element.id);
 }
 
 const fetchElements = async (type) => {
@@ -107,28 +134,4 @@ const fetchElements = async (type) => {
     }
 };
 
-const createNewElement = async (type, payload) => {
-    const data = cleanData(payload);
-    if (type === MenuElements.SUBCATEGORY) {
-        return post("category/sub", data);
-    } else {
-        const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
-        return post(key, data);
-    }
-}
-
-const updateElement = async (type, payload) => {
-    const data = cleanData(payload);
-    if (type === MenuElements.SUBCATEGORY) {
-        return put("category/sub", data);
-    } else {
-        const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
-        return put(key, data);
-    }
-}
-
-const deleteElement = async (type, element) => {
-    const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
-    return remove(key, element.id);
-}
 export {fetchElements, deleteElement, createNewElement, updateElement};

@@ -158,7 +158,17 @@ const updateModification = async (result) => {
             </span>
 
           </v-card-actions>
-          <MenuEditListComponent :elements="elements" :on-select="onSelect" :on-delete="onDelete"/>
+          <div v-if="selectedMenuElement === MenuElements.CATEGORY">
+            <div> Catégories :</div>
+            <MenuEditListComponent :elements="elements.filter((v) => v['categoryType'] === 'category')"
+                                   :on-select="onSelect" :on-delete="onDelete"/>
+            <div>Sous-catégories :</div>
+            <MenuEditListComponent :elements="elements.filter((v) => v['categoryType'] === 'sub-category')"
+                                   :on-select="onSelect" :on-delete="onDelete"/>
+          </div>
+          <div v-else>
+            <MenuEditListComponent :elements="elements" :on-select="onSelect" :on-delete="onDelete"/>
+          </div>
         </div>
       </v-card>
 
