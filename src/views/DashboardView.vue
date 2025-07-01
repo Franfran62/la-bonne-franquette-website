@@ -4,6 +4,7 @@ import {ref} from "vue";
 import OrderComponent from "@/components/dashboard/OrderComponent.vue";
 import MenuComponent from "@/components/dashboard/MenuComponent.vue";
 import TeamComponent from "@/components/dashboard/TeamComponent.vue";
+import RestaurantComponent from "@/components/dashboard/RestaurantComponent.vue";
 
 const currentComponent = ref('CommandComponent');
 
@@ -11,6 +12,7 @@ const components = {
   CommandComponent: OrderComponent,
   MenuComponent,
   TeamComponent,
+  RestaurantComponent,
 }
 
 const setComponent = (component) => {

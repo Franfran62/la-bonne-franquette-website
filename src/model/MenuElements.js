@@ -5,6 +5,7 @@ const MenuElements = Object.freeze({
     INGREDIENT: "Ingrédients",
     PRODUCT: "Produits",
     MENU: "Menus",
+    PAYMENT_TYPE: "Types de paiements",
 });
 
 export default MenuElements;
