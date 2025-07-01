@@ -82,6 +82,9 @@ const toggleDrawer = () => {
       <v-list-item link base-color="secondary" @click="setComponent('TeamComponent')">
         <span :class="textDecoration('TeamComponent')">Modifier l'équipe</span>
       </v-list-item>
+      <v-list-item link base-color="secondary" @click="setComponent('RestaurantComponent')">
+        <span :class="textDecoration('RestaurantComponent')">Gérer le restaurant</span>
+      </v-list-item>
     </v-navigation-drawer>
   </div>
 
