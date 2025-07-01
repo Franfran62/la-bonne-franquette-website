@@ -8,6 +8,7 @@ import Product from "@/model/Product.js";
 import Menu from "@/model/Menu.js";
 import MenuItem from "@/model/MenuItem.js";
 import {getEnumKeyByValue} from "@/helpers/enumuHelpers.js";
+import PaymentType from "@/model/PaymentType";
 
 const getCategories = (data) => {
     const categories = [];
@@ -40,6 +41,8 @@ const fetchElements = async (type) => {
     let key;
     if (type === MenuElements.SUBCATEGORY) {
         key = "category";
+    } else if (type === MenuElements.PAYMENT_TYPE) {
+        key = "payment/type";
     } else {
         key = getEnumKeyByValue(MenuElements, type).toLowerCase();
     }
@@ -101,6 +104,12 @@ const fetchElements = async (type) => {
                 });
                 return result;
             }
+            case MenuElements.PAYMENT_TYPE: {
+                response.data.map(e => {
+                    result.push(new PaymentType(e["id"], e["name"], e["isEnable"]));
+                });
+                return result;
+            }
         }
     } catch (e) {
         throw new Error(e);
@@ -111,6 +120,9 @@ const createNewElement = async (type, payload) => {
     const data = cleanData(payload);
     if (type === MenuElements.SUBCATEGORY) {
         return post("category/sub", data);
+    } else if (type == MenuElements.PAYMENT_TYPE) {
+        const key = "payment/type";
+        return post(key, data);
     } else {
         const key = getEnumKeyByValue(MenuElements, type).toLowerCase();
         return post(key, data);

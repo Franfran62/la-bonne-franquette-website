@@ -7,11 +7,11 @@ const props = defineProps({
   },
   onSelect: {
     type: Function,
-    required: true,
+    required: false,
   },
   onDelete: {
     type: Function,
-    required: true,
+    required: false,
   }
 });
 </script>
@@ -33,8 +33,8 @@ const props = defineProps({
       <v-list-item-title class="flex justify-space-between">
         {{ element.name }}
         <span>
-          <v-icon v-if="element.categories?.length <= 0" color="white" variant="text" icon="mdi-alert"/>
-          <v-icon color="white" variant="text" icon="mdi-delete" @click="onDelete(element)"/>
+          <v-icon v-if="onDelete && element.categories?.length <= 0" color="white" variant="text" icon="mdi-alert"/>
+          <v-icon v-if="onDelete" color="white" variant="text" icon="mdi-delete" @click="onDelete(element)"/>
         </span>
       </v-list-item-title>
     </v-list-item>
