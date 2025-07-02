@@ -83,7 +83,6 @@ const handleSubmit = async (data) => {
 </script>
 
 <template>
-
   <div v-if="props.element === null">
     <v-card-title :class="{'text-center': isMobile}"><span
         class="text-xl text-wrap">Sélectionner un élément pour le modifier</span></v-card-title>
