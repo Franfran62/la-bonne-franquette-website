@@ -14,7 +14,6 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
-        console.log(error);
         if (error.code === "ERR_NETWORK" || error.status === 599 || error.response.status === 599) {
             error = "Impossible de contacter le serveur, réessayez plus tard."
         } else if (error.code === "ERR_CONNECTION_REFUSED" || error.status === 401 || (error.response && error.response.status === 401)) {
