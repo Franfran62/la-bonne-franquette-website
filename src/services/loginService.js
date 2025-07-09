@@ -32,7 +32,7 @@ const login = async (username, password) => {
         refreshTokenStore.token = response.data["refreshToken"];
         return response;
     } catch (error) {
-            throw new Error(error);
+            throw error;
     }
 };
 
@@ -45,7 +45,7 @@ const register = async (username, restaurantName, password) => {
             return {status: response.status, message: response.data["Erreur"]};
         }
     } catch (error) {
-            throw new Error(error);
+            throw error;
     }
 };
 

@@ -30,20 +30,20 @@ axiosInstance.interceptors.response.use(
                 const response = await post("auth/refresh", {
                     refreshToken: refreshToken,
                 });
-                useAuthTokenStore().token = response.data.accessToken;
-                originalRequest.headers["Auth-Token"] = response.data.accessToken;
-                return axiosInstance(originalRequest);
+                if (response && response.data && response.data.accessToken) {
+                    useAuthTokenStore().token = response.data.accessToken;
+                    originalRequest.headers["Auth-Token"] = response.data.accessToken;
+                    return axiosInstance(originalRequest);
+                } else {
+                    throw new Error("No accessToken in refresh response");
+                }
             } catch (refreshError) {
                 useAuthTokenStore().token = "";
                 useRefreshTokenStore().token = "";
                 router.push({ name: "connexion" });
                 return Promise.reject(refreshError);
             }
-        } else if (
-            error.code === "ERR_NETWORK" ||
-            error.status === 599 ||
-            error.response.status === 599
-        ) {
+        } else if (error.response && error.response.status === 599) {
             error = "Impossible de contacter le serveur, réessayez plus tard.";
         } else if (error.status >= 500 || error.response.status >= 500) {
             error = "Oups, une erreur est survenue, réessayez plus tard.";
