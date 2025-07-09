@@ -9,8 +9,8 @@ import Product from "@/model/Product.js";
 import Menu from "@/model/Menu.js";
 import MenuItem from "@/model/MenuItem.js";
 import PaymentType from "@/model/PaymentType";
-const { fetch, post, put, remove } = require("@/services/axiosService.js");
-const { getEnumKeyByValue } = require("@/helpers/enumHelpers.js");
+import { fetch, post, put, remove } from "@/services/axiosService.js";
+import { getEnumKeyByValue } from "@/helpers/enumHelpers.js";
 
 // Mock dependencies
 vi.mock("@/services/axiosService.js", () => ({
@@ -210,7 +210,8 @@ describe("menuEditService", () => {
             await menuEditService.createNewElement(MenuElements.ADDON, {
                 foo: "bar",
             });
-            expect(post).toHaveBeenCalledWith("addon", expect.any(String));
+            
+            expect(post).toHaveBeenCalledWith("extras", expect.any(String));
         });
     });
 
@@ -231,7 +232,7 @@ describe("menuEditService", () => {
             await menuEditService.updateElement(MenuElements.ADDON, {
                 foo: "bar",
             });
-            expect(put).toHaveBeenCalledWith("addon", expect.any(String));
+            expect(put).toHaveBeenCalledWith("extras", expect.any(String));
         });
     });
 
@@ -239,7 +240,7 @@ describe("menuEditService", () => {
         it("calls remove with correct key and id", async () => {
             remove.mockResolvedValueOnce({ status: 204 });
             await menuEditService.deleteElement(MenuElements.ADDON, { id: 42 });
-            expect(remove).toHaveBeenCalledWith("addon", 42);
+            expect(remove).toHaveBeenCalledWith("extras", 42);
         });
     });
 });

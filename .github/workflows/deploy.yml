@@ -31,6 +31,7 @@ jobs:
       - name: Run unit tests
         run: npx vitest run
   release-build-and-push:
+    needs: test
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.set_tag.outputs.image_tag }}
