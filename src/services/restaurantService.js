@@ -7,7 +7,7 @@ const getRestauratnName = async () => {
             return response.data.name;
         }
     } catch (error) {
-        throw new Error(error);
+        throw error;
     }
 };
 
@@ -17,7 +17,7 @@ const editRestaurantName = async (newName) => {
             newRestaurantName: newName,
         });
     } catch (error) {
-        throw new Error(error);
+        throw error;
     }
 };
 

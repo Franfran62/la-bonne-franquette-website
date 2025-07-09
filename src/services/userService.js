@@ -4,8 +4,8 @@ import {fetch, post, put, remove} from "@/services/axiosService.js";
 const fetchUsers = async () => {
     try {
         return fetch("user");
-    } catch (e) {
-        throw new Error(e);
+    } catch (error) {
+        throw error;
     }
 }
 
@@ -17,7 +17,7 @@ const createUser = async (username, password, role) => {
             role: role,
         })
     } catch (error) {
-            throw new Error(error);
+            throw error;
     }
 }
 
@@ -35,7 +35,7 @@ const updateUser = async (username, password, role, oldUsername, oldPassword) =>
 
         return await put("user",data);
     } catch (error) {
-            throw new Error(error);
+            throw error;
 
     }
 }
@@ -44,7 +44,7 @@ const deleteUser = async (username) => {
     try {
         return await remove("user", username);
     } catch (error) {
-            throw new Error(error);
+            throw error;
 
     }
 }
