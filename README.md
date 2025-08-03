@@ -1,13 +1,10 @@
 # La bonne Franquette
 
-Bienvenue sur notre siteweb, wahou !
+Site vitrine et dashboard de La bonne Franquette.
 
-## Getting started
+## Les autres dépôts:
 
-First terminal (boot appli) :
-npm install
-npm run dev
-
-Second Terminal (build tailwind) : 
-npx tailwindcss -i ./src/assets/tailwind.css -o ./src/assets/tailwind.css --watch
-
+* [L'application mobile](https://github.com/Franfran62/la-bonne-franquette-appli)
+* [L'API REST](https://github.com/iDrack/la-bonne-franquette-back)
+* [Le dashboard](https://github.com/Franfran62/la-bonne-franquette-website)
+* [La gestion de l'infrastructure](https://github.com/Franfran62/la-bonne-franquette-infra)
